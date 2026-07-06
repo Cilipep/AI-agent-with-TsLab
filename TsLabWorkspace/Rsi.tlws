@@ -6,7 +6,7 @@
 	<TabControl>
 		<Index>0</Index>
 		<TabItems>
-			<TabItem Title="Лист1" IsHeadersVisible="true" ActiveId="Wine7cda5f3-366a-488a-a557-6a03ce1495d6" ActiveTag="">
+			<TabItem Title="Лист1" IsHeadersVisible="true" ActiveId="Winc55e39be-7109-47b0-a5ce-4f0908eabbc0" ActiveTag="">
 				<DockingContent>
 					<TabContent Version="1.0">
 						<contents>
@@ -720,21 +720,6 @@
 									</AppearanceProperties>
 								</XmlContentControl>
 							</content>
-							<content serializationId="Win5f1f0304-573a-44de-91c6-df8f579d2087" type="TSLab.LabView.LabControl, TSLab.LabView, Version=3.0.3.1142, Culture=neutral, PublicKeyToken=null" version="1.1" key="1054513862">
-								<LabControl ScriptId="b8ca87c9-0702-42b7-b801-5280b51bf544"><AppearanceProperties><FontInfo>false</FontInfo><GraphFontInfo>false</GraphFontInfo><LogMessagesLimit>1000</LogMessagesLimit><IsAutoSaveEnabled>false</IsAutoSaveEnabled><AutoSaveInterval>5</AutoSaveInterval></AppearanceProperties></LabControl>
-							</content>
-							<content serializationId="Win800950b2-7db5-4204-854b-3245a3e61ba6" type="TSLab.LabView.LabControl, TSLab.LabView, Version=3.0.3.1142, Culture=neutral, PublicKeyToken=null" version="1.1" key="-872640622">
-								<LabControl ScriptId="8eb5c5ae-ef06-4728-96d8-1787ac7d7685"><AppearanceProperties><FontInfo>false</FontInfo><GraphFontInfo>false</GraphFontInfo><LogMessagesLimit>1000</LogMessagesLimit><IsAutoSaveEnabled>false</IsAutoSaveEnabled><AutoSaveInterval>5</AutoSaveInterval></AppearanceProperties></LabControl>
-							</content>
-							<content serializationId="Win6bf77f37-d10d-41ed-8276-5ff1f8d69e1f" type="TSLab.LabView.LabControl, TSLab.LabView, Version=3.0.3.1142, Culture=neutral, PublicKeyToken=null" version="1.1" key="-689082566">
-								<LabControl ScriptId="d37a8d4c-a76d-43f3-81bf-57879afa33c1"><AppearanceProperties><FontInfo>false</FontInfo><GraphFontInfo>false</GraphFontInfo><LogMessagesLimit>1000</LogMessagesLimit><IsAutoSaveEnabled>false</IsAutoSaveEnabled><AutoSaveInterval>5</AutoSaveInterval></AppearanceProperties></LabControl>
-							</content>
-							<content serializationId="Winf7d27c45-3d8f-4883-80f7-d6ce2ce7d752" type="TSLab.LabView.LabControl, TSLab.LabView, Version=3.0.3.1142, Culture=neutral, PublicKeyToken=null" version="1.1" key="-1443716572">
-								<LabControl ScriptId="17e617a0-34fa-4cf0-9e3b-0ef2e0baea00"><AppearanceProperties><FontInfo>false</FontInfo><GraphFontInfo>false</GraphFontInfo><LogMessagesLimit>1000</LogMessagesLimit><IsAutoSaveEnabled>false</IsAutoSaveEnabled><AutoSaveInterval>5</AutoSaveInterval></AppearanceProperties></LabControl>
-							</content>
-							<content serializationId="Wine7cda5f3-366a-488a-a557-6a03ce1495d6" type="TSLab.LabView.LabControl, TSLab.LabView, Version=3.0.3.1142, Culture=neutral, PublicKeyToken=null" version="1.1" key="-194946482">
-								<LabControl ScriptId="ebaa605f-3433-4170-87a7-3a77a5a98129"><AppearanceProperties><FontInfo>false</FontInfo><GraphFontInfo>false</GraphFontInfo><LogMessagesLimit>1000</LogMessagesLimit><IsAutoSaveEnabled>false</IsAutoSaveEnabled><AutoSaveInterval>5</AutoSaveInterval></AppearanceProperties></LabControl>
-							</content>
 						</contents>
 						<layout>
 							<DockSiteLayout SerializationFormat="All" Version="2">
@@ -742,15 +727,10 @@
 								<Content xsi:type="SplitContainer" Orientation="Horizontal" DockedSize="1920,878">
 									<UIElement xsi:type="Workspace">
 										<Content xsi:type="TabbedMdiHost">
-											<Content xsi:type="TabbedMdiContainer" DockedSize="1718,200" SelectedWindowUniqueId="a911838a-d9b1-44a3-b39f-e5635d448b66">
+											<Content xsi:type="TabbedMdiContainer" DockedSize="1718,200" SelectedWindowUniqueId="46902998-4054-4e3d-9d6a-94647f016c1d">
 												<UIElement xsi:type="ToolWindowRef" UniqueId="46902998-4054-4e3d-9d6a-94647f016c1d" />
 												<UIElement xsi:type="ToolWindowRef" UniqueId="a1438f05-5a21-4740-b2d3-993721914ecf" />
 												<UIElement xsi:type="ToolWindowRef" UniqueId="536c6f26-ee10-4bae-a174-78e69ce0581e" />
-												<UIElement xsi:type="ToolWindowRef" UniqueId="7ed66a95-0511-4373-84a2-29e3e605320f" />
-												<UIElement xsi:type="ToolWindowRef" UniqueId="d0bb7278-3ed1-4a79-a8c4-fe6d6fd3c38c" />
-												<UIElement xsi:type="ToolWindowRef" UniqueId="092c2613-6af1-4132-80bc-67d8a0c5e0f0" />
-												<UIElement xsi:type="ToolWindowRef" UniqueId="d78bde1a-7312-4f96-bf2f-2e6097146321" />
-												<UIElement xsi:type="ToolWindowRef" UniqueId="a911838a-d9b1-44a3-b39f-e5635d448b66" />
 											</Content>
 										</Content>
 									</UIElement>
@@ -763,31 +743,11 @@
 									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
 										<UIElement xsi:type="Track" CreationDateTime="2026-07-04T02:57:17.108335+03:00" UniqueId="536c6f26-ee10-4bae-a174-78e69ce0581e" />
 									</UIElement>
-									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
-										<UIElement xsi:type="Track" CreationDateTime="2026-07-05T23:38:56.8862504+03:00" UniqueId="7ed66a95-0511-4373-84a2-29e3e605320f" />
-									</UIElement>
-									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
-										<UIElement xsi:type="Track" CreationDateTime="2026-07-05T23:47:10.5498616+03:00" UniqueId="d0bb7278-3ed1-4a79-a8c4-fe6d6fd3c38c" />
-									</UIElement>
-									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
-										<UIElement xsi:type="Track" CreationDateTime="2026-07-05T23:54:33.7337742+03:00" UniqueId="092c2613-6af1-4132-80bc-67d8a0c5e0f0" />
-									</UIElement>
-									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
-										<UIElement xsi:type="Track" CreationDateTime="2026-07-06T00:17:47.4290999+03:00" UniqueId="d78bde1a-7312-4f96-bf2f-2e6097146321" />
-									</UIElement>
-									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
-										<UIElement xsi:type="Track" CreationDateTime="2026-07-06T00:38:13.6444204+03:00" UniqueId="a911838a-d9b1-44a3-b39f-e5635d448b66" />
-									</UIElement>
 								</Content>
 								<ToolWindows>
-									<ToolWindow UniqueId="46902998-4054-4e3d-9d6a-94647f016c1d" SerializationId="Winc55e39be-7109-47b0-a5ce-4f0908eabbc0" Name="pane0" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-06T00:29:45.8026987+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
+									<ToolWindow UniqueId="46902998-4054-4e3d-9d6a-94647f016c1d" SerializationId="Winc55e39be-7109-47b0-a5ce-4f0908eabbc0" Name="pane0" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-06T18:56:57.6202419+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
 									<ToolWindow UniqueId="a1438f05-5a21-4740-b2d3-993721914ecf" SerializationId="Wind98c7991-13ae-407d-afcc-47e548c4a5f2" Name="pane1" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-05T23:40:25.007211+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
 									<ToolWindow UniqueId="536c6f26-ee10-4bae-a174-78e69ce0581e" SerializationId="Wind15ce188-c798-4a5d-b611-d877b0f247c8" Name="pane2" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-05T23:40:27.0066834+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
-									<ToolWindow UniqueId="7ed66a95-0511-4373-84a2-29e3e605320f" SerializationId="Win5f1f0304-573a-44de-91c6-df8f579d2087" Name="pane3" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-05T23:41:37.4682882+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
-									<ToolWindow UniqueId="d0bb7278-3ed1-4a79-a8c4-fe6d6fd3c38c" SerializationId="Win800950b2-7db5-4204-854b-3245a3e61ba6" Name="pane4" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-05T23:47:10.5538491+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
-									<ToolWindow UniqueId="092c2613-6af1-4132-80bc-67d8a0c5e0f0" SerializationId="Win6bf77f37-d10d-41ed-8276-5ff1f8d69e1f" Name="pane5" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-05T23:54:33.7359544+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
-									<ToolWindow UniqueId="d78bde1a-7312-4f96-bf2f-2e6097146321" SerializationId="Winf7d27c45-3d8f-4883-80f7-d6ce2ce7d752" Name="pane6" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-06T00:30:23.9370189+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
-									<ToolWindow UniqueId="a911838a-d9b1-44a3-b39f-e5635d448b66" SerializationId="Wine7cda5f3-366a-488a-a557-6a03ce1495d6" Name="pane7" ContainerDockedSize="1718,200" IsOpen="true" LastActiveDateTime="2026-07-06T00:38:13.6521386+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
 								</ToolWindows>
 							</DockSiteLayout>
 						</layout>

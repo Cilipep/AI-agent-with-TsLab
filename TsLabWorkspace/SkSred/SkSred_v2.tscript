@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExportScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Code><![CDATA[<?xml version="1.0" encoding="utf-16"?>
+<GraphDataBase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="GraphViewData" Version="1.2">
+  <EditData VersionString="2.3" TemplateClass="Script">
+    <ViewModel>
+      <Model Scale="1">
+        <Block Key="Src" TypeName="TradableSecuritySourceItem" Category="TradableSecurity" Location="150 200">
+          <EditItem Guid="76539C97-8071-41CA-88B6-043DCFD45B72" CodeName="Src" IsParametersVisible="true" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Pane Key="pane_price" Category="GraphPane" Location="150 200" Order="0" IsVisible="true" />
+        <GraphLink From="Src" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartCandleLink">
+          <Data>
+            <GraphData ListStyle="LINE" CandleStyle="BAR_CANDLE" LineStyle="SOLID" Color="255" AltColor="255" Opacity="0" HideLastValue="false" Thickness="1" PaneSide="RIGHT" Visible="true" ShowTrades="true" ShowPositionStop="true" ShowPositionText="true" ShowPositionIcon="true" />
+          </Data>
+        </GraphLink>
+        <Block Key="Close1" TypeName="Close" Location="300 160">
+          <EditItem Guid="F5556A08-2527-472A-962F-C8B8AE62D5BF" CodeName="Close1" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.Close, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="SMA1" TypeName="ConverterItem" Category="Indicators" Location="450 100">
+          <EditItem Guid="2F709024-8461-46D4-9D5C-12F011BEB90A" CodeName="SMA1" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.SMA, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Period" Value="5" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="SMA2" TypeName="ConverterItem" Category="Indicators" Location="450 200">
+          <EditItem Guid="2DE26012-79CB-4FA9-9969-BE46AC4825AA" CodeName="SMA2" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.SMA, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="GoldenCross" TypeName="BoolCustomHandlerItem" Location="650 100">
+          <EditItem Guid="80C72A9B-D53B-4AA9-8D76-E988C9EAF9DC" CodeName="GoldenCross" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.BoolCustomHandlerItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Expression" Value="SMA1 &gt; SMA2 and SMA1[-1] &lt;= SMA2[-1]" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="DeathCross" TypeName="BoolCustomHandlerItem" Location="650 200">
+          <EditItem Guid="BF74FD72-1846-4EAB-93C4-FB8C743F178C" CodeName="DeathCross" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.BoolCustomHandlerItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Expression" Value="SMA1 &lt; SMA2 and SMA1[-1] &gt;= SMA2[-1]" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="Commission" TypeName="ConverterItem" Category="Commission" Location="300 300">
+          <EditItem Guid="23E7C9A0-C5A8-4FA8-8D8B-EB9AE0DE13D9" CodeName="Commission" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="CommissionPct" Value="0.05" />
+              <Parameter Name="MarginPct" Value="10" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="OpenLong" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="850 100">
+          <EditItem Guid="4EE55A86-5F29-41B7-BF0D-BA35D9CDBE83" CodeName="OpenLong" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true">
+            <Parameters>
+              <Parameter Name="Shares" Value="1" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="CloseLong" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="1050 100">
+          <EditItem Guid="2C9C802C-5EC0-4A05-B4CE-5D9CADB284D4" CodeName="CloseLong" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Block Key="Src1" TypeName="TradableSecuritySourceItem" Location="100 450">
+          <EditItem Guid="40580378-BDF0-4FA5-90E2-FD45B4544C1E" CodeName="Src1" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.TradableSecuritySourceItem, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="Close2" TypeName="Close" Location="300 450">
+          <EditItem Guid="9FBE43F2-92F8-4E94-A943-C823A6163BF8" CodeName="Close2" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.Close, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="SMA1_1" TypeName="ConverterItem" Category="Indicators" Location="450 400">
+          <EditItem Guid="FCD70329-EA39-4C0D-A717-B09F9A3AACDA" CodeName="SMA1_1" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.SMA, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Period" Value="5" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="SMA2_1" TypeName="ConverterItem" Category="Indicators" Location="450 500">
+          <EditItem Guid="1D642250-FA05-49A3-B43F-93517ED5AA79" CodeName="SMA2_1" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.SMA, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="GoldenCross_1" TypeName="BoolCustomHandlerItem" Location="650 400">
+          <EditItem Guid="6F25AC8D-91F5-486A-A6F8-897E931BD537" CodeName="GoldenCross_1" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.BoolCustomHandlerItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Expression" Value="SMA1_1 &gt; SMA2_1 and SMA1_1[-1] &lt;= SMA2_1[-1]" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="DeathCross_1" TypeName="BoolCustomHandlerItem" Location="650 500">
+          <EditItem Guid="B2284825-417E-433D-A87E-2F5CD1D73E64" CodeName="DeathCross_1" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.BoolCustomHandlerItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="Expression" Value="SMA1_1 &lt; SMA2_1 and SMA1_1[-1] &gt;= SMA2_1[-1]" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="Commission1" TypeName="ConverterItem" Category="Commission" Location="300 550">
+          <EditItem Guid="72975B6F-5B97-4DAC-8B09-84CFA2B1B8BC" CodeName="Commission1" IsParametersVisible="true" HandlerTypeName="TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false">
+            <Parameters>
+              <Parameter Name="CommissionPct" Value="0.05" />
+              <Parameter Name="MarginPct" Value="10" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="OpenLong_1" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="850 400">
+          <EditItem Guid="8A623572-5616-4B68-AC0E-134FF5E9AB74" CodeName="OpenLong_1" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true">
+            <Parameters>
+              <Parameter Name="Shares" Value="1" />
+            </Parameters>
+          </EditItem>
+        </Block>
+        <Block Key="CloseLong_1" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="1050 400">
+          <EditItem Guid="6EE5A55B-FAA7-4703-9496-32F4AFA610B9" CodeName="CloseLong_1" IsParametersVisible="true" HandlerTypeName="TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Link From="Src" To="Close1" FromPort="Out" ToPortNum="0" ToPort="SECURITYSource" />
+        <Link From="Src" To="Commission" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Src" To="OpenLong" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Close1" To="SMA1" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="Close1" To="SMA2" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA1" To="GoldenCross" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA2" To="GoldenCross" FromPort="Out" ToPortNum="1" ToPort="Input1" />
+        <Link From="SMA1" To="DeathCross" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA2" To="DeathCross" FromPort="Out" ToPortNum="1" ToPort="Input1" />
+        <Link From="GoldenCross" To="OpenLong" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="DeathCross" To="CloseLong" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="OpenLong" To="CloseLong" FromPort="Out" ToPortNum="0" ToPort="Pos" />
+        <Link From="Src1" To="Close2" FromPort="Out" ToPortNum="0" ToPort="SECURITYSource" />
+        <Link From="Src1" To="Commission1" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Src1" To="OpenLong_1" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Close2" To="SMA1_1" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="Close2" To="SMA2_1" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA1_1" To="GoldenCross_1" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA2_1" To="GoldenCross_1" FromPort="Out" ToPortNum="1" ToPort="Input1" />
+        <Link From="SMA1_1" To="DeathCross_1" FromPort="Out" ToPortNum="0" ToPort="Input0" />
+        <Link From="SMA2_1" To="DeathCross_1" FromPort="Out" ToPortNum="1" ToPort="Input1" />
+        <Link From="GoldenCross_1" To="OpenLong_1" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="DeathCross_1" To="CloseLong_1" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="OpenLong_1" To="CloseLong_1" FromPort="Out" ToPortNum="0" ToPort="Pos" />
+        <Pane Key="pane_sma2" Category="GraphPane" Location="400 40" Order="1" IsVisible="true" />
+        <GraphLink From="SMA2" To="pane_sma2" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+          <Data>
+            <GraphData ListStyle="LINE" LineStyle="SOLID" Color="-16744193" AltColor="-16744193" Opacity="0" HideLastValue="false" Thickness="2" AltThickness="2" PaneSide="RIGHT" Visible="true" Autoscaling="true">
+              <Points />
+            </GraphData>
+          </Data>
+        </GraphLink>
+        <Pane Key="pane_sma2_1" Category="GraphPane" Location="660 40" Order="2" IsVisible="true" />
+        <GraphLink From="SMA2_1" To="pane_sma2_1" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+          <Data>
+            <GraphData ListStyle="LINE" LineStyle="SOLID" Color="-16744193" AltColor="-16744193" Opacity="0" HideLastValue="false" Thickness="2" AltThickness="2" PaneSide="RIGHT" Visible="true" Autoscaling="true">
+              <Points />
+            </GraphData>
+          </Data>
+        </GraphLink>
+      </Model>
+    </ViewModel>
+  </EditData>
+  <Id>7e75ffac-dbb2-4123-bcae-4d98edc5b611</Id>
+  <Options xsi:type="LabOptions">
+    <BarSizes />
+    <PaneSizes />
+    <Indent>0</Indent>
+    <BarsIndent>0</BarsIndent>
+    <HideValues>false</HideValues>
+    <LegendTransparency>0</LegendTransparency>
+    <TimeScale>Adaptive</TimeScale>
+    <GroupTrades>true</GroupTrades>
+    <LegendForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </LegendForegroundColor>
+    <ChartBackgroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartBackgroundColor>
+    <ChartForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartForegroundColor>
+    <ChartGridColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartGridColor>
+    <ChartBorderColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartBorderColor>
+    <ChartRulerBackgroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartRulerBackgroundColor>
+    <ChartRulerForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartRulerForegroundColor>
+    <IntervalBase>MINUTE</IntervalBase>
+    <Interval>60</Interval>
+    <GraphListVisibilities />
+    <VerticalScales />
+    <RecalcInterval>INTERVAL</RecalcInterval>
+    <DateFrom>2026-04-30T00:00:00</DateFrom>
+    <UseDateFrom>true</UseDateFrom>
+    <DateTo>2026-06-29T00:00:00</DateTo>
+    <UseDateTo>true</UseDateTo>
+    <DateReload>2026-07-04T00:00:00+03:00</DateReload>
+    <UseDateReload>true</UseDateReload>
+    <MaxDays>0</MaxDays>
+    <SessionBegin>2000-01-01T00:00:00</SessionBegin>
+    <SessionEnd>2000-01-01T00:00:00</SessionEnd>
+    <SessionRmHolidays>false</SessionRmHolidays>
+    <DecompressMethod>Method1</DecompressMethod>
+    <MaxCandels>0</MaxCandels>
+    <RtUpdates>false</RtUpdates>
+    <CalcForEachSecurity>false</CalcForEachSecurity>
+    <ScriptKillTimeout>0</ScriptKillTimeout>
+    <TradeFromBar>0</TradeFromBar>
+    <IsSplittedProfitByInstruments>true</IsSplittedProfitByInstruments>
+    <NotUsePositions>false</NotUsePositions>
+    <UseMultiOrders>false</UseMultiOrders>
+    <InitDeposit>10000</InitDeposit>
+    <LabCalcType>Default</LabCalcType>
+    <TradeMode>All</TradeMode>
+    <IsShowedBlockNumbers>false</IsShowedBlockNumbers>
+    <LimitOrderExecutionMode>Touch</LimitOrderExecutionMode>
+    <DisableFixPrices>false</DisableFixPrices>
+  </Options>
+  <Mappings>
+    <Sources>
+      <Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="DOGEUSD_PERP" Name="76539C97-8071-41CA-88B6-043DCFD45B72" Name2="Src" VisualTypeName="Tradable instrument" IsOption="false">
+        <Records />
+      </Source>
+      <Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="NEARUSD_PERP" Name="40580378-BDF0-4FA5-90E2-FD45B4544C1E" Name2="Src1" VisualTypeName="Tradable instrument" IsOption="false">
+        <Records />
+      </Source>
+    </Sources>
+    <Parameters>
+      <Parameter xsi:type="IntOptimData" ItemName="2F709024-8461-46D4-9D5C-12F011BEB90A" BlockName="SMA1" Name="Period" InvariantName="Period" CodeName="SMA1_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="20" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin xsi:nil="true" />
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+      <Parameter xsi:type="IntOptimData" ItemName="2DE26012-79CB-4FA9-9969-BE46AC4825AA" BlockName="SMA2" Name="Period" InvariantName="Period" CodeName="SMA2_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="20" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin xsi:nil="true" />
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+      <Parameter xsi:type="OptimData" ItemName="23E7C9A0-C5A8-4FA8-8D8B-EB9AE0DE13D9" BlockName="Commission" Name="CommissionPct" InvariantName="CommissionPct" CodeName="Commission_CommissionPct" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="0.05" MinValue="0.05" MaxValue="0.1" Step="0.01" ControlMinValue="0.05" ControlMaxValue="0.1" ControlStep="0.01" NumberDecimalDigits="1" />
+      <Parameter xsi:type="OptimData" ItemName="23E7C9A0-C5A8-4FA8-8D8B-EB9AE0DE13D9" BlockName="Commission" Name="MarginPct" InvariantName="MarginPct" CodeName="Commission_MarginPct" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="10" MinValue="0" MaxValue="100" Step="1" ControlMinValue="0" ControlMaxValue="100" ControlStep="1" NumberDecimalDigits="1" />
+      <Parameter xsi:type="IntOptimData" ItemName="FCD70329-EA39-4C0D-A717-B09F9A3AACDA" BlockName="SMA1_1" Name="Period" InvariantName="Period" CodeName="SMA1_1_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="20" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin xsi:nil="true" />
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+      <Parameter xsi:type="IntOptimData" ItemName="1D642250-FA05-49A3-B43F-93517ED5AA79" BlockName="SMA2_1" Name="Period" InvariantName="Period" CodeName="SMA2_1_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="20" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin xsi:nil="true" />
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+    </Parameters>
+    <ParameterGroups />
+    <AutoParameters />
+  </Mappings>
+  <OptimizationMethodTypeName />
+  <Iterations>100</Iterations>
+  <IterationsPrc>100</IterationsPrc>
+  <IsIterationsPrc>false</IsIterationsPrc>
+  <OptParametersRecords />
+  <OptParametersRecordsFolders />
+  <OptParameters />
+  <LastLoadedId />
+</GraphDataBase>]]></Code>
+  <Settings2><![CDATA[{"Options":{"DefEntryApprove":false,"DefExitApprove":false,"AutoEntryBars":0,"AutoEntryIgnoreByMarketAsLimit":false,"AutoCloseBars":0,"AutoCloseIgnoreByMarketAsLimit":false,"AutoFixDoubleExit":false,"Slippage":0,"SlippagePct":0.0,"TakeProfitNoSlippage":false,"OpenPositionNoSlippage":false,"ByMarketAsLimt":false,"InvalidStopsByMarket":false,"OrderExpirationDays":2,"RemoveInactivePositions":true,"WarnSkippedOpenPositions":true,"NotOpenIfHasSkippedExit":false,"NoCalcInfo":false,"MaxBarsForSignal":0,"ExitSignalOnlyForLastBar":false,"ChangeSignalOnlyForLastBar":false,"WaitExecutionExitBars":0,"WaitExecutionEntryBars":0,"SimulatePositionOrdering":true,"UseCommissionInProfit":true,"MaxDays":0,"MaxCandels":0,"StopIfTimeout":false,"EventOrderRejected":false,"EventOrderFilled":false,"EventOrderCanceled":false,"EventOrderQtyChanged":false,"EventPositionOpening":false,"EventPositionClosing":false,"EventTradingIsStarted":true,"EventTradingIsStopped":false,"EventBarClosedNoTrades":true,"EventPretradeLimitation":false},"AppearanceOptions":{"BarSizes":[],"PaneSizes":[],"GraphListVisibilities":[],"VerticalScales":[]},"Layout":null,"AppProperties":{},"AppearanceSettings":{"ShowLinks":true,"IsAutoSaveEnabled":false,"AutoSaveInterval":5,"LogMessagesLimit":1000,"FontInfo":"false","SelectedLinkColor":"#FFFFFF00","GraphFontInfo":"false"}}]]></Settings2>
+  <Comment><![CDATA[]]></Comment>
+  <Tags />
+  <CreationData>2026-07-04 04:18:38</CreationData>
+  <ModificationData>2026-07-04 05:45:38</ModificationData>
+</ExportScriptData>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TSLab API: Optimization"
+  short_description: "Run optimization jobs via Web API"
+  default_prompt: "Use $tslab-api-optimization to configure ranges, start an optimization job, monitor it, and fetch Top-K results."

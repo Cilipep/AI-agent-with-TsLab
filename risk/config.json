@@ -1,0 +1,97 @@
+{
+  "risk_management": {
+    "position_sizing": {
+      "method": "kelly",
+      "kelly_fraction": 0.25,
+      "risk_per_trade_pct": 1,
+      "max_position_pct": 20,
+      "max_leverage": 3
+    },
+    "stop_loss": {
+      "enabled": true,
+      "method": "atr",
+      "atr_period": 14,
+      "atr_multiplier": 2,
+      "fixed_stop_pct": 2,
+      "trailing_stop": {
+        "enabled": true,
+        "trail_pct": 1.5,
+        "activation_pct": 1
+      }
+    },
+    "take_profit": {
+      "enabled": true,
+      "method": "risk_reward",
+      "risk_reward_ratio": 2,
+      "fixed_tp_pct": 4
+    },
+    "drawdown_limits": {
+      "max_drawdown_pct": 20,
+      "warning_drawdown_pct": 15,
+      "daily_loss_limit_pct": 5,
+      "weekly_loss_limit_pct": 10,
+      "circuit_breaker": {
+        "enabled": true,
+        "auto_stop": false,
+        "cooldown_minutes": 60
+      }
+    },
+    "volatility_adjustment": {
+      "enabled": true,
+      "base_volatility": 0.02,
+      "adjustment_factor": 1.5,
+      "max_volatility": 0.05
+    },
+    "correlation_limits": {
+      "max_correlation": 0.7,
+      "diversification_required": true
+    }
+  },
+  "sizing_methods": {
+    "kelly": {
+      "description": "Kelly Criterion position sizing",
+      "formula": "kelly% = win_rate - (1-win_rate)/avg_win_loss",
+      "recommended_fraction": 0.25,
+      "use_cases": ["trend_following", "momentum"]
+    },
+    "atr": {
+      "description": "ATR-based position sizing",
+      "formula": "size = risk_per_trade / (ATR * point_value)",
+      "recommended_risk_pct": 1,
+      "use_cases": ["all_strategies"]
+    },
+    "fixed_fractional": {
+      "description": "Fixed fractional position sizing",
+      "formula": "size = risk_pct / stop_loss_pct",
+      "recommended_risk_pct": 2,
+      "use_cases": ["mean_reversion", "grid"]
+    },
+    "volatility_adjusted": {
+      "description": "Volatility-adjusted position sizing",
+      "formula": "size = target_risk * (base_vol / current_vol)",
+      "use_cases": ["multi_instrument", "portfolio"]
+    }
+  },
+  "alerts": {
+    "methods": ["console", "file", "log"],
+    "default_method": "console",
+    "log_file": "./risk_alerts.log",
+    "levels": ["INFO", "WARNING", "CRITICAL"]
+  },
+  "monitoring": {
+    "check_interval_seconds": 60,
+    "metrics_endpoints": [
+      "/api/scripts/{name}/metrics-summary",
+      "/api/scripts/{name}/performance",
+      "/api/scripts/{name}/positions"
+    ],
+    "auto_refresh": true
+  },
+  "backtesting": {
+    "initial_capital": 10000,
+    "commission_pct": 0.1,
+    "slippage_pct": 0.05,
+    "position_sizing_in_backtest": true,
+    "risk_per_trade_in_backtest": 1
+  }
+}

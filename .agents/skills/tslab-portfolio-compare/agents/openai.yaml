@@ -1,0 +1,4 @@
+interface:
+  display_name: "TSLab Portfolio: Compare"
+  short_description: "Clone a portfolio and compare runs"
+  default_prompt: "Use $tslab-portfolio-compare to clone a portfolio, update its scripts, run baseline and candidate jobs, and compare supported results."

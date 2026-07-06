@@ -1,0 +1,25 @@
+# Graph Ops Contract
+
+- `/ops` accepts canonical mutation names such as `AddBlock`, `Connect`, `ConnectByInputName`, `Disconnect`, `SetParam`, `SetSourceMapping`, `AddPane`, `AddGraphLink`, `AddControlPane`, `AddControlLink`, `UpdateControlPane`, `SetOptimizationRange`, and `SetBlockLocation`.
+- Do not invent pseudo-ops or macros such as `AddLink`, `AddTradeBlock`, `AddEntry`, `AddExit`, `AddIndicator`, generic `Add`, or `AddParameter`.
+- Send a top-level JSON object shaped like `{ "ops": [ ... ] }`.
+- Keep canonical structural fields at the op root: `blockId`, `typeName`, `blockType`, `category`, `position`, `fromBlockId`, `fromPort`, `toBlockId`, `toPort`, and `toInputName`.
+- Do not replace those fields with aliases such as `from`, `to`, `block`, `key`, `fromBlock`, `toBlock`, `handlerType`, `handlerTypeName`, `blockKey`, or `toPortNum`.
+- For `Connect` / `ConnectByInputName`, use `fromBlockId`, `toBlockId`, `fromPort`, `toPort`, and `toInputName`; do not rename semantic ports to synonyms such as `Source`, `Condition`, `Price`, `Vol`, `Volume`, or `Position`.
+- For `AddBlock`, keep structural keys such as `blockId`, `typeName`, `blockType`, `category`, and `position` at the op root. Do not persist the raw family name as `blockType` instead of a container with `HandlerTypeName` when the live contract shows the correct shape.
+- If `visualName` is omitted on `AddBlock`, Web API persists `VisualName` from the final `CodeName`, matching desktop behavior. Send `visualName` only when a different human display caption is intentional.
+- For handler or template-backed blocks, reuse the live `suggestedAddBlockOp` / `canonicalAddBlockOp`. Do not hand-author a generic `ConverterItem` plus `handlerTypeName` and expect it to bind.
+- `SetParam` uses `paramName`. `SetOptimizationRange` uses `paramInvariantName`, `optimDataType`, optional `value`, `min`, `max`, `step`, and `usedInOptimization`; copy `suggestedSetOptimizationRangeOp` when available. Do not write `SetOptimizationRange` examples with `paramName`, `parameterCodeName`, `optimMinValue`, `optimMaxValue`, or `optimStep`.
+- Treat `Input0`, `Input1`, ... as slot metadata. A contract exposing only generic inputs is not proof of semantic ports like `Price`, `Volume`, `Commission`, `Shares`, `Pos`, or `SECURITYSource`.
+- For `BoolCustomHandlerItem` / `DoubleCustomHandlerItem` expressions, default to stable upstream `blockId` / `codeName` references. Use `Input0`, `Input1`, or similar generic aliases only after the current host or current artifact has proved that exact executable expression syntax.
+- `Shares` must be a real numeric graph input on the trade block. Do not treat `SetParam` on the trade block, an unconnected formula, or a formula connected only by generic slot labels as a valid position-size implementation.
+- Prefer `GET /api/template-blocks/{typeName}` or one filtered `GET /api/template-blocks?query=...&top=20` first for trade/order families. Do not spend that first scaffold turn on unfiltered `GET /api/handlers`.
+- Do not spend more than 3 handler reads before the first real mutation.
+- Do not treat a near-match template as an exact match.
+- If `readBudgetBeforeMutation`, `primaryMutationObjectives[]`, or `preferredDiscoveryRoutes[]` are present, follow them literally. That budget is literal and optional; if the prompt, local source notes, or `preferredMutationFamilies[]` already make the starter family clear enough, skip the lookup and send the first `/ops` batch now.
+- `requiredBlockTypes` belong to `POST /api/scripts/{name}/intent-check`, not to `POST /api/scripts/{name}/run`.
+- Do not reopen `AGENTS-FastPath.md`, `AGENTS-ScriptEditing.md`, or local skill cards before the first real scaffold `/ops` batch. Use the three-family cap before the first `/ops` batch, and do not let the three-family cap drift back into source or indicator families.
+- If you do use the single allowed lookup, it must target a starter trade family.
+- Do not spend that lookup on source or indicator families such as `Close`, `Open`, `High`, `Low`, `StDev`, `EMA`, `Highest`, `Lowest`, `Bollinger*`, `ConstGen`, `Multiply`, `Less*`, or `Greater*`.
+- If `requiredNextMutationRoute` points to a repair wrapper, that wrapper itself needs no handcrafted repair file.
+- If a failed `/ops` response says `applied=false`, do not assume any op in that batch committed and do not start a clean-slate rebuild.

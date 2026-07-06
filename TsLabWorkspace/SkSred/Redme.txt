@@ -1,0 +1,15 @@
+## Файлы сохранены в `TsLabWorkspace/SkSred/`
+
+| Файл | Описание |
+|------|----------|
+| `skred_backtest_v4.py` | Основной бэктест v4 (EMA, ATR, Trailing) |
+| `skred_optimize_periods.py` | Оптимизатор периодов SMA |
+| `skred_near_leveraged.py` | Бэктест NEAR с плечом |
+| `skred_xlm_backtest.py` | Бэктест XLM (оптимизированный) |
+| `download_binance_data.py` | Загрузчик данных с Binance |
+| `SkSred_Report.docx` | Оригинальный отчет |
+| `SkSred_v4_Report.docx` | Отчет по v4 |
+| `ENHANCEMENT_SUMMARY.md` | Сводка улучшений |
+| `strategy_logic.md` | Описание стратегии |
+
+Все скрипты готовы к запуску.

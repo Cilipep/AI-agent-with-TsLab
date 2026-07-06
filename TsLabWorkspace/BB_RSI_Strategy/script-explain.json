@@ -1,0 +1,267 @@
+﻿{
+    "success":  true,
+    "message":  "Script summary for \u0027BB_RSI_Strategy\u0027: 25 blocks, 48 links",
+    "data":  {
+                 "scriptName":  "BB_RSI_Strategy",
+                 "blockCount":  25,
+                 "linkCount":  48,
+                 "isCompact":  false,
+                 "blocks":  [
+                                {
+                                    "id":  "Src",
+                                    "name":  "Src",
+                                    "codeName":  "Src",
+                                    "blockType":  "TradableSecuritySourceItem",
+                                    "handlerType":  null,
+                                    "handlerTypeName":  null,
+                                    "category":  "TradableSecurity"
+                                },
+                                {
+                                    "id":  "BB_Upper",
+                                    "name":  "BB_Upper",
+                                    "codeName":  "BB_Upper",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "BollingerBands1",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.BollingerBands1, TSLab.Script.Handlers",
+                                    "category":  "Indicators"
+                                },
+                                {
+                                    "id":  "BB_Lower",
+                                    "name":  "BB_Lower",
+                                    "codeName":  "BB_Lower",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "BollingerBands2",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.BollingerBands2, TSLab.Script.Handlers",
+                                    "category":  "Indicators"
+                                },
+                                {
+                                    "id":  "BB_Middle",
+                                    "name":  "BB_Middle",
+                                    "codeName":  "BB_Middle",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "SMA",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.SMA, TSLab.Script.Handlers",
+                                    "category":  "Indicators"
+                                },
+                                {
+                                    "id":  "RSI_Indicator",
+                                    "name":  "RSI_Indicator",
+                                    "codeName":  "RSI_Indicator",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "RSI",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.RSI, TSLab.Script.Handlers",
+                                    "category":  "Indicators"
+                                },
+                                {
+                                    "id":  "ClosePrice",
+                                    "name":  "ClosePrice",
+                                    "codeName":  "ClosePrice",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "Close",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.Close, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "LowPrice",
+                                    "name":  "LowPrice",
+                                    "codeName":  "LowPrice",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "Low",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.Low, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "HighPrice",
+                                    "name":  "HighPrice",
+                                    "codeName":  "HighPrice",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "High",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.High, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "OpenPrice",
+                                    "name":  "OpenPrice",
+                                    "codeName":  "OpenPrice",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "Open",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.Open, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "LongCondition",
+                                    "name":  "LongCondition",
+                                    "codeName":  "LongCondition",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "LessHandler",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.LessHandler, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "ShortCondition",
+                                    "name":  "ShortCondition",
+                                    "codeName":  "ShortCondition",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "GreaterHandler",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.GreaterHandler, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "OpenLong",
+                                    "name":  "OpenLong",
+                                    "codeName":  "OpenLong",
+                                    "blockType":  "OpenPositionByMarketItem",
+                                    "handlerType":  "OpenPositionByMarketItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "OpenShort",
+                                    "name":  "OpenShort",
+                                    "codeName":  "OpenShort",
+                                    "blockType":  "OpenPositionByMarketItem",
+                                    "handlerType":  "OpenPositionByMarketItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "CloseLong",
+                                    "name":  "CloseLong",
+                                    "codeName":  "CloseLong",
+                                    "blockType":  "ClosePositionByMarketItem",
+                                    "handlerType":  "ClosePositionByMarketItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "CloseShort",
+                                    "name":  "CloseShort",
+                                    "codeName":  "CloseShort",
+                                    "blockType":  "ClosePositionByMarketItem",
+                                    "handlerType":  "ClosePositionByMarketItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "Commission",
+                                    "name":  "Commission",
+                                    "codeName":  "Commission",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "RelativeCommission",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers",
+                                    "category":  "Commission"
+                                },
+                                {
+                                    "id":  "StopLong",
+                                    "name":  "StopLong",
+                                    "codeName":  "StopLong",
+                                    "blockType":  "ClosePositionByStopItem",
+                                    "handlerType":  "ClosePositionByItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "ProfitLong",
+                                    "name":  "ProfitLong",
+                                    "codeName":  "ProfitLong",
+                                    "blockType":  "ClosePositionByProfitItem",
+                                    "handlerType":  "ClosePositionByItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "StopShort",
+                                    "name":  "StopShort",
+                                    "codeName":  "StopShort",
+                                    "blockType":  "ClosePositionByStopItem",
+                                    "handlerType":  "ClosePositionByItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "ProfitShort",
+                                    "name":  "ProfitShort",
+                                    "codeName":  "ProfitShort",
+                                    "blockType":  "ClosePositionByProfitItem",
+                                    "handlerType":  "ClosePositionByItem+Handler",
+                                    "handlerTypeName":  "TSLab.ScriptEngine.Template.ClosePositionByItem+Handler, TSLab.ScriptEngine",
+                                    "category":  "Other"
+                                },
+                                {
+                                    "id":  "EMA_Trend",
+                                    "name":  "EMA_Trend",
+                                    "codeName":  "EMA_Trend",
+                                    "blockType":  "ConverterItem",
+                                    "handlerType":  "EMA",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.EMA, TSLab.Script.Handlers",
+                                    "category":  "Indicators"
+                                },
+                                {
+                                    "id":  "PriceAboveEMA",
+                                    "name":  "PriceAboveEMA",
+                                    "codeName":  "PriceAboveEMA",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "GreaterHandler",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.GreaterHandler, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "PriceBelowEMA",
+                                    "name":  "PriceBelowEMA",
+                                    "codeName":  "PriceBelowEMA",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "LessHandler",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.LessHandler, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "AndLong",
+                                    "name":  "AndLong",
+                                    "codeName":  "AndLong",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "And",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.And, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                },
+                                {
+                                    "id":  "AndShort",
+                                    "name":  "AndShort",
+                                    "codeName":  "AndShort",
+                                    "blockType":  "TwoOrMoreInputsItem",
+                                    "handlerType":  "And",
+                                    "handlerTypeName":  "TSLab.Script.Handlers.And, TSLab.Script.Handlers",
+                                    "category":  "TradeMath"
+                                }
+                            ],
+                 "categoryCounts":  {
+                                        "TradeMath":  10,
+                                        "Other":  8,
+                                        "Indicators":  5,
+                                        "Commission":  1,
+                                        "TradableSecurity":  1
+                                    },
+                 "handlerTypeCounts":  {
+                                           "ClosePositionByItem+Handler":  4,
+                                           "And":  2,
+                                           "ClosePositionByMarketItem+Handler":  2,
+                                           "GreaterHandler":  2,
+                                           "LessHandler":  2,
+                                           "OpenPositionByMarketItem+Handler":  2,
+                                           "BollingerBands1":  1,
+                                           "BollingerBands2":  1,
+                                           "Close":  1,
+                                           "EMA":  1,
+                                           "High":  1,
+                                           "Low":  1,
+                                           "Open":  1,
+                                           "RSI":  1,
+                                           "RelativeCommission":  1,
+                                           "SMA":  1,
+                                           "Unknown":  1
+                                       },
+                 "warnings":  [
+
+                              ]
+             },
+    "timestamp":  "2026-07-05T16:58:59.3438454Z"
+}

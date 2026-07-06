@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExportScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Code><![CDATA[<?xml version="1.0" encoding="utf-16"?>
+<GraphDataBase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="GraphViewData" Version="1.2">
+  <EditData VersionString="2.3" TemplateClass="Script">
+    <ViewModel>
+      <Model Scale="1">
+        <Block Key="Src" TypeName="TradableSecuritySourceItem" Location="150 200">
+          <EditItem Guid="82B74931-51CC-4157-B52D-AADC39533092" CodeName="Src" IsParametersVisible="true" VisualName="Src" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Pane Key="pane_price" Category="GraphPane" Location="150 200" Order="0" IsVisible="true" />
+        <GraphLink From="Src" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartCandleLink">
+          <Data>
+            <GraphData ListStyle="LINE" CandleStyle="BAR_CANDLE" LineStyle="SOLID" Color="255" AltColor="255" Opacity="0" HideLastValue="false" Thickness="1" PaneSide="RIGHT" Visible="true" ShowTrades="true" ShowPositionStop="true" ShowPositionText="true" ShowPositionIcon="true" />
+          </Data>
+        </GraphLink>
+        <Block Key="close1" TypeName="ConverterItem" Category="TradeMath" Location="400 200">
+          <EditItem Guid="EEDF73DA-3099-4E45-9362-3A171E1670B5" CodeName="close1" IsParametersVisible="true" VisualName="close1" HandlerTypeName="TSLab.Script.Handlers.Close, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="ema50" TypeName="ConverterItem" Category="Indicators" Location="650 200">
+          <EditItem Guid="460144B8-BDE4-497C-B1F9-6360BE2A2CAF" CodeName="ema50" IsParametersVisible="true" VisualName="ema50" HandlerTypeName="TSLab.Script.Handlers.EMA, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="rsi14" TypeName="ConverterItem" Category="Indicators" Location="900 200">
+          <EditItem Guid="74B11DAF-02E1-4243-A035-3380B59A08F6" CodeName="rsi14" IsParametersVisible="true" VisualName="rsi14" HandlerTypeName="TSLab.Script.Handlers.RSI, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="crossOver30" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="1150 200">
+          <EditItem Guid="7720BCAD-D1CC-4762-BF11-55B253B0A096" CodeName="crossOver30" IsParametersVisible="true" VisualName="crossOver30" HandlerTypeName="TSLab.Script.Handlers.CrossOver, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="crossUnder70" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="150 328">
+          <EditItem Guid="9B4075BE-FF62-41BA-ADD4-F83903EB7411" CodeName="crossUnder70" IsParametersVisible="true" VisualName="crossUnder70" HandlerTypeName="TSLab.Script.Handlers.CrossUnder, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="greaterEMA" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="400 328">
+          <EditItem Guid="FFA18DD4-9EFA-427B-9C93-F22D049060D9" CodeName="greaterEMA" IsParametersVisible="true" VisualName="greaterEMA" HandlerTypeName="TSLab.Script.Handlers.GreaterHandler, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="lessEMA" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="650 328">
+          <EditItem Guid="F44641C4-178A-43AC-BAED-3A78BF46F88B" CodeName="lessEMA" IsParametersVisible="true" VisualName="lessEMA" HandlerTypeName="TSLab.Script.Handlers.LessHandler, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="longSignal" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="900 328">
+          <EditItem Guid="BFBF645B-2D1B-4285-8ED3-B3693C46EA2C" CodeName="longSignal" IsParametersVisible="true" VisualName="longSignal" HandlerTypeName="TSLab.Script.Handlers.And, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="shortSignal" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="1150 328">
+          <EditItem Guid="3998D15B-4C1C-425E-920A-6E1BA661E50D" CodeName="shortSignal" IsParametersVisible="true" VisualName="shortSignal" HandlerTypeName="TSLab.Script.Handlers.And, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="openLong" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="150 456">
+          <EditItem Guid="7584D8BA-9240-4CA7-8CCD-10344986ACD1" CodeName="openLong" IsParametersVisible="true" VisualName="openLong" HandlerTypeName="TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Block Key="openShort" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="400 456">
+          <EditItem Guid="DED72939-C75C-40D7-80B4-4B15CCC1468B" CodeName="openShort" IsParametersVisible="true" VisualName="openShort" HandlerTypeName="TSLab.ScriptEngine.Template.OpenPositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Block Key="closeLongByMarket" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="650 456">
+          <EditItem Guid="A59B62AF-5553-41FC-B532-C98354E4B334" CodeName="closeLongByMarket" IsParametersVisible="true" VisualName="closeLongByMarket" HandlerTypeName="TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Block Key="closeShortByMarket" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="900 456">
+          <EditItem Guid="0FB142DB-80D2-490D-9EEC-A21613A24CB6" CodeName="closeShortByMarket" IsParametersVisible="true" VisualName="closeShortByMarket" HandlerTypeName="TSLab.ScriptEngine.Template.ClosePositionByMarketItem+Handler, TSLab.ScriptEngine" OnlyValueHandlersCanUsed="true" />
+        </Block>
+        <Block Key="commission" TypeName="ConverterItem" Category="Commission" Location="1150 456">
+          <EditItem Guid="4806221B-ECCB-4255-A9CE-7CF020815031" CodeName="commission" IsParametersVisible="true" VisualName="commission" HandlerTypeName="TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="level30" TypeName="ConverterItem" Category="TradeMath" Location="150 584">
+          <EditItem Guid="9E743008-3C95-4B7C-A43A-A68B7E273A09" CodeName="level30" IsParametersVisible="true" VisualName="level30" HandlerTypeName="TSLab.Script.Handlers.ConstGen, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Block Key="level70" TypeName="ConverterItem" Category="TradeMath" Location="400 584">
+          <EditItem Guid="335ED1D1-A7DD-4128-831D-66685E1D4A83" CodeName="level70" IsParametersVisible="true" VisualName="level70" HandlerTypeName="TSLab.Script.Handlers.ConstGen, TSLab.Script.Handlers" OnlyValueHandlersCanUsed="false" />
+        </Block>
+        <Link From="Src" To="close1" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="rsi14" To="crossOver30" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="level30" To="crossOver30" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="rsi14" To="crossUnder70" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="level70" To="crossUnder70" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="close1" To="greaterEMA" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="ema50" To="greaterEMA" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="close1" To="lessEMA" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="ema50" To="lessEMA" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="crossOver30" To="longSignal" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="greaterEMA" To="longSignal" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="crossUnder70" To="shortSignal" FromPort="Out" ToPortNum="0" ToPort="1" />
+        <Link From="lessEMA" To="shortSignal" FromPort="Out" ToPortNum="1" ToPort="2" />
+        <Link From="Src" To="openLong" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="longSignal" To="openLong" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="Src" To="openShort" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="shortSignal" To="openShort" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="crossUnder70" To="closeLongByMarket" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="crossOver30" To="closeShortByMarket" FromPort="Out" ToPortNum="1" ToPort="Eq" />
+        <Link From="openLong" To="closeLongByMarket" FromPort="Out" ToPortNum="0" ToPort="Pos" />
+        <Link From="openShort" To="closeShortByMarket" FromPort="Out" ToPortNum="0" ToPort="Pos" />
+        <Link From="Src" To="commission" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Src" To="level30" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="Src" To="level70" FromPort="Out" ToPortNum="0" ToPort="Src" />
+        <Link From="close1" To="ema50" FromPort="Out" ToPortNum="0" />
+        <Link From="close1" To="rsi14" FromPort="Out" ToPortNum="0" />
+        <Pane Key="pane_rsi14" Category="GraphPane" Location="400 40" Order="1" IsVisible="true" />
+        <GraphLink From="rsi14" To="pane_rsi14" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+          <Data>
+            <GraphData ListStyle="LINE" LineStyle="SOLID" Color="-16744193" AltColor="-16744193" Opacity="0" HideLastValue="false" Thickness="2" AltThickness="2" PaneSide="RIGHT" Visible="true" Autoscaling="true">
+              <Points />
+            </GraphData>
+          </Data>
+        </GraphLink>
+        <GraphLink From="level30" To="pane_rsi14" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+          <Data>
+            <GraphData ListStyle="LINE" LineStyle="DASH" Color="-8355712" AltColor="-8355712" Opacity="0" HideLastValue="false" Thickness="1" AltThickness="1" PaneSide="RIGHT" Visible="true" Autoscaling="true">
+              <Points />
+            </GraphData>
+          </Data>
+        </GraphLink>
+        <GraphLink From="level70" To="pane_rsi14" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+          <Data>
+            <GraphData ListStyle="LINE" LineStyle="DASH" Color="-8355712" AltColor="-8355712" Opacity="0" HideLastValue="false" Thickness="1" AltThickness="1" PaneSide="RIGHT" Visible="true" Autoscaling="true">
+              <Points />
+            </GraphData>
+          </Data>
+        </GraphLink>
+      </Model>
+    </ViewModel>
+  </EditData>
+  <Id>9b564126-fd6c-493b-a684-c8a2161370f5</Id>
+  <Options xsi:type="LabOptions">
+    <BarSizes>
+      <BarSize Key="" Value="0.2292342132046718" />
+    </BarSizes>
+    <PaneSizes>
+      <PaneSize Key="pane_price" Value="50" />
+      <PaneSize Key="pane_rsi14" Value="50" />
+    </PaneSizes>
+    <Indent>0</Indent>
+    <BarsIndent>0</BarsIndent>
+    <HideValues>false</HideValues>
+    <LegendTransparency>0</LegendTransparency>
+    <TimeScale>Adaptive</TimeScale>
+    <GroupTrades>true</GroupTrades>
+    <LegendForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </LegendForegroundColor>
+    <ChartBackgroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartBackgroundColor>
+    <ChartForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartForegroundColor>
+    <ChartGridColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartGridColor>
+    <ChartBorderColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartBorderColor>
+    <ChartRulerBackgroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartRulerBackgroundColor>
+    <ChartRulerForegroundColor>
+      <Value>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Value>
+      <IsChanged>false</IsChanged>
+      <Default>
+        <A>0</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Default>
+    </ChartRulerForegroundColor>
+    <IntervalBase>MINUTE</IntervalBase>
+    <Interval>1</Interval>
+    <GraphListVisibilities />
+    <VerticalScales />
+    <RecalcInterval>INTERVAL</RecalcInterval>
+    <DateFrom>0001-01-01T00:00:00</DateFrom>
+    <UseDateFrom>false</UseDateFrom>
+    <DateTo>2026-06-20T00:00:00+03:00</DateTo>
+    <UseDateTo>false</UseDateTo>
+    <DateReload>2026-06-20T00:00:00+03:00</DateReload>
+    <UseDateReload>true</UseDateReload>
+    <MaxDays>0</MaxDays>
+    <SessionBegin>2000-01-01T00:00:00</SessionBegin>
+    <SessionEnd>2000-01-01T00:00:00</SessionEnd>
+    <SessionRmHolidays>false</SessionRmHolidays>
+    <DecompressMethod>Method1</DecompressMethod>
+    <MaxCandels>0</MaxCandels>
+    <RtUpdates>true</RtUpdates>
+    <CalcForEachSecurity>false</CalcForEachSecurity>
+    <ScriptKillTimeout>0</ScriptKillTimeout>
+    <TradeFromBar>0</TradeFromBar>
+    <IsSplittedProfitByInstruments>false</IsSplittedProfitByInstruments>
+    <NotUsePositions>false</NotUsePositions>
+    <UseMultiOrders>false</UseMultiOrders>
+    <InitDeposit>0</InitDeposit>
+    <LabCalcType>Default</LabCalcType>
+    <TradeMode>All</TradeMode>
+    <IsShowedBlockNumbers>false</IsShowedBlockNumbers>
+    <LimitOrderExecutionMode>Touch</LimitOrderExecutionMode>
+    <DisableFixPrices>false</DisableFixPrices>
+  </Options>
+  <Mappings>
+    <Sources>
+      <Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="LINKUSD_PERP" Name="82B74931-51CC-4157-B52D-AADC39533092" Name2="Src" VisualTypeName="Tradable instrument" IsOption="false">
+        <Records />
+      </Source>
+    </Sources>
+    <Parameters>
+      <Parameter xsi:type="IntOptimData" ItemName="460144B8-BDE4-497C-B1F9-6360BE2A2CAF" BlockName="ema50" Name="Период" InvariantName="Period" CodeName="ema50_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="50" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin>1</EditorMin>
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+      <Parameter xsi:type="IntOptimData" ItemName="74B11DAF-02E1-4243-A035-3380B59A08F6" BlockName="rsi14" Name="Период" InvariantName="Period" CodeName="rsi14_Period" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="14" MinValue="10" MaxValue="100" Step="5" ControlMinValue="10" ControlMaxValue="100" ControlStep="5">
+        <EditorMin>1</EditorMin>
+        <EditorMax xsi:nil="true" />
+      </Parameter>
+      <Parameter xsi:type="OptimData" ItemName="4806221B-ECCB-4255-A9CE-7CF020815031" BlockName="commission" Name="Комиссия, %" InvariantName="CommissionPct" CodeName="commission_CommissionPct" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="0.05" MinValue="0.05" MaxValue="0.1" Step="0.01" ControlMinValue="0.05" ControlMaxValue="0.1" ControlStep="0.01" NumberDecimalDigits="1" />
+      <Parameter xsi:type="OptimData" ItemName="4806221B-ECCB-4255-A9CE-7CF020815031" BlockName="commission" Name="Маржа, %" InvariantName="MarginPct" CodeName="commission_MarginPct" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="10" MinValue="0" MaxValue="100" Step="1" ControlMinValue="0" ControlMaxValue="100" ControlStep="1" NumberDecimalDigits="1" />
+      <Parameter xsi:type="OptimData" ItemName="9E743008-3C95-4B7C-A43A-A68B7E273A09" BlockName="level30" Name="Значение" InvariantName="Value" CodeName="level30_Value" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="30" MinValue="0" MaxValue="0" Step="0" ControlMinValue="0" ControlMaxValue="0" ControlStep="0" NumberDecimalDigits="1" />
+      <Parameter xsi:type="OptimData" ItemName="335ED1D1-A7DD-4128-831D-66685E1D4A83" BlockName="level70" Name="Значение" InvariantName="Value" CodeName="level70_Value" UsedInOptimization="true" IsUserManaged="false" IsCalculable="false" Value="70" MinValue="0" MaxValue="0" Step="0" ControlMinValue="0" ControlMaxValue="0" ControlStep="0" NumberDecimalDigits="1" />
+      <Parameter xsi:type="BoolOptimData" ItemName="7584D8BA-9240-4CA7-8CCD-10344986ACD1" BlockName="openLong" Name="Long" InvariantName="Long" CodeName="openLong_Long" UsedInOptimization="false" IsUserManaged="false" IsCalculable="false" Value="True" />
+      <Parameter xsi:type="BoolOptimData" ItemName="DED72939-C75C-40D7-80B4-4B15CCC1468B" BlockName="openShort" Name="Long" InvariantName="Long" CodeName="openShort_Long" UsedInOptimization="false" IsUserManaged="false" IsCalculable="false" Value="False" />
+    </Parameters>
+    <ParameterGroups />
+    <AutoParameters />
+  </Mappings>
+  <OptimizationMethodTypeName>RandomOptimization</OptimizationMethodTypeName>
+  <Iterations>100</Iterations>
+  <IterationsPrc>100</IterationsPrc>
+  <IsIterationsPrc>false</IsIterationsPrc>
+  <OptParametersRecords />
+  <OptParametersRecordsFolders />
+  <OptParameters />
+  <LastLoadedId />
+</GraphDataBase>]]></Code>
+  <Settings2><![CDATA[{"Options":{"DefEntryApprove":false,"DefExitApprove":false,"AutoEntryBars":0,"AutoEntryIgnoreByMarketAsLimit":false,"AutoCloseBars":0,"AutoCloseIgnoreByMarketAsLimit":false,"AutoFixDoubleExit":false,"Slippage":0,"SlippagePct":0.0,"TakeProfitNoSlippage":false,"OpenPositionNoSlippage":false,"ByMarketAsLimt":false,"InvalidStopsByMarket":false,"OrderExpirationDays":2,"RemoveInactivePositions":true,"WarnSkippedOpenPositions":true,"NotOpenIfHasSkippedExit":false,"NoCalcInfo":false,"MaxBarsForSignal":0,"ExitSignalOnlyForLastBar":false,"ChangeSignalOnlyForLastBar":false,"WaitExecutionExitBars":0,"WaitExecutionEntryBars":0,"SimulatePositionOrdering":true,"UseCommissionInProfit":true,"MaxDays":0,"MaxCandels":0,"StopIfTimeout":false,"EventOrderRejected":false,"EventOrderFilled":false,"EventOrderCanceled":false,"EventOrderQtyChanged":false,"EventPositionOpening":false,"EventPositionClosing":false,"EventTradingIsStarted":true,"EventTradingIsStopped":false,"EventBarClosedNoTrades":true,"EventPretradeLimitation":false},"AppearanceOptions":{"BarSizes":[],"PaneSizes":[],"GraphListVisibilities":[],"VerticalScales":[]},"Layout":"<XmlLabLayout xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n\t<MainChartWindow Id=\"Main\">\r\n\t\t<Docking>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;&lt;DockSiteLayout xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" SerializationFormat=\"All\" Version=\"2\"&gt;&lt;AutoHideHost /&gt;&lt;Content xsi:type=\"Workspace\"&gt;&lt;Content xsi:type=\"TabbedMdiHost\"&gt;&lt;Content xsi:type=\"TabbedMdiContainer\" DockedSize=\"1918,546\" SelectedWindowUniqueId=\"080a93eb-cebc-4640-8575-e4463a1969a1\"&gt;&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"080a93eb-cebc-4640-8575-e4463a1969a1\" /&gt;&lt;/Content&gt;&lt;/Content&gt;&lt;/Content&gt;&lt;ToolWindows&gt;&lt;ToolWindow UniqueId=\"080a93eb-cebc-4640-8575-e4463a1969a1\" SerializationId=\"Graph\" ContainerDockedSize=\"1918,546\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:49:04.6445873+03:00\" State=\"Document\" /&gt;&lt;/ToolWindows&gt;&lt;/DockSiteLayout&gt;</Docking>\r\n\t</MainChartWindow>\r\n\t<Docking>&lt;DockSiteLayout xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" SerializationFormat=\"All\" Version=\"2\"&gt;\r\n\t&lt;AutoHideHost /&gt;\r\n\t&lt;Content xsi:type=\"Workspace\"&gt;\r\n\t\t&lt;Content xsi:type=\"TabbedMdiHost\"&gt;\r\n\t\t\t&lt;Content xsi:type=\"TabbedMdiContainer\" DockedSize=\"1918,596\" SelectedWindowUniqueId=\"b197fff3-3f09-413d-9db6-0bce85f501a1\"&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"b7060759-665e-4a86-a2f0-b3188190a8d9\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"b197fff3-3f09-413d-9db6-0bce85f501a1\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"866a312e-4001-42d5-95a4-679520574c18\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"9b9c9922-d695-46e4-b1a5-fece27083053\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"b5cd1f42-2359-494a-86d3-f9f9eb7227e5\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"b09caaf1-5d05-4f96-bbe1-a1df7c5c71a7\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"bc24f3e9-38c8-4e87-99ca-038b1762e911\" /&gt;\r\n\t\t\t\t&lt;UIElement xsi:type=\"ToolWindowRef\" UniqueId=\"36c7b2ec-492e-4d13-ae27-cd56bc716f3c\" /&gt;\r\n\t\t\t&lt;/Content&gt;\r\n\t\t&lt;/Content&gt;\r\n\t&lt;/Content&gt;\r\n\t&lt;ToolWindows&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"b7060759-665e-4a86-a2f0-b3188190a8d9\" SerializationId=\"EditorViewModel\" Name=\"Editor\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:48:23.9021959+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"b197fff3-3f09-413d-9db6-0bce85f501a1\" SerializationId=\"ChartViewModel\" Name=\"ChartViewModel\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:52:58.2001481+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"866a312e-4001-42d5-95a4-679520574c18\" SerializationId=\"PerformanceViewModel\" Name=\"Performance\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:52:13.7940372+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"9b9c9922-d695-46e4-b1a5-fece27083053\" SerializationId=\"TradesViewModel\" Name=\"Trades\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:49:50.4116753+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"b5cd1f42-2359-494a-86d3-f9f9eb7227e5\" SerializationId=\"ParametersViewModel\" Name=\"Parameters\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:49:42.5644087+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"b09caaf1-5d05-4f96-bbe1-a1df7c5c71a7\" SerializationId=\"OptimizationViewModel\" Name=\"Optimization\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" LastActiveDateTime=\"2026-06-20T21:49:17.284531+03:00\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"bc24f3e9-38c8-4e87-99ca-038b1762e911\" SerializationId=\"LogViewModel\" Name=\"Log\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t\t&lt;ToolWindow UniqueId=\"36c7b2ec-492e-4d13-ae27-cd56bc716f3c\" SerializationId=\"ProfitModel\" Name=\"Profit\" ContainerDockedSize=\"1918,596\" IsOpen=\"true\" State=\"Document\" Type=\"TSLab.Docking.ContentPane, TSLab.Docking\" /&gt;\r\n\t&lt;/ToolWindows&gt;\r\n&lt;/DockSiteLayout&gt;</Docking>\r\n\t<ActiveWindow>ChartViewModel</ActiveWindow>\r\n\t<LabModels>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>EditorViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>ChartViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>PerformanceViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>TradesViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>ParametersViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>OptimizationViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>LogViewModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t\t<XmlLabModel>\r\n\t\t\t<ContentId>ProfitModel</ContentId>\r\n\t\t\t<IsVisible>true</IsVisible>\r\n\t\t</XmlLabModel>\r\n\t</LabModels>\r\n\t<LabWindows />\r\n</XmlLabLayout>","AppProperties":{"PerformanceColumns":"[{\"Name\":\"\",\"Header\":\"\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":210.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":0,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":null,\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Все\",\"Header\":\"Все\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":80.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":1,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":null,\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Покупки\",\"Header\":\"Покупки\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":80.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":2,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":null,\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Продажи\",\"Header\":\"Продажи\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":80.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":3,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":null,\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Рынок\",\"Header\":\"Рынок\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":101.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":4,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":null,\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}}]","PerformanceRowOrder":"[0,1,2,3,4,5,6]","PerformanceExpandStates":"[true,true,true,true,true,true]","TradeListColumns":"[{\"Name\":\"LongShort\",\"Header\":\"Позиция\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":80.0,\"DefinedWidth\":\"80\",\"DisplayIndex\":0,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"LongShort\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Symbol\",\"Header\":\"Символ\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":55.0,\"DefinedWidth\":\"55\",\"DisplayIndex\":1,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Symbol\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Shares\",\"Header\":\"Лоты\",\"SortMemberPath\":\"Shares\",\"IsVisible\":true,\"Width\":37.0,\"DefinedWidth\":\"37\",\"DisplayIndex\":2,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Shares\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"SharesChange\",\"Header\":\"Изменение/Максимум Лотов\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":106.0,\"DefinedWidth\":\"106\",\"DisplayIndex\":3,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"SharesChange\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryExecution\",\"Header\":\"Исполнение входа\",\"SortMemberPath\":null,\"IsVisible\":false,\"Width\":85.0,\"DefinedWidth\":\"85\",\"DisplayIndex\":4,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryExecution\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntrySignal\",\"Header\":\"Сигнал входа\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":115.0,\"DefinedWidth\":\"115\",\"DisplayIndex\":5,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntrySignal\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryBar\",\"Header\":\"Бар входа\",\"SortMemberPath\":\"EntryBar\",\"IsVisible\":true,\"Width\":62.0,\"DefinedWidth\":\"62\",\"DisplayIndex\":6,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryBar\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryDate\",\"Header\":\"Дата входа\",\"SortMemberPath\":\"EntryDate\",\"IsVisible\":true,\"Width\":67.0,\"DefinedWidth\":\"67\",\"DisplayIndex\":7,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryDate\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryTime\",\"Header\":\"Время входа\",\"SortMemberPath\":\"EntryTime\",\"IsVisible\":true,\"Width\":77.0,\"DefinedWidth\":\"77\",\"DisplayIndex\":8,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryTime\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryPrice\",\"Header\":\"Цена входа\",\"SortMemberPath\":\"EntryPrice\",\"IsVisible\":true,\"Width\":70.0,\"DefinedWidth\":\"70\",\"DisplayIndex\":9,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryPrice\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"EntryCommission\",\"Header\":\"Комиссия входа\",\"SortMemberPath\":\"EntryCommission\",\"IsVisible\":true,\"Width\":97.0,\"DefinedWidth\":\"97\",\"DisplayIndex\":10,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"EntryCommission\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitExecution\",\"Header\":\"Исполнение выхода\",\"SortMemberPath\":null,\"IsVisible\":false,\"Width\":85.0,\"DefinedWidth\":\"85\",\"DisplayIndex\":11,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitExecution\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitSignal\",\"Header\":\"Сигнал выхода\",\"SortMemberPath\":\"ExitSignal\",\"IsVisible\":true,\"Width\":101.0,\"DefinedWidth\":\"101\",\"DisplayIndex\":12,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitSignal\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitBar\",\"Header\":\"Бар выхода\",\"SortMemberPath\":\"ExitBar\",\"IsVisible\":true,\"Width\":71.0,\"DefinedWidth\":\"71\",\"DisplayIndex\":13,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitBar\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitDate\",\"Header\":\"Дата выхода\",\"SortMemberPath\":\"ExitDate\",\"IsVisible\":true,\"Width\":76.0,\"DefinedWidth\":\"76\",\"DisplayIndex\":14,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitDate\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitTime\",\"Header\":\"Время выхода\",\"SortMemberPath\":\"ExitTime\",\"IsVisible\":true,\"Width\":86.0,\"DefinedWidth\":\"86\",\"DisplayIndex\":15,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitTime\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitPrice\",\"Header\":\"Цена выхода\",\"SortMemberPath\":\"ExitPrice\",\"IsVisible\":true,\"Width\":79.0,\"DefinedWidth\":\"79\",\"DisplayIndex\":16,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitPrice\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ExitCommission\",\"Header\":\"Комиссия выхода\",\"SortMemberPath\":\"ExitCommission\",\"IsVisible\":true,\"Width\":106.0,\"DefinedWidth\":\"106\",\"DisplayIndex\":17,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ExitCommission\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"AverageEntryPrice\",\"Header\":\"Средневзвешенная цена входа\",\"SortMemberPath\":\"AverageEntryPrice\",\"IsVisible\":true,\"Width\":173.0,\"DefinedWidth\":\"173\",\"DisplayIndex\":18,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"AverageEntryPrice\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"NetProfit\",\"Header\":\"П/У\",\"SortMemberPath\":\"NetProfit\",\"IsVisible\":true,\"Width\":54.0,\"DefinedWidth\":\"54\",\"DisplayIndex\":19,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"NetProfit\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ProfitPerTrade\",\"Header\":\"П/У сделки\",\"SortMemberPath\":\"ProfitPerTrade\",\"IsVisible\":true,\"Width\":88.0,\"DefinedWidth\":\"88\",\"DisplayIndex\":20,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ProfitPerTrade\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ProfitPerLot\",\"Header\":\"П/У с одного лота\",\"SortMemberPath\":\"ProfitPerLot\",\"IsVisible\":true,\"Width\":126.0,\"DefinedWidth\":\"126\",\"DisplayIndex\":21,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ProfitPerLot\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"FixedProfit\",\"Header\":\"Зафиксированная П/У\",\"SortMemberPath\":\"FixedProfit\",\"IsVisible\":true,\"Width\":127.0,\"DefinedWidth\":\"127\",\"DisplayIndex\":22,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"FixedProfit\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"OpenProfit\",\"Header\":\"Открытая П/У\",\"SortMemberPath\":\"OpenProfit\",\"IsVisible\":true,\"Width\":81.0,\"DefinedWidth\":\"81\",\"DisplayIndex\":23,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"OpenProfit\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"BarsHeld\",\"Header\":\"Продолж. (баров)\",\"SortMemberPath\":\"BarsHeld\",\"IsVisible\":true,\"Width\":103.0,\"DefinedWidth\":\"103\",\"DisplayIndex\":24,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"BarsHeld\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"NetProfitPerBar\",\"Header\":\"Доход/Бар\",\"SortMemberPath\":\"NetProfitPerBar\",\"IsVisible\":true,\"Width\":64.0,\"DefinedWidth\":\"64\",\"DisplayIndex\":25,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"NetProfitPerBar\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"CumProfit\",\"Header\":\"Общий П/У\",\"SortMemberPath\":\"CumProfit\",\"IsVisible\":true,\"Width\":68.0,\"DefinedWidth\":\"68\",\"DisplayIndex\":26,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"CumProfit\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"CumProfitChangePct\",\"Header\":\"% изменения\",\"SortMemberPath\":\"CumProfitChangePct\",\"IsVisible\":true,\"Width\":79.0,\"DefinedWidth\":\"79\",\"DisplayIndex\":27,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"CumProfitChangePct\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Mae\",\"Header\":\"MAE\",\"SortMemberPath\":\"Mae\",\"IsVisible\":true,\"Width\":31.0,\"DefinedWidth\":\"31\",\"DisplayIndex\":28,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Mae\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"MaePct\",\"Header\":\"MAE %\",\"SortMemberPath\":\"MaePct\",\"IsVisible\":true,\"Width\":43.0,\"DefinedWidth\":\"43\",\"DisplayIndex\":29,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"MaePct\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Mfe\",\"Header\":\"MFE\",\"SortMemberPath\":\"Mfe\",\"IsVisible\":true,\"Width\":35.0,\"DefinedWidth\":\"35\",\"DisplayIndex\":30,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Mfe\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"MfePct\",\"Header\":\"MFE %\",\"SortMemberPath\":\"MfePct\",\"IsVisible\":true,\"Width\":42.0,\"DefinedWidth\":\"42\",\"DisplayIndex\":31,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"MfePct\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}}]","OptimizationColumns":"[{\"Name\":\"NaturalBlockName\",\"Header\":\"Имя блока\",\"SortMemberPath\":\"NaturalBlockName\",\"IsVisible\":true,\"Width\":182.0,\"DefinedWidth\":\"182\",\"DisplayIndex\":0,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"NaturalBlockName\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"ParameterName\",\"Header\":\"Параметр\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":100.0,\"DefinedWidth\":\"100\",\"DisplayIndex\":1,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"ParameterName\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Value\",\"Header\":\"Значение\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":125.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":2,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Value\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"MinValue\",\"Header\":\"Мин\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":70.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":3,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"MinValue\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"MaxValue\",\"Header\":\"Макс\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":70.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":4,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"MaxValue\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"Step\",\"Header\":\"Шаг\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":70.0,\"DefinedWidth\":\"Auto\",\"DisplayIndex\":5,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"Step\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"UsedInOptimization\",\"Header\":\"System.Windows.Controls.StackPanel\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":89.0,\"DefinedWidth\":\"89\",\"DisplayIndex\":6,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"UsedInOptimization\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}},{\"Name\":\"IsUserManaged\",\"Header\":\"Упр.пользователем\",\"SortMemberPath\":null,\"IsVisible\":true,\"Width\":89.0,\"DefinedWidth\":\"89\",\"DisplayIndex\":7,\"Index\":0,\"Filter\":null,\"UseFilter\":false,\"SortDirection\":2,\"IsFilterable\":false,\"FilterSettingsString\":null,\"FilterSettings\":{\"SelectedDistinctValues\":[],\"ColumnUniqueName\":\"IsUserManaged\",\"Filter1\":null,\"FieldFilterLogicalOperator\":0,\"Filter2\":null}}]","OptimizationProperties":"{\"Method\":\"Случайно\",\"IsRemoveNegativePl\":false}"},"AppearanceSettings":{"ShowLinks":true,"IsAutoSaveEnabled":false,"AutoSaveInterval":5,"LogMessagesLimit":1000,"FontInfo":"false","SelectedLinkColor":"#FFFFFF00","GraphFontInfo":"false"}}]]></Settings2>
+  <Comment><![CDATA[]]></Comment>
+</ExportScriptData>

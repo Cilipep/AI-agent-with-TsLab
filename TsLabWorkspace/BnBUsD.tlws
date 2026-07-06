@@ -1,0 +1,431 @@
+﻿<Workspace xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" IsMaximized="false" Location="0,0" Size="1920,1032" IsLogVisible="true" Version="2.0">
+	<SecondWindows />
+	<LogPaneHeight>357</LogPaneHeight>
+	<ConnectItemsWidth>100</ConnectItemsWidth>
+	<TabControlWidth>150</TabControlWidth>
+	<TabControl>
+		<Index>0</Index>
+		<TabItems>
+			<TabItem Title="Лист1" IsHeadersVisible="true" ActiveId="Win7212ac82-79c3-408d-80de-008de1607ff6" ActiveTag="">
+				<DockingContent>
+					<TabContent Version="1.0">
+						<contents>
+							<content serializationId="Win5d3d1ab0-fadd-49e7-94d7-5ef928e9bc51" type="TSLab.PortfolioView.ProviderManager.ProviderManager, TSLab.PortfolioView, Version=3.0.3.1251, Culture=neutral, PublicKeyToken=null" version="1.1">
+								<XmlContentControl>
+									<AppearanceProperties xsi:type="DataGridAppearanceProperties">
+										<FontInfo>
+											<SerializeValue>false</SerializeValue>
+										</FontInfo>
+										<ShowColumnHeaders>true</ShowColumnHeaders>
+										<Columns>
+											<TableColumnProperties>
+												<Name>VisualName</Name>
+												<Header>Имя</Header>
+												<SortMemberPath>VisualName</SortMemberPath>
+												<IsVisible>true</IsVisible>
+												<Width>300</Width>
+												<DefinedWidth>300</DefinedWidth>
+												<DisplayIndex>0</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<ColumnUniqueName>VisualName</ColumnUniqueName>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Подключить</Name>
+												<Header>Подключить</Header>
+												<IsVisible>true</IsVisible>
+												<Width>126</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>1</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Лицензия</Name>
+												<Header>Лицензия</Header>
+												<IsVisible>true</IsVisible>
+												<Width>202</Width>
+												<DefinedWidth>202</DefinedWidth>
+												<DisplayIndex>2</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Информация</Name>
+												<Header>Информация</Header>
+												<IsVisible>true</IsVisible>
+												<Width>242</Width>
+												<DefinedWidth>242</DefinedWidth>
+												<DisplayIndex>3</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Id</Name>
+												<Header>Идентификатор</Header>
+												<SortMemberPath>Id</SortMemberPath>
+												<IsVisible>false</IsVisible>
+												<Width>20</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>4</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<ColumnUniqueName>Id</ColumnUniqueName>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>ContractId</Name>
+												<Header>Контракт</Header>
+												<IsVisible>false</IsVisible>
+												<Width>20</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>5</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<ColumnUniqueName>ContractId</ColumnUniqueName>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Тип</Name>
+												<Header>Тип</Header>
+												<SortMemberPath>DataSourceType</SortMemberPath>
+												<IsVisible>false</IsVisible>
+												<Width>20</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>6</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Группа</Name>
+												<Header>Группа</Header>
+												<SortMemberPath>BrokerName</SortMemberPath>
+												<IsVisible>false</IsVisible>
+												<Width>20</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>7</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Управление расписанием</Name>
+												<Header>Управление расписанием</Header>
+												<IsVisible>true</IsVisible>
+												<Width>176</Width>
+												<DefinedWidth>Auto</DefinedWidth>
+												<DisplayIndex>8</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>UserName</Name>
+												<Header>Пользователь</Header>
+												<IsVisible>true</IsVisible>
+												<Width>256</Width>
+												<DefinedWidth>256</DefinedWidth>
+												<DisplayIndex>9</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<ColumnUniqueName>UserName</ColumnUniqueName>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+											<TableColumnProperties>
+												<Name>Комментарий</Name>
+												<Header>Комментарий</Header>
+												<IsVisible>true</IsVisible>
+												<Width>256</Width>
+												<DefinedWidth>256</DefinedWidth>
+												<DisplayIndex>10</DisplayIndex>
+												<Index>0</Index>
+												<UseFilter>false</UseFilter>
+												<SortDirection>2</SortDirection>
+												<FilterSettings>
+													<FieldFilterLogicalOperator>And</FieldFilterLogicalOperator>
+												</FilterSettings>
+											</TableColumnProperties>
+										</Columns>
+										<BackgroundRowColor>false</BackgroundRowColor>
+										<UseAlternationColor>true</UseAlternationColor>
+									</AppearanceProperties>
+								</XmlContentControl>
+							</content>
+							<content serializationId="Win7212ac82-79c3-408d-80de-008de1607ff6" type="TSLab.LabView.Chart.GraphView, TSLab.LabView, Version=3.0.3.1251, Culture=neutral, PublicKeyToken=null" version="1.1">
+								<XmlContentControl xsi:type="XmlGraphView">
+									<AppearanceProperties xsi:type="GraphAppearanceProperties">
+										<FontInfo>
+											<SerializeValue>false</SerializeValue>
+										</FontInfo>
+										<ScrollVisible>false</ScrollVisible>
+										<TitleFormat>Default</TitleFormat>
+									</AppearanceProperties>
+									<GraphViewData>&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;GraphDataBase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="GraphViewData" Version="1.2"&gt;
+  &lt;EditData VersionString="2.3" TemplateClass="Script"&gt;
+    &lt;ViewModel&gt;
+      &lt;Model Scale="1"&gt;
+        &lt;Block Key="Источник1" Category="TradableSecurity" Location="50 0" TypeName="TradableSecuritySourceItem"&gt;
+          &lt;EditItem Guid="13E828E4-4633-455C-B81B-730B003D8002" CodeName="var1" IsParametersVisible="false" OnlyValueHandlersCanUsed="false" /&gt;
+        &lt;/Block&gt;
+        &lt;Block Key="Объем1" Category="TradeMath" Location="70 80" TypeName="ConverterItem"&gt;
+          &lt;EditItem Guid="88676526-EC2D-42F3-A92B-0606A6B221D7" CodeName="var2" IsParametersVisible="false" OnlyValueHandlersCanUsed="false" HandlerTypeName="TSLab.Script.Handlers.Volume, TSLab.Script.Handlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" /&gt;
+        &lt;/Block&gt;
+        &lt;Block Key="Закрыть1" Category="TradeMath" Location="180 80" TypeName="ConverterItem"&gt;
+          &lt;EditItem Guid="566F73F2-A440-48DF-A5F7-5BA11ABF3973" CodeName="var3" IsParametersVisible="false" OnlyValueHandlersCanUsed="false" HandlerTypeName="TSLab.Script.Handlers.Close, TSLab.Script.Handlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" /&gt;
+        &lt;/Block&gt;
+        &lt;Pane Key="Главная" Category="GraphPane" Location="0 180" Order="0" IsVisible="true" HideLegend="false" LeftAxisPrecision="-1" LeftAxisByPercents="false" LeftDownHysteresis="0" LeftUpHysteresis="0" RightAxisPrecision="-1" RightAxisByPercents="false" RightDownHysteresis="0" RightUpHysteresis="0" /&gt;
+        &lt;Link From="Источник1" To="Объем1" FromPort="Out" ToPort="Src" ToPortNum="0" /&gt;
+        &lt;Link From="Источник1" To="Закрыть1" FromPort="Out" ToPort="Src" ToPortNum="0" /&gt;
+        &lt;GraphLink From="Объем1" To="Главная" FromPort="Out" ToPort="LEFT" Category="ChartLineLink"&gt;
+          &lt;Data&gt;
+            &lt;GraphData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ListStyle="HISTOHRAM" CandleStyle="BAR_CANDLE" LineStyle="SOLID" Color="-9030144" AltColor="-16777216" Opacity="0" HideLastValue="false" Thickness="1" AltThickness="1" PaneSide="LEFT" Visible="true" ShowTrades="true" CandleFillStyle="Decreasing" Autoscaling="true"&gt;
+              &lt;Points /&gt;
+            &lt;/GraphData&gt;
+          &lt;/Data&gt;
+        &lt;/GraphLink&gt;
+        &lt;GraphLink From="Источник1" To="Главная" FromPort="Out" ToPort="RIGHT" Category="ChartCandleLink"&gt;
+          &lt;Data&gt;
+            &lt;GraphData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ListStyle="LINE" CandleStyle="BAR_CANDLE" LineStyle="SOLID" Color="-14685179" AltColor="-262137" Opacity="0" HideLastValue="false" Thickness="1" AltThickness="1" PaneSide="RIGHT" Visible="true" ShowTrades="true" CandleFillStyle="Decreasing" Autoscaling="true"&gt;
+              &lt;Points /&gt;
+            &lt;/GraphData&gt;
+          &lt;/Data&gt;
+        &lt;/GraphLink&gt;
+      &lt;/Model&gt;
+    &lt;/ViewModel&gt;
+  &lt;/EditData&gt;
+  &lt;Id&gt;75ae2ba1-e665-47ed-8a9b-dd90c764fc08&lt;/Id&gt;
+  &lt;Options xsi:type="LabOptions"&gt;
+    &lt;BarSizes&gt;
+      &lt;BarSize Key="" Value="0.3051107377754182" /&gt;
+    &lt;/BarSizes&gt;
+    &lt;PaneSizes /&gt;
+    &lt;Indent&gt;0&lt;/Indent&gt;
+    &lt;BarsIndent&gt;0&lt;/BarsIndent&gt;
+    &lt;HideValues&gt;false&lt;/HideValues&gt;
+    &lt;LegendTransparency&gt;0&lt;/LegendTransparency&gt;
+    &lt;TimeScale&gt;Adaptive&lt;/TimeScale&gt;
+    &lt;GroupTrades&gt;true&lt;/GroupTrades&gt;
+    &lt;LegendForegroundColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/LegendForegroundColor&gt;
+    &lt;ChartBackgroundColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartBackgroundColor&gt;
+    &lt;ChartForegroundColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartForegroundColor&gt;
+    &lt;ChartGridColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartGridColor&gt;
+    &lt;ChartBorderColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartBorderColor&gt;
+    &lt;ChartRulerBackgroundColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartRulerBackgroundColor&gt;
+    &lt;ChartRulerForegroundColor&gt;
+      &lt;Value&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Value&gt;
+      &lt;IsChanged&gt;false&lt;/IsChanged&gt;
+      &lt;Default&gt;
+        &lt;A&gt;0&lt;/A&gt;
+        &lt;R&gt;0&lt;/R&gt;
+        &lt;G&gt;0&lt;/G&gt;
+        &lt;B&gt;0&lt;/B&gt;
+      &lt;/Default&gt;
+    &lt;/ChartRulerForegroundColor&gt;
+    &lt;IntervalBase&gt;MINUTE&lt;/IntervalBase&gt;
+    &lt;Interval&gt;1&lt;/Interval&gt;
+    &lt;GraphListVisibilities /&gt;
+    &lt;VerticalScales /&gt;
+    &lt;RecalcInterval&gt;INTERVAL&lt;/RecalcInterval&gt;
+    &lt;DateFrom&gt;2026-05-19T00:00:00+03:00&lt;/DateFrom&gt;
+    &lt;UseDateFrom&gt;true&lt;/UseDateFrom&gt;
+    &lt;DateTo&gt;2026-06-19T00:00:00+03:00&lt;/DateTo&gt;
+    &lt;UseDateTo&gt;false&lt;/UseDateTo&gt;
+    &lt;DateReload&gt;2026-06-19T00:00:00+03:00&lt;/DateReload&gt;
+    &lt;UseDateReload&gt;true&lt;/UseDateReload&gt;
+    &lt;MaxDays&gt;0&lt;/MaxDays&gt;
+    &lt;SessionBegin&gt;2000-01-01T00:00:00&lt;/SessionBegin&gt;
+    &lt;SessionEnd&gt;2000-01-01T00:00:00&lt;/SessionEnd&gt;
+    &lt;SessionRmHolidays&gt;false&lt;/SessionRmHolidays&gt;
+    &lt;DecompressMethod&gt;Method1&lt;/DecompressMethod&gt;
+    &lt;MaxCandels&gt;0&lt;/MaxCandels&gt;
+    &lt;RtUpdates&gt;true&lt;/RtUpdates&gt;
+    &lt;CalcForEachSecurity&gt;false&lt;/CalcForEachSecurity&gt;
+    &lt;ScriptKillTimeout&gt;0&lt;/ScriptKillTimeout&gt;
+    &lt;TradeFromBar&gt;0&lt;/TradeFromBar&gt;
+    &lt;IsSplittedProfitByInstruments&gt;false&lt;/IsSplittedProfitByInstruments&gt;
+    &lt;NotUsePositions&gt;false&lt;/NotUsePositions&gt;
+    &lt;UseMultiOrders&gt;false&lt;/UseMultiOrders&gt;
+    &lt;InitDeposit&gt;0&lt;/InitDeposit&gt;
+    &lt;LabCalcType&gt;Default&lt;/LabCalcType&gt;
+    &lt;TradeMode&gt;All&lt;/TradeMode&gt;
+    &lt;IsShowedBlockNumbers&gt;false&lt;/IsShowedBlockNumbers&gt;
+    &lt;LimitOrderExecutionMode&gt;Touch&lt;/LimitOrderExecutionMode&gt;
+    &lt;DisableFixPrices&gt;false&lt;/DisableFixPrices&gt;
+  &lt;/Options&gt;
+  &lt;Mappings&gt;
+    &lt;Sources&gt;
+      &lt;Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="BNBUSD_260626" Name="13E828E4-4633-455C-B81B-730B003D8002" VisualTypeName="Торгуемый инструмент" IsOption="false"&gt;
+        &lt;Records /&gt;
+      &lt;/Source&gt;
+    &lt;/Sources&gt;
+    &lt;Parameters /&gt;
+    &lt;ParameterGroups /&gt;
+    &lt;AutoParameters /&gt;
+  &lt;/Mappings&gt;
+  &lt;Iterations&gt;100&lt;/Iterations&gt;
+  &lt;IterationsPrc&gt;100&lt;/IterationsPrc&gt;
+  &lt;IsIterationsPrc&gt;false&lt;/IsIterationsPrc&gt;
+  &lt;OptParametersRecords /&gt;
+  &lt;OptParametersRecordsFolders /&gt;
+  &lt;OptParameters /&gt;
+  &lt;LastLoadedId /&gt;
+&lt;/GraphDataBase&gt;</GraphViewData>
+								</XmlContentControl>
+							</content>
+						</contents>
+						<layout>
+							<DockSiteLayout SerializationFormat="All" Version="2">
+								<AutoHideHost />
+								<Content xsi:type="SplitContainer" Orientation="Horizontal" DockedSize="1918,619">
+									<UIElement xsi:type="Workspace">
+										<Content xsi:type="TabbedMdiHost">
+											<Content xsi:type="TabbedMdiContainer" DockedSize="1716,619" SelectedWindowUniqueId="449fc391-d3f3-4933-9ee1-e9afe630c7fe">
+												<UIElement xsi:type="ToolWindowRef" UniqueId="50b71c25-fea9-424b-9ed5-0b7683434931" />
+												<UIElement xsi:type="ToolWindowRef" UniqueId="449fc391-d3f3-4933-9ee1-e9afe630c7fe" />
+											</Content>
+										</Content>
+									</UIElement>
+									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
+										<UIElement xsi:type="Track" CreationDateTime="2026-06-19T21:08:36.6887512+03:00" UniqueId="50b71c25-fea9-424b-9ed5-0b7683434931" />
+									</UIElement>
+									<UIElement xsi:type="ToolWindowContainer" DockedSize="0,0">
+										<UIElement xsi:type="Track" CreationDateTime="2026-06-19T21:09:59.8400149+03:00" UniqueId="449fc391-d3f3-4933-9ee1-e9afe630c7fe" />
+									</UIElement>
+								</Content>
+								<ToolWindows>
+									<ToolWindow UniqueId="50b71c25-fea9-424b-9ed5-0b7683434931" SerializationId="Win5d3d1ab0-fadd-49e7-94d7-5ef928e9bc51" Name="pane0" ContainerDockedSize="1716,619" IsOpen="true" LastActiveDateTime="2026-06-19T21:09:54.6412466+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
+									<ToolWindow UniqueId="449fc391-d3f3-4933-9ee1-e9afe630c7fe" SerializationId="Win7212ac82-79c3-408d-80de-008de1607ff6" Name="pane1" ContainerDockedSize="1716,619" IsOpen="true" LastActiveDateTime="2026-06-19T21:10:00.2762147+03:00" State="Document" Type="TSLab.Docking.ContentPane, TSLab.Docking" />
+								</ToolWindows>
+							</DockSiteLayout>
+						</layout>
+					</TabContent>
+				</DockingContent>
+			</TabItem>
+		</TabItems>
+	</TabControl>
+</Workspace>

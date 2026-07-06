@@ -1,0 +1,13 @@
+# TSLab AI Agent - Python Dependencies
+
+# Core
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Analytics (optional - for advanced features)
+scipy>=1.10.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+
+# API
+requests>=2.31.0

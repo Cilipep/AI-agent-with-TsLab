@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TSLab.Script">
+      <HintPath>__TSLAB_SCRIPT_HINT_PATH__</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TSLab.Utility">
+      <HintPath>__TSLAB_UTILITY_HINT_PATH__</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TSLab.DataSource">
+      <HintPath>__TSLAB_DATASOURCE_HINT_PATH__</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

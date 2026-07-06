@@ -1,0 +1,167 @@
+{
+  "strategy": {
+    "name": "DOGE Adaptive Reinvestment Strategy",
+    "version": "1.0",
+    "description": "SMA Crossover с адаптивным реинвестированием по тренду",
+    "author": "TSLab AI Agent",
+    "created_at": "2026-06-30"
+  },
+  "instrument": {
+    "symbol": "DOGEUSD_PERP",
+    "exchange": "Binance",
+    "type": "Perpetual Futures",
+    "interval": "1H"
+  },
+  "capital": {
+    "initial": 25,
+    "currency": "USDT",
+    "leverage": 3,
+    "max_position_pct": 100
+  },
+  "entry": {
+    "indicators": {
+      "sma_fast": {
+        "period": 15,
+        "type": "SMA",
+        "description": "Краткосрочная скользящая средняя"
+      },
+      "sma_slow": {
+        "period": 40,
+        "type": "SMA",
+        "description": "Долгосрочная скользящая средняя"
+      },
+      "ema_trend": {
+        "period": 200,
+        "type": "EMA",
+        "description": "Трендовый фильтр"
+      },
+      "rsi": {
+        "period": 14,
+        "type": "RSI",
+        "overbought": 70,
+        "oversold": 30
+      },
+      "atr": {
+        "period": 14,
+        "type": "ATR",
+        "description": "Для расчета стопов"
+      }
+    },
+    "signals": {
+      "long": {
+        "condition": "SMA_fast crosses above SMA_slow",
+        "filters": [
+          "RSI < 70",
+          "Price > EMA200 (uptrend)"
+        ]
+      },
+      "short": {
+        "condition": "SMA_fast crosses below SMA_slow",
+        "filters": [
+          "RSI > 30",
+          "Price < EMA200 (downtrend)"
+        ]
+      }
+    }
+  },
+  "risk_management": {
+    "position_sizing": {
+      "method": "fixed_risk",
+      "risk_per_trade_pct": 0.3,
+      "description": "0.3% от капитала на сделку"
+    },
+    "stop_loss": {
+      "type": "atr",
+      "atr_multiplier": 2.5,
+      "description": "2.5x ATR от входа"
+    },
+    "take_profit": {
+      "type": "atr",
+      "atr_multiplier": 3,
+      "description": "3x ATR от входа"
+    },
+    "trailing_stop": {
+      "enabled": true,
+      "activation": "immediate",
+      "trail_pct": 1.5,
+      "description": "Трейлинг стоп 1.5% от пика"
+    },
+    "max_drawdown_pct": 50,
+    "liquidation_threshold_pct": 90
+  },
+  "reinvestment": {
+    "method": "adaptive_by_trend",
+    "description": "Процент реинвестирования зависит от тренда",
+    "rules": {
+      "uptrend": {
+        "condition": "Price > EMA200 * 1.02",
+        "reinvest_pct": 15,
+        "description": "Восходящий тренд: реинвест 15% прибыли"
+      },
+      "sideways": {
+        "condition": "EMA200 * 0.98 <= Price <= EMA200 * 1.02",
+        "reinvest_pct": 5,
+        "description": "Боковой рынок: реинвест 5% прибыли"
+      },
+      "downtrend": {
+        "condition": "Price < EMA200 * 0.98",
+        "reinvest_pct": 0,
+        "description": "Нисходящий тренд: вывод 100% прибыли"
+      }
+    },
+    "base_capital_adjustment": true,
+    "reinvest_pool_enabled": true,
+    "loss_from_pool_pct": 50
+  },
+  "trend_detection": {
+    "method": "EMA200_with_threshold",
+    "ema_period": 200,
+    "uptrend_threshold": 1.02,
+    "downtrend_threshold": 0.98,
+    "description": "Тренд определяется относительно EMA200 с порогом 2%"
+  },
+  "commission": {
+    "type": "relative",
+    "rate_pct": 0.1,
+    "description": "0.1% комиссия за сделку"
+  },
+  "backtest_results": {
+    "period": "2026-01-01 - 2026-06-30",
+    "days": 180,
+    "bars": 4320,
+    "initial_capital": 25,
+    "final_capital": 40.85,
+    "net_profit": 15.85,
+    "return_pct": 63.4,
+    "max_drawdown_pct": 49.34,
+    "sharpe_ratio": 1.28,
+    "profit_factor": 1.52,
+    "total_trades": 38,
+    "winning_trades": 16,
+    "losing_trades": 22,
+    "win_rate": 42.1,
+    "total_reinvested": 2.11
+  },
+  "optimization_history": [
+    {
+      "date": "2026-06-30",
+      "version": "1.0",
+      "changes": "Initial strategy with adaptive reinvestment",
+      "result": "+63.4%"
+    }
+  ],
+  "notes": {
+    "key_findings": [
+      "Адаптивное реинвестирование работает лучше фиксированного",
+      "В нисходящем тренде (58% времени) вывод прибыли защищает капитал",
+      "В восходящем тренде компаунд-эффект работает на рост",
+      "Боковой рынок - единственная убыточная зона"
+    ],
+    "recommendations": [
+      "Использовать 3x плечо для волатильных активов",
+      "Реинвест 15% только в подтвержденном восходящем тренде",
+      "Trail Stop 1.5% защищает прибыль от разворота",
+      "Фильтр EMA200 снижает количество убыточных сделок"
+    ]
+  }
+}

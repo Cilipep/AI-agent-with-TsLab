@@ -1,0 +1,28 @@
+{
+  "name": "GridBotRSI",
+  "description": "Grid стратегия с RSI фильтрацией",
+  "instrument": "ADAUSD_PERP",
+  "exchange": "BinanceCoin-MFutures",
+  "timeframe": "30m",
+  "initialDeposit": 25,
+  "parameters": {
+    "GridConst": 0.005,
+    "StopStep": 0.02,
+    "ShortTakeProfit": 0.015,
+    "RSI_Oversold": 35,
+    "RSI_Overbought": 50,
+    "Shares": 12.5,
+    "Commission": 0.05,
+    "Margin": 10
+  },
+  "results": {
+    "period": "23.04.2026 - 22.06.2026",
+    "netProfit": 100.22,
+    "netProfitPct": 400.90,
+    "allTrades": 9,
+    "profitFactor": 1.26,
+    "winRate": 55.56,
+    "maxDrawdown": -86.96,
+    "recoveryFactor": 0.34
+  }
+}

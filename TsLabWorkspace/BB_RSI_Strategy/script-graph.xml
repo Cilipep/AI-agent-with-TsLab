@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Model Scale="1">
+
+  <!-- ==================== ИСТОЧНИКИ ДАННЫХ ==================== -->
+  <Block Key="Src" TypeName="TradableSecuritySourceItem" Category="TradableSecurity" Location="40 40">
+    <EditItem Guid="26C07B69-AC69-4E33-B8B8-D44AC6D84F71" CodeName="Src" IsParametersVisible="true" />
+  </Block>
+
+  <!-- ==================== ИНДИКАТОРЫ ==================== -->
+  <Block Key="BB_Upper" TypeName="ConverterItem" Category="Indicators" Location="520 232">
+    <EditItem Guid="D1343272-1956-4492-B29E-217701B0D8E2" CodeName="BB_Upper"
+              HandlerTypeName="TSLab.Script.Handlers.BollingerBands1, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Period" Value="15" />
+        <Parameter Name="Coef" Value="3" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="BB_Lower" TypeName="ConverterItem" Category="Indicators" Location="520 40">
+    <EditItem Guid="247AE395-DF45-44E0-B82E-535DA60D4B71" CodeName="BB_Lower"
+              HandlerTypeName="TSLab.Script.Handlers.BollingerBands2, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Period" Value="15" />
+        <Parameter Name="Coef" Value="3" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="BB_Middle" TypeName="ConverterItem" Category="Indicators" Location="520 136">
+    <EditItem Guid="A0E9B625-6804-480B-A01A-BAFF98A28E4D" CodeName="BB_Middle"
+              HandlerTypeName="TSLab.Script.Handlers.SMA, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Period" Value="35" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="RSI_Indicator" TypeName="ConverterItem" Category="Indicators" Location="520 328">
+    <EditItem Guid="3ADF0E82-501D-4BD6-9353-0E87FD6A0A34" CodeName="RSI_Indicator"
+              HandlerTypeName="TSLab.Script.Handlers.RSI, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Period" Value="15" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="EMA_Trend" TypeName="ConverterItem" Category="Indicators" Location="150 712">
+    <EditItem Guid="44A98845-B45E-4C82-B33A-905AEF32B510" CodeName="EMA_Trend"
+              HandlerTypeName="TSLab.Script.Handlers.EMA, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Period" Value="50" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <!-- ==================== ЦЕНОВЫЕ ДАННЫЕ ==================== -->
+  <Block Key="ClosePrice" TypeName="ConverterItem" Category="TradeMath" Location="280 40">
+    <EditItem CodeName="ClosePrice" HandlerTypeName="TSLab.Script.Handlers.Close, TSLab.Script.Handlers" />
+  </Block>
+
+  <Block Key="LowPrice" TypeName="ConverterItem" Category="TradeMath" Location="280 232">
+    <EditItem CodeName="LowPrice" HandlerTypeName="TSLab.Script.Handlers.Low, TSLab.Script.Handlers" />
+  </Block>
+
+  <Block Key="HighPrice" TypeName="ConverterItem" Category="TradeMath" Location="280 136">
+    <EditItem CodeName="HighPrice" HandlerTypeName="TSLab.Script.Handlers.High, TSLab.Script.Handlers" />
+  </Block>
+
+  <Block Key="OpenPrice" TypeName="ConverterItem" Category="TradeMath" Location="280 328">
+    <EditItem CodeName="OpenPrice" HandlerTypeName="TSLab.Script.Handlers.Open, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- ==================== УСЛОВИЯ ВХОДА ==================== -->
+  <!-- LongCondition: Close < BB_Lower (перепроданность) -->
+  <Block Key="LongCondition" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="760 40">
+    <EditItem CodeName="LongCondition" HandlerTypeName="TSLab.Script.Handlers.LessHandler, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- ShortCondition: Close > BB_Upper (перекупленность) -->
+  <Block Key="ShortCondition" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="760 328">
+    <EditItem CodeName="ShortCondition" HandlerTypeName="TSLab.Script.Handlers.GreaterHandler, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- PriceAboveEMA: Close > EMA_Trend -->
+  <Block Key="PriceAboveEMA" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="400 712">
+    <EditItem CodeName="PriceAboveEMA" HandlerTypeName="TSLab.Script.Handlers.GreaterHandler, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- PriceBelowEMA: Close < EMA_Trend -->
+  <Block Key="PriceBelowEMA" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="650 712">
+    <EditItem CodeName="PriceBelowEMA" HandlerTypeName="TSLab.Script.Handlers.LessHandler, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- AndLong: LongCondition AND PriceBelowEMA -->
+  <Block Key="AndLong" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="900 712">
+    <EditItem CodeName="AndLong" HandlerTypeName="TSLab.Script.Handlers.And, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- AndShort: ShortCondition AND PriceAboveEMA -->
+  <Block Key="AndShort" TypeName="TwoOrMoreInputsItem" Category="TradeMath" Location="1150 712">
+    <EditItem CodeName="AndShort" HandlerTypeName="TSLab.Script.Handlers.And, TSLab.Script.Handlers" />
+  </Block>
+
+  <!-- ==================== ТОРГОВЫЕ ОРДЕРА ==================== -->
+  <Block Key="OpenLong" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="1240 40">
+    <EditItem CodeName="OpenLong">
+      <Parameters>
+        <Parameter Name="Long" Value="true" />
+        <Parameter Name="Shares" Value="1" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="OpenShort" TypeName="OpenPositionByMarketItem" Category="OpenPosition" Location="1240 136">
+    <EditItem CodeName="OpenShort">
+      <Parameters>
+        <Parameter Name="Long" Value="false" />
+        <Parameter Name="Shares" Value="1" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="CloseLong" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="1480 40">
+    <EditItem CodeName="CloseLong" />
+  </Block>
+
+  <Block Key="CloseShort" TypeName="ClosePositionByMarketItem" Category="ClosePosition" Location="1480 136">
+    <EditItem CodeName="CloseShort" />
+  </Block>
+
+  <!-- ==================== СТОП-ПРИКАЗЫ ==================== -->
+  <Block Key="StopLong" TypeName="ClosePositionByStopItem" Category="ClosePosition" Location="1480 424">
+    <EditItem CodeName="StopLong">
+      <Parameters>
+        <Parameter Name="Slippage" Value="0" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="ProfitLong" TypeName="ClosePositionByProfitItem" Category="ClosePosition" Location="1480 232">
+    <EditItem CodeName="ProfitLong">
+      <Parameters>
+        <Parameter Name="Slippage" Value="0" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="StopShort" TypeName="ClosePositionByStopItem" Category="ClosePosition" Location="1480 520">
+    <EditItem CodeName="StopShort">
+      <Parameters>
+        <Parameter Name="Slippage" Value="0" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <Block Key="ProfitShort" TypeName="ClosePositionByProfitItem" Category="ClosePosition" Location="1480 328">
+    <EditItem CodeName="ProfitShort">
+      <Parameters>
+        <Parameter Name="Slippage" Value="0" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <!-- ==================== КОМИССИЯ ==================== -->
+  <Block Key="Commission" TypeName="ConverterItem" Category="Commission" Location="280 424">
+    <EditItem CodeName="Commission" HandlerTypeName="TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers">
+      <Parameters>
+        <Parameter Name="Value" Value="0.001" />
+      </Parameters>
+    </EditItem>
+  </Block>
+
+  <!-- ==================== СВЯЗИ (LINKS) ==================== -->
+  <!-- Источник -> Ценовые данные -->
+  <Link From="Src" To="ClosePrice" FromPort="Out" ToPort="Src" />
+  <Link From="Src" To="LowPrice" FromPort="Out" ToPort="Src" />
+  <Link From="Src" To="HighPrice" FromPort="Out" ToPort="Src" />
+  <Link From="Src" To="OpenPrice" FromPort="Out" ToPort="Src" />
+  <Link From="Src" To="Commission" FromPort="Out" ToPort="Src" />
+
+  <!-- Close -> Индикаторы -->
+  <Link From="ClosePrice" To="BB_Upper" FromPort="Out" />
+  <Link From="ClosePrice" To="BB_Lower" FromPort="Out" />
+  <Link From="ClosePrice" To="BB_Middle" FromPort="Out" />
+  <Link From="ClosePrice" To="RSI_Indicator" FromPort="Out" />
+  <Link From="ClosePrice" To="EMA_Trend" FromPort="Out" ToPort="Input0" />
+
+  <!-- Условия входа -->
+  <Link From="ClosePrice" To="LongCondition" FromPort="Out" ToPort="1" />
+  <Link From="BB_Lower" To="LongCondition" FromPort="Out" ToPort="2" />
+  <Link From="ClosePrice" To="ShortCondition" FromPort="Out" ToPort="1" />
+  <Link From="BB_Upper" To="ShortCondition" FromPort="Out" ToPort="2" />
+
+  <!-- EMA фильтр тренда -->
+  <Link From="ClosePrice" To="PriceAboveEMA" FromPort="Out" ToPort="1" />
+  <Link From="EMA_Trend" To="PriceAboveEMA" FromPort="Out" ToPort="2" />
+  <Link From="ClosePrice" To="PriceBelowEMA" FromPort="Out" ToPort="1" />
+  <Link From="EMA_Trend" To="PriceBelowEMA" FromPort="Out" ToPort="2" />
+
+  <!-- AND логика -->
+  <Link From="LongCondition" To="AndLong" FromPort="Out" ToPort="1" />
+  <Link From="PriceBelowEMA" To="AndLong" FromPort="Out" ToPort="2" />
+  <Link From="ShortCondition" To="AndShort" FromPort="Out" ToPort="1" />
+  <Link From="PriceAboveEMA" To="AndShort" FromPort="Out" ToPort="2" />
+
+  <!-- Источник -> Ордера -->
+  <Link From="Src" To="OpenLong" FromPort="Out" ToPort="Src" />
+  <Link From="Src" To="OpenShort" FromPort="Out" ToPort="Src" />
+
+  <!-- Условия -> Ордера -->
+  <Link From="AndLong" To="OpenLong" FromPort="Out" ToPort="Eq" />
+  <Link From="AndShort" To="OpenShort" FromPort="Out" ToPort="Eq" />
+
+  <!-- Позиции -> Закрытие -->
+  <Link From="OpenLong" To="CloseLong" FromPort="Out" ToPort="Pos" />
+  <Link From="OpenShort" To="CloseShort" FromPort="Out" ToPort="Pos" />
+  <Link From="AndShort" To="CloseLong" FromPort="Out" ToPort="Eq" />
+  <Link From="AndLong" To="CloseShort" FromPort="Out" ToPort="Eq" />
+
+  <!-- Стоп-лосс и тейк-профит -->
+  <Link From="OpenLong" To="StopLong" FromPort="Out" ToPort="Pos" />
+  <Link From="LowPrice" To="StopLong" FromPort="Out" ToPort="Prc" />
+  <Link From="OpenLong" To="ProfitLong" FromPort="Out" ToPort="Pos" />
+  <Link From="BB_Middle" To="ProfitLong" FromPort="Out" ToPort="Prc" />
+
+  <Link From="OpenShort" To="StopShort" FromPort="Out" ToPort="Pos" />
+  <Link From="HighPrice" To="StopShort" FromPort="Out" ToPort="Prc" />
+  <Link From="OpenShort" To="ProfitShort" FromPort="Out" ToPort="Pos" />
+  <Link From="BB_Middle" To="ProfitShort" FromPort="Out" ToPort="Prc" />
+
+  <!-- ==================== ГРАФИКИ ==================== -->
+  <GraphLink From="Src" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartCandleLink">
+    <Data>
+      <GraphData CandleStyle="BAR_CANDLE" Color="255" ShowTrades="true" ShowPositionStop="true" />
+    </Data>
+  </GraphLink>
+
+  <GraphLink From="BB_Upper" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+    <Data><GraphData Color="-11557153" Thickness="1" /></Data>
+  </GraphLink>
+
+  <GraphLink From="BB_Lower" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+    <Data><GraphData Color="-16744193" Thickness="1" /></Data>
+  </GraphLink>
+
+  <GraphLink From="BB_Middle" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+    <Data><GraphData Color="-26624" Thickness="1" /></Data>
+  </GraphLink>
+
+  <GraphLink From="RSI_Indicator" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+    <Data><GraphData Color="-65536" Thickness="1" /></Data>
+  </GraphLink>
+
+  <GraphLink From="EMA_Trend" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartLineLink">
+    <Data><GraphData Color="-16776961" Thickness="2" /></Data>
+  </GraphLink>
+
+  <Pane Key="pane_price" Category="GraphPane" Location="140 40" Order="0" IsVisible="true" />
+
+</Model>

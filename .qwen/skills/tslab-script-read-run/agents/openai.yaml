@@ -1,0 +1,4 @@
+interface:
+  display_name: "TSLab Script: Read/Run"
+  short_description: "Inspect and run an existing script by name"
+  default_prompt: "Use $tslab-script-read-run to resolve the exact script name, read parameters, load/build/run it, and inspect messages/logs/results."

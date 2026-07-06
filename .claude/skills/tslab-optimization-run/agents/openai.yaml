@@ -1,0 +1,4 @@
+interface:
+  display_name: "TSLab Optimization: Run"
+  short_description: "Configure and run script optimization"
+  default_prompt: "Use $tslab-optimization-run to set optimization ranges with explicit baselines, start a job, monitor it, and inspect Top-K results."

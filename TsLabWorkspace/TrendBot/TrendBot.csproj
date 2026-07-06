@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>TrendBot</RootNamespace>
+    <AssemblyName>TrendBot</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="TSLab.Script">
+      <HintPath>C:\Program Files\TSLab\TSLab 3.0\TSLab.Script.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TSLab.Script.Handlers">
+      <HintPath>C:\Program Files\TSLab\TSLab 3.0\TSLab.Script.Handlers.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TSLab.DataSource">
+      <HintPath>C:\Program Files\TSLab\TSLab 3.0\TSLab.DataSource.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TSLab.Utility">
+      <HintPath>C:\Program Files\TSLab\TSLab 3.0\TSLab.Utility.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

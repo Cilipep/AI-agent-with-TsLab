@@ -1,0 +1,4 @@
+interface:
+  display_name: "TSLab API: Portfolios"
+  short_description: "Run portfolio backtests via Web API"
+  default_prompt: "Use $tslab-api-portfolios to create/run portfolio backtests and fetch portfolio run results."

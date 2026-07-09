@@ -1,200 +1,128 @@
-# Neural Network Trading Strategy
+﻿# Neural Network Trading Strategy
 
 ## Описание проекта
 
-Проект нейросетевой торговой стратегии для криптовалют, использующий TCN/LSTM ансамбли с оптимизацией гиперпараметров через Optuna, библиотеку TA-Lib для технических индикаторов и продвинутый риск-менеджмент с trailing stop.
+Нейросетевая торговая стратегия для криптовалютных фьючерсов Binance Coin-Margined Futures. Использует ансамбль из 4 моделей (TCN, LSTM, Transformer, Attention) с оптимизацией через Optuna и интеграцией в TSLab.
 
 ---
 
-## Итоговые результаты
+## Результаты бэктеста (оптимизированный ансамбль)
 
-| Метрика | Значение |
-|---------|----------|
-| **Total Return** | **+26.62%** |
-| **Max Drawdown** | **-4.08%** |
-| **Win Rate** | 30.7% |
-| **Profit Factor** | ~1.5-2.0 |
+| Инструмент | Return | Win% | MaxDD | Trades | PF | Sharpe | Calmar |
+|------------|--------|------|-------|--------|-----|--------|--------|
+| **AAVE** | **+24.05%** | 3.1% | -6.66% | 140 | **1.43** | **4.20** | 3.61 |
+| **NEAR** | **+17.74%** | 46.3% | -28.52% | 49 | 1.02 | 1.18 | 0.62 |
+| **XLM** | **+15.85%** | 42.8% | -29.45% | 19 | 1.02 | 1.12 | 0.54 |
+| **SOL** | **+12.87%** | 6.2% | -6.63% | 218 | 1.17 | 3.10 | 1.94 |
+| TRX | -5.04% | 51.3% | -17.38% | 0 | 0.98 | -1.12 | -0.34 |
+| ADA | -3.50% | 1.6% | -5.84% | 8 | 0.84 | -1.76 | -0.60 |
+| SUI | -10.30% | 4.0% | -13.53% | 14 | 0.87 | -2.22 | -0.76 |
+| UNI | -14.18% | 34.6% | -35.45% | 358 | 0.98 | -0.85 | -0.40 |
+| LINK | -25.35% | 47.2% | -40.67% | 80 | 0.96 | -2.06 | -0.62 |
+| BCH | +0.00% | 0.0% | 0.00% | 0 | inf | 0.00 | 0.00 |
+
+**Среднее:** +1.21% | **Прибыльных:** 4/10
+
+---
+
+## Рекомендуемые инструменты для торговли
+
+| Инструмент | Return | Sharpe | Решение |
+|------------|--------|--------|---------|
+| AAVE | +24.05% | 4.20 | Торговать |
+| NEAR | +17.74% | 1.18 | Торговать |
+| XLM | +15.85% | 1.12 | Торговать |
+| SOL | +12.87% | 3.10 | Торговать |
 
 ---
 
 ## Архитектура системы
 
-### Основные компоненты
+### Модели (ансамбль из 4 штук)
+- **TCN** — Temporal Convolutional Network
+- **LSTM** — Long Short-Term Memory
+- **Transformer** — Multi-head Self-Attention
+- **Attention** — Custom Attention Block
 
-| Компонент | Описание |
-|-----------|----------|
-| `model.py` | LSTM, TCN, Transformer модели, ансамбли |
-| `train.py` | Обучение моделей с early stopping |
-| `backtest_v2.py` | Бэктест с trailing stop + dynamic sizing |
-| `features_talib.py` | 60+ индикаторов TA-Lib |
-| `dataset.py` | Time series dataset для PyTorch |
-| `config.py` | Конфигурация параметров |
-| `walk_forward_tcn.py` | Walk-forward валидация |
-| `optimize_simple.py` | Оптимизация с Optuna |
+### Индикаторы
+- 55 технических индикаторов TA-Lib
+- Feature Selection: 25 признаков из 55
+- Период: 60 дней, 15m свечи
 
----
-
-## Этапы разработки
-
-### 1. Начальная версия
-- Базовая LSTM модель с 30+ индикаторами
-- Результат: переобучение, -67.10% доходности
-
-### 2. Добавление признаков
-- Stochastic RSI, Aroon, Keltner/Donchian Channel
-- **Результат:** +12.30% walk-forward
-
-### 3. TA-Lib интеграция
-- 161 индикатор доступен, 60+ используется
-- **Результат:** +11.91% walk-forward
-
-### 4. Trailing Stop + Dynamic Sizing
-- 1% trailing stop, динамический размер позиции
-- **Результат:** +16.36% walk-forward, drawdown -4.93%
-
-### 5. TCN модель
-- Temporal Convolutional Network вместо LSTM
-- **Результат:** +26.62% walk-forward, drawdown -4.08%
+### Интеграция с TSLab
+- C# индикатор NNTradingIndicator (без ONNX Runtime)
+- Формула: RSI + MACD + EMA
+- Protective exits: SL -3%, TP +3%
 
 ---
 
-## Результаты по этапам
+## Манименеджмент
 
-| Этап | Return | Drawdown | Win Rate |
-|------|--------|----------|----------|
-| 1. Базовая версия | -67.10% | -67.22% | 31.2% |
-| 2. Новые признаки | +12.30% | -40.11% | 37.8% |
-| 3. TA-Lib | +11.91% | -16.37% | 35.6% |
-| 4. Trailing Stop | +16.36% | -4.93% | 28.0% |
-| **5. TCN модель** | **+26.62%** | **-4.08%** | **30.7%** |
-
----
-
-## Walk-Forward результаты (TCN)
-
-| Fold | Return | Drawdown | Win Rate | PF |
-|------|--------|----------|----------|-----|
-| 1 | +9.49% | -3.14% | 35.3% | 1.59 |
-| 2 | -0.26% | -0.26% | 0.0% | 0.00 |
-| 3 | +0.72% | -0.65% | 42.9% | 1.95 |
-| 4 | -0.63% | -1.83% | 27.3% | 0.91 |
-| 5 | +1.89% | -4.08% | 36.0% | 1.20 |
-| 6 | +13.70% | -3.45% | 42.9% | 2.09 |
-| **Итого** | **+26.62%** | **-4.08%** | **30.7%** | - |
-
----
-
-## Ключевые улучшения
-
-### 1. TA-Lib индикаторы (60+)
-- **Trend:** EMA, MACD, ADX, Aroon, SAR
-- **Momentum:** RSI, Stochastic, Williams %R, CCI
-- **Volatility:** Bollinger Bands, ATR, Keltner Channel
-- **Volume:** OBV, AD, MFI
-- **Patterns:** Doji, Hammer, Engulfing
-
-### 2. Trailing Stop (1%)
-- Фиксирует прибыль при движении цены
-- Стоп следует за ценой вверх
-- Снижает drawdown на 70%
-
-### 3. Dynamic Position Sizing
-- Уменьшает размер позиции при высокой волатильности
-- Использует ATR для расчета
-- Защищает от резких движений
-
-### 4. TCN архитектура
-- Temporal Convolutional Network
-- Лучше LSTM для последовательностей
-- Profit Factor: 1.72
-
----
-
-## Лучшие параметры
-
-```python
-{
-    "model_type": "tcn",
-    "hidden_size": 32,
-    "num_layers": 1,
-    "dropout": 0.395,
-    "window": 30,
-    "batch_size": 64,
-    "learning_rate": 0.000205,
-    "n_models": 3,
-    "stop_loss_pct": 0.0307,
-    "take_profit_pct": 0.0454,
-    "trailing_stop": 0.01,
-    "dynamic_sizing": true
-}
-```
-
----
-
-## Риск-менеджмент
-
-- **Stop Loss:** 3.07%
-- **Take Profit:** 4.54%
-- **Trailing Stop:** 1%
-- **Dynamic Sizing:** ON
-- **Risk per Trade:** 1% от equity
-
----
-
-## Запуск
-
-### Установка зависимостей
-```bash
-pip install -r requirements.txt
-pip install TA-Lib
-```
-
-### Walk-Forward валидация
-```bash
-python walk_forward_tcn.py
-```
-
-### Сравнение моделей
-```bash
-python test_models_comparison.py
-```
+| Параметр | Значение |
+|----------|----------|
+| Депозит | 70 USDT |
+| Risk per trade | 1%-20% |
+| Плечо | 1x, 3x, 5x, 10x, 20x, 30x |
+| Реинвест | 10%-50% от прибыли |
+| Stop Loss | -3% |
+| Take Profit | +3% |
+| Комиссия | 0.1% |
 
 ---
 
 ## Структура файлов
 
-```
+`
 nn-trading/
-├── data/                    # Данные (CSV)
-├── models/                  # Сохраненные модели
-├── results/                 # Результаты
-│   ├── walk_forward_tcn.json
-│   ├── models_comparison.json
-│   └── best_params_simple.json
-├── model.py                 # LSTM/TCN/Transformer
-├── features_talib.py        # TA-Lib признаки
-├── backtest_v2.py           # Enhanced backtest
-├── train.py                 # Обучение
-├── walk_forward_tcn.py      # Walk-forward
-├── config.py                # Конфигурация
-└── requirements.txt
-```
+├── data/                          # CSV данные (15m свечи)
+├── models/                        # Обученные модели
+│   ├── final_ensemble.pt          # Финальный ансамбль
+│   └── ensemble.pt                # Промежуточный
+├── NNTradingIndicator.cs          # C# индикатор для TSLab
+├── IndicatorHandlers.csproj       # Проект
+├── backtest_final.py              # Скрипт бэктеста
+├── model.py                       # LSTM/TCN/Transformer/Attention
+├── train.py                       # Обучение моделей
+├── features_talib.py              # TA-Lib признаки
+├── config.py                      # Конфигурация
+├── NN_Trading_Report.docx         # Отчёт
+└── requirements.txt               # Зависимости
+`
+
+---
+
+## Запуск
+
+### Бэктест
+`ash
+python backtest_final.py
+`
+
+### TSLab индикатор
+1. Пересобрать: dotnet build -c Release
+2. Загрузить: curl -F "file=@bin\Release\net10.0\IndicatorHandlers.dll" "http://localhost:5000/api/indicator-dlls/NNTradingIndicator.dll"
+3. Открыть TSLab → скрипт → Run
 
 ---
 
 ## Технологии
 
-- **PyTorch** - нейросети
-- **TA-Lib** - технические индикаторы (161 функция)
-- **Optuna** - оптимизация гиперпараметров
-- **TCN** - Temporal Convolutional Network
+- **PyTorch** — нейросети
+- **TA-Lib** — техничикатические индикаторы (55+)
+- **Optuna** — оптимизация гиперпараметров
+- **TSLab** — торговая платформа
+- **Binance Futures** — биржа
 
 ---
 
 ## Выводы
 
-1. **TCN модель показала лучшие результаты** - +26.62% доходности
-2. **Trailing Stop снизил drawdown на 70%** - с -16% до -4%
-3. **Dynamic Sizing улучшил стабильность** - меньшие потери при волатильности
-4. **TA-Lib дал 60+ индикаторов** для анализа
-5. **Walk-forward подтвердил обобщающую способность** - 6 фолдов
+1. **Ансамбль 4 моделей** стабильнее одной модели
+2. **Feature Selection** (25 из 55) ускоряет обучение
+3. **4 прибыльных инструмента** для торговли
+4. **AAVE** — лучший Sharpe 4.20
+5. **SOL** — лучший Calmar 1.94
+
+---
+
+*Обновлено: 10.07.2026*

@@ -1,0 +1,102 @@
+{
+  "instruments": [
+    {
+      "instrument": "Bitcoin",
+      "total_return": -6.620707964873429,
+      "max_drawdown": -34.230965750161054,
+      "total_trades": 53,
+      "avg_win_rate": 16.93333333333333,
+      "folds": 5
+    },
+    {
+      "instrument": "Ethereum",
+      "total_return": 0.903678357321569,
+      "max_drawdown": -37.10178806652038,
+      "total_trades": 163,
+      "avg_win_rate": 26.73626575148673,
+      "folds": 5
+    },
+    {
+      "instrument": "Solana",
+      "total_return": -6.48989941511876,
+      "max_drawdown": -25.52154302101962,
+      "total_trades": 41,
+      "avg_win_rate": 12.952380952380953,
+      "folds": 5
+    }
+  ],
+  "optimized_params": {
+    "Bitcoin": {
+      "params": {
+        "hidden_size": 32,
+        "dropout": 0.44934498385769706,
+        "window": 30,
+        "batch_size": 128,
+        "learning_rate": 0.00020131935142272178,
+        "stop_loss_pct": 0.025991105395678508,
+        "take_profit_pct": 0.09506203706661243,
+        "gb_n_estimators": 91,
+        "gb_max_depth": 3,
+        "gb_lr": 0.019672811363043066,
+        "gb_subsample": 0.8076288904981217
+      },
+      "attrs": {
+        "gb_acc": 0.4760956175298805,
+        "lstm_acc": 0.4900398406374502,
+        "max_drawdown": 7.49809536736058,
+        "total_return": 15.547034453327303,
+        "total_trades": 34,
+        "win_rate": 38.23529411764706
+      },
+      "value": 9.310415015525113
+    },
+    "Ethereum": {
+      "params": {
+        "hidden_size": 32,
+        "dropout": 0.48988162771550137,
+        "window": 20,
+        "batch_size": 128,
+        "learning_rate": 0.0001805522425857178,
+        "stop_loss_pct": 0.03323925814171116,
+        "take_profit_pct": 0.0852445520236105,
+        "gb_n_estimators": 90,
+        "gb_max_depth": 5,
+        "gb_lr": 0.0422674225206358,
+        "gb_subsample": 0.8207222366947977
+      },
+      "attrs": {
+        "gb_acc": 0.498046875,
+        "lstm_acc": 0.486328125,
+        "max_drawdown": 14.374795250477357,
+        "total_return": 15.79481243621872,
+        "total_trades": 94,
+        "win_rate": 34.04255319148936
+      },
+      "value": 8.356366580093475
+    },
+    "Solana": {
+      "params": {
+        "hidden_size": 16,
+        "dropout": 0.30374221764807835,
+        "window": 30,
+        "batch_size": 128,
+        "learning_rate": 0.0002093236647306427,
+        "stop_loss_pct": 0.041548570953840534,
+        "take_profit_pct": 0.10303047924777975,
+        "gb_n_estimators": 79,
+        "gb_max_depth": 4,
+        "gb_lr": 0.09093275374586826,
+        "gb_subsample": 0.8954688010602316
+      },
+      "attrs": {
+        "gb_acc": 0.5039840637450199,
+        "lstm_acc": 0.5298804780876494,
+        "max_drawdown": 8.165374223877219,
+        "total_return": 8.300556320321938,
+        "total_trades": 55,
+        "win_rate": 36.36363636363637
+      },
+      "value": 8.214063424472169
+    }
+  }
+}

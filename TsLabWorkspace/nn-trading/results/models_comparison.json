@@ -1,0 +1,38 @@
+{
+  "params": {
+    "hidden_size": 32,
+    "dropout": 0.39545817076274253,
+    "window": 30,
+    "batch_size": 64,
+    "learning_rate": 0.00020532942939696484,
+    "stop_loss_pct": 0.030675648446884116,
+    "take_profit_pct": 0.04538051370437286
+  },
+  "enhancements": {
+    "trailing_stop": 0.01,
+    "dynamic_sizing": true
+  },
+  "results": {
+    "lstm": {
+      "total_return_pct": 3.9654687804619115,
+      "max_drawdown_pct": -2.1459577463082358,
+      "n_trades": 61,
+      "win_rate_pct": 44.26229508196721,
+      "profit_factor": 1.6209597529153699
+    },
+    "tcn": {
+      "total_return_pct": 8.46692155166837,
+      "max_drawdown_pct": -2.698313413602371,
+      "n_trades": 97,
+      "win_rate_pct": 44.329896907216494,
+      "profit_factor": 1.7165032589993718
+    },
+    "transformer": {
+      "total_return_pct": 4.995835377883284,
+      "max_drawdown_pct": -3.2737208770395876,
+      "n_trades": 97,
+      "win_rate_pct": 38.144329896907216,
+      "profit_factor": 1.4255440145604898
+    }
+  }
+}

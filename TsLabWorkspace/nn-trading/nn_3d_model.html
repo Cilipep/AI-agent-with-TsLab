@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Архитектура нейросети — NN-Trading</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+canvas { display: block; }
+
+#ui {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.0) 100%);
+  padding: 16px 24px 32px; z-index: 10; pointer-events: none;
+}
+#ui > * { pointer-events: auto; }
+h1 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.subtitle { font-size: 12px; color: #888; margin-bottom: 12px; }
+
+#model-selector {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+}
+#model-selector button {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #ccc; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 12px; transition: all 0.2s;
+}
+#model-selector button:hover { background: rgba(255,255,255,0.12); color: #fff; }
+#model-selector button.active {
+  background: rgba(99,102,241,0.3); border-color: #6366f1; color: #fff;
+  box-shadow: 0 0 12px rgba(99,102,241,0.3);
+}
+
+#info-panel {
+  position: fixed; bottom: 16px; left: 16px;
+  background: rgba(15,15,25,0.9); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 16px 20px; max-width: 340px;
+  backdrop-filter: blur(12px); z-index: 10; font-size: 12px; line-height: 1.6;
+}
+#info-panel h3 { font-size: 14px; color: #6366f1; margin-bottom: 8px; }
+#info-panel .param { color: #aaa; }
+#info-panel .val { color: #e0e0e0; font-weight: 600; }
+
+#legend {
+  position: fixed; bottom: 16px; right: 16px;
+  background: rgba(15,15,25,0.9); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 14px 18px; z-index: 10; font-size: 11px;
+  backdrop-filter: blur(12px);
+}
+#legend div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+#legend .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+#tooltip {
+  position: fixed; display: none; background: rgba(10,10,20,0.95);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+  padding: 10px 14px; font-size: 11px; pointer-events: none; z-index: 100;
+  max-width: 250px; backdrop-filter: blur(12px);
+}
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <h1>3D Архитектура нейросети</h1>
+  <div class="subtitle">NN-Trading • 7 моделей • Ensemble: Weighted Average + Stacking</div>
+  <div id="model-selector"></div>
+</div>
+
+<div id="info-panel">
+  <h3 id="panel-title">Выберите модель</h3>
+  <div id="panel-content"></div>
+</div>
+
+<div id="legend">
+  <div><span class="dot" style="background:#4CAF50"></span> Входной слой (14 фич)</div>
+  <div><span class="dot" style="background:#6366f1"></span> Проекция / Embedding</div>
+  <div><span class="dot" style="background:#8b5cf6"></span> LSTM / RNN</div>
+  <div><span class="dot" style="background:#06b6d4"></span> TCN (Temporal Conv)</div>
+  <div><span class="dot" style="background:#f59e0b"></span> Attention / Transformer</div>
+  <div><span class="dot" style="background:#ef4444"></span> FFN / Head</div>
+  <div><span class="dot" style="background:#ec4899"></span> Выход</div>
+  <div><span class="dot" style="background:#10b981"></span> Meta-learner</div>
+</div>
+
+<div id="tooltip"></div>
+<canvas id="c"></canvas>
+
+<script>
+// ============================================================
+// DATA: Model architectures parsed from model.py + config.py
+// ============================================================
+const INPUT_SIZE = 14;
+const HIDDEN = 64;
+const NLAYERS = 2;
+const DROPOUT = 0.35;
+
+const FEATURE_NAMES = [
+  'returns','rsi','stoch_k','williams_r',
+  'macd','macd_signal','macd_hist',
+  'ema_10','ema_20','adx',
+  'bb_upper','bb_lower','bb_width','atr'
+];
+
+const MODELS = {
+  lstm: {
+    name: 'LSTM',
+    info: `Базовая LSTM-модель\n2 слоя LSTM (64 unit)\nDropout: ${DROPOUT}\nHead: 64→32→1`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 1\n64 units' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 2\n64 units' },
+      { type: 'head',   n: 8,  color: '#ef4444', label: 'Linear 64→32\nReLU + Dropout' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~48K'
+  },
+  tcn: {
+    name: 'TCN',
+    info: `Temporal Convolutional Network\n2 TCN блока (dilation: 1, 2)\nKernel: 3, BatchNorm + ReLU\nResidual connections`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'tcn',    n: 12, color: '#06b6d4', label: 'TCN Block 1\nConv1d 14→64\nk=3, dil=1' },
+      { type: 'tcn',    n: 12, color: '#06b6d4', label: 'TCN Block 2\nConv1d 64→64\nk=3, dil=2' },
+      { type: 'head',   n: 6,  color: '#ef4444', label: 'Head\n64→32→16→1' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~52K'
+  },
+  transformer: {
+    name: 'Transformer',
+    info: `Encoder Transformer\nProjection: Linear(14,64) + LayerNorm\nPos Encoding (sin/cos)\n2 Encoder Layers, 8 heads\nFFN: 64→256→64`,
+    layers: [
+      { type: 'input',      n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'projection', n: 10, color: '#6366f1', label: 'Projection\nLinear(14→64)\nLayerNorm' },
+      { type: 'transformer',n: 12, color: '#f59e0b', label: 'Encoder Layer 1\nMulti-Head Attn (8)\nFFN 64→256→64' },
+      { type: 'transformer',n: 12, color: '#f59e0b', label: 'Encoder Layer 2\nMulti-Head Attn (8)\nFFN 64→256→64' },
+      { type: 'head',       n: 6,  color: '#ef4444', label: 'Head\n64→32→16→1' },
+      { type: 'output',     n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~62K'
+  },
+  attention: {
+    name: 'Attention',
+    info: `AttentionTransformer\nКастомные AttentionBlock\nProjection: Linear(14,64) + LayerNorm\n2 блока Attention (8 heads)\nFFN: 64→256→64 + Residual`,
+    layers: [
+      { type: 'input',      n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'projection', n: 10, color: '#6366f1', label: 'Projection\nLinear(14→64)\nLayerNorm + GELU' },
+      { type: 'attention',  n: 12, color: '#f59e0b', label: 'AttentionBlock 1\nMHA(8) + LayerNorm\nFFN + Residual' },
+      { type: 'attention',  n: 12, color: '#f59e0b', label: 'AttentionBlock 2\nMHA(8) + LayerNorm\nFFN + Residual' },
+      { type: 'head',       n: 6,  color: '#ef4444', label: 'Head\n64→32→1\nGELU + Dropout' },
+      { type: 'output',     n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~58K'
+  },
+  lstm_reg: {
+    name: 'LSTM Reg',
+    info: `LSTM для регрессии\nПредсказывает величину изменения цены\n2 LSTM слоя (64 unit)\nHead: 64→64→32→1`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 1\n64 units' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 2\n64 units' },
+      { type: 'head',   n: 8,  color: '#ef4444', label: 'Head\n64→64→32→1' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Δ Price %' },
+    ],
+    params: '~54K'
+  },
+  tcn_reg: {
+    name: 'TCN Reg',
+    info: `TCN для регрессии\nПредсказывает величину изменения цены\n2 TCN блока + Residual\nHead: 64→64→32→1`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'tcn',    n: 12, color: '#06b6d4', label: 'TCN Block 1\nConv1d 14→64\nk=3, dil=1' },
+      { type: 'tcn',    n: 12, color: '#06b6d4', label: 'TCN Block 2\nConv1d 64→64\nk=3, dil=2' },
+      { type: 'head',   n: 6,  color: '#ef4444', label: 'Head\n64→64→32→1' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Δ Price %' },
+    ],
+    params: '~58K'
+  },
+  transformer_reg: {
+    name: 'Transf. Reg',
+    info: `Transformer для регрессии\nПредсказывает величину изменения цены\nProjection + Pos Encoding\n2 Encoder Layers, 4 heads\nHead: 64→64→32→1`,
+    layers: [
+      { type: 'input',      n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'projection', n: 10, color: '#6366f1', label: 'Projection\nLinear(14→64)' },
+      { type: 'transformer',n: 12, color: '#f59e0b', label: 'Encoder Layer 1\nMulti-Head Attn (4)\nFFN 64→256→64' },
+      { type: 'transformer',n: 12, color: '#f59e0b', label: 'Encoder Layer 2\nMulti-Head Attn (4)\nFFN 64→256→64' },
+      { type: 'head',       n: 6,  color: '#ef4444', label: 'Head\n64→64→32→1' },
+      { type: 'output',     n: 1,  color: '#ec4899', label: 'Выход\n Δ Price %' },
+    ],
+    params: '~56K'
+  },
+  multi_task: {
+    name: 'Multi-Task',
+    info: `Multi-task модель\nОбщее LSTM ядро\n3 головы:\n• Classification (Buy/Sell)\n• Regression (Δ Price %)\n• Confidence (0-1)`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 1\n64 units' },
+      { type: 'lstm',   n: 16, color: '#8b5cf6', label: 'LSTM Layer 2\n64 units' },
+      { type: 'head',   n: 4,  color: '#ef4444', label: 'Class Head\n64→32→1' },
+      { type: 'head',   n: 4,  color: '#10b981', label: 'Reg Head\n64→32→1' },
+      { type: 'head',   n: 4,  color: '#f59e0b', label: 'Conf Head\n64→16→1 (σ)' },
+      { type: 'output', n: 1,  color: '#ec4899', label: '3 Выхода' },
+    ],
+    params: '~52K'
+  },
+  ensemble: {
+    name: 'Ensemble',
+    info: `Weighted Ensemble\nN моделей + weighted average\nВсе базовые модели параллельно\nВеса: [1/N, ..., 1/N]`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'lstm',   n: 10, color: '#8b5cf6', label: 'LSTM' },
+      { type: 'tcn',    n: 10, color: '#06b6d4', label: 'TCN' },
+      { type: 'transformer', n: 10, color: '#f59e0b', label: 'Transformer' },
+      { type: 'head',   n: 4,  color: '#10b981', label: 'Weighted Avg\n(среднее)' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~180K'
+  },
+  stacking: {
+    name: 'Stacking',
+    info: `Stacking Ensemble\nБазовые модели → Meta-learner\nБазовые: LSTM + TCN + Transformer\nMeta: Linear(3→16→1)\nБазовые заморожены`,
+    layers: [
+      { type: 'input',  n: INPUT_SIZE, color: '#4CAF50', label: 'Вход\n(14 фич)' },
+      { type: 'lstm',   n: 8, color: '#8b5cf6', label: 'LSTM\n(заморожена)' },
+      { type: 'tcn',    n: 8, color: '#06b6d4', label: 'TCN\n(заморожена)' },
+      { type: 'transformer', n: 8, color: '#f59e0b', label: 'Transformer\n(заморожена)' },
+      { type: 'projection', n: 6, color: '#10b981', label: 'Meta-learner\nLinear(3→16→1)' },
+      { type: 'output', n: 1,  color: '#ec4899', label: 'Выход\n Buy/Sell' },
+    ],
+    params: '~190K'
+  },
+};
+
+// ============================================================
+// 3D RENDERER (pure canvas, no dependencies)
+// ============================================================
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+const infoPanel = document.getElementById('panel-content');
+const panelTitle = document.getElementById('panel-title');
+
+let W, H;
+let rotX = -0.3, rotY = 0.5;
+let dragging = false, lastMX, lastMY;
+let currentModel = 'attention';
+let animPhase = 0;
+let hoverNeuron = null;
+
+// Neuron data for current model
+let neurons = [];
+let connections = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Project 3D -> 2D
+function project(x, y, z) {
+  // Rotate
+  const cy = Math.cos(rotY), sy = Math.sin(rotY);
+  const cx = Math.cos(rotX), sx = Math.sin(rotX);
+  let x1 = x * cy - z * sy;
+  let z1 = x * sy + z * cy;
+  let y1 = y * cx - z1 * sx;
+  let z2 = y * sx + z1 * cx;
+
+  const perspective = 800;
+  const scale = perspective / (perspective + z2 + 300);
+  return {
+    x: W / 2 + x1 * scale * 100,
+    y: H / 2 + y1 * scale * 100,
+    z: z2,
+    scale
+  };
+}
+
+function buildModel(modelKey) {
+  const model = MODELS[modelKey];
+  neurons = [];
+  connections = [];
+
+  const layerSpacing = model.layers.length <= 5 ? 3.5 : 3;
+  const startX = -(model.layers.length - 1) * layerSpacing / 2;
+
+  // Build neurons
+  model.layers.forEach((layer, li) => {
+    const x = startX + li * layerSpacing;
+    const n = layer.n;
+    const spacing = Math.min(0.8, 10 / n);
+    const startY = -(n - 1) * spacing / 2;
+
+    for (let i = 0; i < n; i++) {
+      const y = startY + i * spacing;
+      neurons.push({
+        x, y, z: 0,
+        color: layer.color,
+        type: layer.type,
+        layerIdx: li,
+        layerLabel: layer.label,
+        radius: layer.type === 'output' ? 0.25 : 0.15,
+        featureName: li === 0 ? FEATURE_NAMES[i] : null
+      });
+    }
+  });
+
+  // Build connections between consecutive layers
+  let prevStart = 0;
+  let prevCount = model.layers[0].n;
+  for (let li = 1; li < model.layers.length; li++) {
+    const curStart = prevStart + prevCount;
+    const curCount = model.layers[li].n;
+
+    // For multi-head parallel layers (multi_task), connect to specific previous heads
+    if (modelKey === 'multi_task' && li >= 4 && li <= 6) {
+      // Connect from LSTM output (layer 2) to each head
+      const lstmStart = 0;
+      for (let j = 0; j < model.layers[2].n; j++) {
+        for (let k = curStart; k < curStart + curCount; k++) {
+          connections.push({
+            from: lstmStart + j,
+            to: k,
+            color: model.layers[li].color,
+            alpha: 0.06
+          });
+        }
+      }
+    } else if (modelKey === 'multi_task' && li === 7) {
+      // Output from all 3 heads
+      const headStarts = [curStart - 3, curStart - 2, curStart - 1];
+      for (const hs of headStarts) {
+        for (let k = curStart; k < curStart + curCount; k++) {
+          connections.push({ from: hs, to: k, color: model.layers[li].color, alpha: 0.15 });
+        }
+      }
+    } else if (modelKey === 'ensemble' && li === 5) {
+      // Connect each model output to weighted avg
+      const modelOutputs = [model.layers[1].n, model.layers[2].n, model.layers[3].n];
+      let mStart = model.layers[0].n;
+      for (let m = 0; m < 3; m++) {
+        const mEnd = mStart + modelOutputs[m];
+        for (let j = mStart; j < mEnd; j++) {
+          for (let k = curStart; k < curStart + curCount; k++) {
+            connections.push({ from: j, to: k, color: model.layers[li].color, alpha: 0.08 });
+          }
+        }
+        mStart = mEnd;
+      }
+    } else if (modelKey === 'stacking' && li === 5) {
+      // Meta-learner to output
+      for (let j = curStart; j < curStart + curCount; j++) {
+        for (let k = curStart + curCount; k < curStart + curCount + model.layers[li].n; k++) {
+          connections.push({ from: j, to: k, color: model.layers[li].color, alpha: 0.15 });
+        }
+      }
+      // Also skip building from meta to output - we'll do it manually
+    } else {
+      // Standard: connect all neurons from previous layer to current
+      for (let j = prevStart; j < prevStart + prevCount; j++) {
+        for (let k = curStart; k < curStart + curCount; k++) {
+          connections.push({
+            from: j,
+            to: k,
+            color: model.layers[li].color,
+            alpha: 0.04
+          });
+        }
+      }
+    }
+
+    prevStart = curStart;
+    prevCount = curCount;
+  }
+}
+
+function drawSphere(cx, cy, r, color, glow) {
+  const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+  grad.addColorStop(0, lightenColor(color, 60));
+  grad.addColorStop(0.5, color);
+  grad.addColorStop(1, darkenColor(color, 40));
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (glow) {
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+function lightenColor(hex, amt) {
+  let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r + amt); g = Math.min(255, g + amt); b = Math.min(255, b + amt);
+  return `rgb(${r},${g},${b})`;
+}
+function darkenColor(hex, amt) {
+  let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  r = Math.max(0, r - amt); g = Math.max(0, g - amt); b = Math.max(0, b - amt);
+  return `rgb(${r},${g},${b})`;
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background gradient
+  const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+  bgGrad.addColorStop(0, '#12121f');
+  bgGrad.addColorStop(1, '#0a0a0f');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  animPhase += 0.015;
+
+  // Project all neurons
+  const projected = neurons.map((n, i) => {
+    // Subtle floating animation
+    const floatY = Math.sin(animPhase + i * 0.3) * 0.03;
+    const floatZ = Math.cos(animPhase + i * 0.2) * 0.02;
+    const p = project(n.x, n.y + floatY, n.z + floatZ);
+    return { ...p, idx: i, neuron: n };
+  });
+
+  // Sort by z for correct depth rendering
+  const sorted = [...projected].sort((a, b) => b.z - a.z);
+
+  // Draw connections first (behind neurons)
+  for (const conn of connections) {
+    const from = projected[conn.from];
+    const to = projected[conn.to];
+    if (!from || !to) continue;
+
+    // Animated pulse along connections
+    const pulse = (Math.sin(animPhase * 2 + conn.from * 0.5) + 1) / 2;
+    const alpha = conn.alpha * (0.7 + pulse * 0.3);
+
+    ctx.strokeStyle = conn.color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // Draw neurons
+  for (const p of sorted) {
+    const n = p.neuron;
+    const r = n.radius * p.scale * 100 * (p === hoverNeuron ? 1.4 : 1);
+    const glow = (p === hoverNeuron);
+
+    drawSphere(p.x, p.y, Math.max(3, r * 0.8), n.color, glow);
+
+    // Label on hover
+    if (p === hoverNeuron && n.layerLabel) {
+      ctx.fillStyle = '#fff';
+      ctx.font = '11px Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      const lines = n.layerLabel.split('\n');
+      lines.forEach((line, i) => {
+        ctx.fillText(line, p.x, p.y - r - 10 - (lines.length - 1 - i) * 14);
+      });
+    }
+  }
+
+  // Draw layer labels at bottom
+  const model = MODELS[currentModel];
+  const layerSpacing = model.layers.length <= 5 ? 3.5 : 3;
+  const startX = -(model.layers.length - 1) * layerSpacing / 2;
+
+  model.layers.forEach((layer, li) => {
+    const x = startX + li * layerSpacing;
+    const p = project(x, 3.5, 0);
+    ctx.fillStyle = '#888';
+    ctx.font = '10px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    const shortLabel = layer.label.split('\n')[0];
+    ctx.fillText(shortLabel, p.x, p.y);
+  });
+
+  // Feature names on input layer
+  if (neurons.length > 0) {
+    const inputNeurons = neurons.filter(n => n.type === 'input');
+    inputNeurons.forEach((n, i) => {
+      const p = project(n.x - 0.8, n.y, n.z);
+      ctx.fillStyle = '#666';
+      ctx.font = '8px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(n.featureName || '', p.x - 8, p.y + 3);
+    });
+  }
+
+  requestAnimationFrame(render);
+}
+
+// ============================================================
+// UI: Model selector
+// ============================================================
+const selectorDiv = document.getElementById('model-selector');
+Object.keys(MODELS).forEach(key => {
+  const btn = document.createElement('button');
+  btn.textContent = MODELS[key].name;
+  btn.dataset.key = key;
+  if (key === currentModel) btn.classList.add('active');
+  btn.addEventListener('click', () => {
+    selectorDiv.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentModel = key;
+    buildModel(key);
+    updateInfoPanel(key);
+  });
+  selectorDiv.appendChild(btn);
+});
+
+function updateInfoPanel(key) {
+  const m = MODELS[key];
+  panelTitle.textContent = m.name;
+  const lines = m.info.split('\n');
+  infoPanel.innerHTML = lines.map(l => {
+    if (l.includes(':')) {
+      const [k, v] = l.split(':');
+      return `<span class="param">${k}:</span> <span class="val">${v}</span>`;
+    }
+    return `<div>${l}</div>`;
+  }).join('') + `<div style="margin-top:8px;color:#6366f1;font-weight:600">~${m.params} params</div>`;
+}
+
+updateInfoPanel(currentModel);
+
+// ============================================================
+// Mouse interaction
+// ============================================================
+canvas.addEventListener('mousedown', e => {
+  dragging = true;
+  lastMX = e.clientX;
+  lastMY = e.clientY;
+});
+canvas.addEventListener('mousemove', e => {
+  if (dragging) {
+    const dx = e.clientX - lastMX;
+    const dy = e.clientY - lastMY;
+    rotY += dx * 0.005;
+    rotX += dy * 0.005;
+    lastMX = e.clientX;
+    lastMY = e.clientY;
+  }
+
+  // Hover detection
+  const mx = e.clientX, my = e.clientY;
+  hoverNeuron = null;
+  let minDist = 30;
+  for (const n of neurons) {
+    const floatY = Math.sin(animPhase + neurons.indexOf(n) * 0.3) * 0.03;
+    const floatZ = Math.cos(animPhase + neurons.indexOf(n) * 0.2) * 0.02;
+    const p = project(n.x, n.y + floatY, n.z + floatZ);
+    const d = Math.hypot(p.x - mx, p.y - my);
+    if (d < minDist) { minDist = d; hoverNeuron = p; }
+  }
+
+  if (hoverNeuron) {
+    const n = hoverNeuron.neuron;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (e.clientX + 15) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+    tooltip.innerHTML = `<b>${n.layerLabel.split('\n')[0]}</b><br>${n.layerLabel.split('\n').slice(1).join('<br>')}`;
+    canvas.style.cursor = 'pointer';
+  } else {
+    tooltip.style.display = 'none';
+    canvas.style.cursor = dragging ? 'grabbing' : 'grab';
+  }
+});
+canvas.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('mouseleave', () => { dragging = false; tooltip.style.display = 'none'; });
+
+// Scroll to zoom (using rotX offset)
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  rotX += e.deltaY * 0.001;
+  rotX = Math.max(-1.2, Math.min(0.5, rotX));
+}, { passive: false });
+
+// ============================================================
+// INIT
+// ============================================================
+buildModel(currentModel);
+render();
+</script>
+</body>
+</html>

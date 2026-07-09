@@ -1,0 +1,64 @@
+{
+  "params": {
+    "hidden_size": 32,
+    "dropout": 0.39545817076274253,
+    "window": 30,
+    "batch_size": 64,
+    "learning_rate": 0.00020532942939696484,
+    "stop_loss_pct": 0.030675648446884116,
+    "take_profit_pct": 0.04538051370437286
+  },
+  "n_folds": 6,
+  "total_return_pct": 11.909189467259097,
+  "max_drawdown_pct": -16.36587865779933,
+  "folds": [
+    {
+      "fold": 1,
+      "train_range": "0-255",
+      "test_range": "255-510",
+      "return_pct": 5.743157238905261,
+      "trades": 33,
+      "win_rate": 45.45454545454545
+    },
+    {
+      "fold": 2,
+      "train_range": "0-510",
+      "test_range": "510-765",
+      "return_pct": 0.0,
+      "trades": 0,
+      "win_rate": 0
+    },
+    {
+      "fold": 3,
+      "train_range": "0-765",
+      "test_range": "765-1020",
+      "return_pct": -2.0000000000000018,
+      "trades": 1,
+      "win_rate": 0.0
+    },
+    {
+      "fold": 4,
+      "train_range": "0-1020",
+      "test_range": "1020-1275",
+      "return_pct": 1.1029568972562576,
+      "trades": 3,
+      "win_rate": 66.66666666666666
+    },
+    {
+      "fold": 5,
+      "train_range": "0-1275",
+      "test_range": "1275-1530",
+      "return_pct": 10.894686550667366,
+      "trades": 13,
+      "win_rate": 61.53846153846154
+    },
+    {
+      "fold": 6,
+      "train_range": "0-1530",
+      "test_range": "1530-1785",
+      "return_pct": -3.6808134237520274,
+      "trades": 55,
+      "win_rate": 40.0
+    }
+  ]
+}

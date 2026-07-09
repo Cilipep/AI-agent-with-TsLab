@@ -1,0 +1,21 @@
+{
+  "params": {
+    "model_type": "lstm",
+    "hidden_size": 32,
+    "num_layers": 1,
+    "dropout": 0.21749890759201163,
+    "window": 60,
+    "batch_size": 32,
+    "learning_rate": 0.00026327460599590556,
+    "n_models": 2,
+    "stop_loss_pct": 0.020177049376285033,
+    "take_profit_pct": 0.07174676840579329
+  },
+  "attrs": {
+    "max_drawdown": 16.60055640296232,
+    "total_return": 55.27151342256784,
+    "total_trades": 82,
+    "win_rate": 32.926829268292686
+  },
+  "value": 6.8416451832652925
+}

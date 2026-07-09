@@ -1,0 +1,69 @@
+{
+  "model": "diverse_ensemble_feature_selection",
+  "model_types": [
+    "attention"
+  ],
+  "enhancements": {
+    "trailing_stop": 0.01,
+    "dynamic_sizing": true,
+    "feature_selection": 104
+  },
+  "total_return_pct": -27.247361003600233,
+  "max_drawdown_pct": -27.325667733052395,
+  "folds": [
+    {
+      "fold": 1,
+      "return": -10.084585722698304,
+      "drawdown": -12.009123035789615,
+      "trades": 120,
+      "win_rate": 30.833333333333336,
+      "profit_factor": 0.672511085632794,
+      "threshold": 0.3
+    },
+    {
+      "fold": 2,
+      "return": 1.1545111609892356,
+      "drawdown": 0.0,
+      "trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "threshold": 0.5
+    },
+    {
+      "fold": 3,
+      "return": 0.49941863629971994,
+      "drawdown": -2.801070230390701,
+      "trades": 13,
+      "win_rate": 38.46153846153847,
+      "profit_factor": 0.9876491819239059,
+      "threshold": 0.5
+    },
+    {
+      "fold": 4,
+      "return": -10.187151034286689,
+      "drawdown": -12.302161584246429,
+      "trades": 116,
+      "win_rate": 29.310344827586203,
+      "profit_factor": 0.6671365765363401,
+      "threshold": 0.3
+    },
+    {
+      "fold": 5,
+      "return": -0.3022432356179605,
+      "drawdown": -0.3022432356179605,
+      "trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "threshold": 0.45
+    },
+    {
+      "fold": 6,
+      "return": -11.112245100952611,
+      "drawdown": -11.124218060886559,
+      "trades": 79,
+      "win_rate": 30.37974683544304,
+      "profit_factor": 0.6677187337885231,
+      "threshold": 0.5
+    }
+  ]
+}

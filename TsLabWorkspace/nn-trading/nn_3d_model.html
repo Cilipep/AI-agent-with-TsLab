@@ -247,6 +247,9 @@ let dragging = false, lastMX, lastMY;
 let currentModel = 'attention';
 let animPhase = 0;
 let hoverNeuron = null;
+let dirty = true;        // only re-render when something changes
+let visible = true;      // Page Visibility API
+let animFrame = null;
 
 // Neuron data for current model
 let neurons = [];
@@ -407,6 +410,10 @@ function darkenColor(hex, amt) {
 }
 
 function render() {
+  if (!visible) { animFrame = null; return; }  // stop when tab hidden
+  if (!dirty) { animFrame = requestAnimationFrame(render); return; }  // idle skip
+  dirty = false;
+
   ctx.clearRect(0, 0, W, H);
 
   // Background gradient
@@ -497,7 +504,7 @@ function render() {
     });
   }
 
-  requestAnimationFrame(render);
+  animFrame = requestAnimationFrame(render);
 }
 
 // ============================================================
@@ -515,6 +522,7 @@ Object.keys(MODELS).forEach(key => {
     currentModel = key;
     buildModel(key);
     updateInfoPanel(key);
+    dirty = true;
   });
   selectorDiv.appendChild(btn);
 });
@@ -541,6 +549,7 @@ canvas.addEventListener('mousedown', e => {
   dragging = true;
   lastMX = e.clientX;
   lastMY = e.clientY;
+  dirty = true;
 });
 canvas.addEventListener('mousemove', e => {
   if (dragging) {
@@ -550,6 +559,7 @@ canvas.addEventListener('mousemove', e => {
     rotX += dy * 0.005;
     lastMX = e.clientX;
     lastMY = e.clientY;
+    dirty = true;
   }
 
   // Hover detection
@@ -571,6 +581,7 @@ canvas.addEventListener('mousemove', e => {
     tooltip.style.top = (e.clientY - 10) + 'px';
     tooltip.innerHTML = `<b>${n.layerLabel.split('\n')[0]}</b><br>${n.layerLabel.split('\n').slice(1).join('<br>')}`;
     canvas.style.cursor = 'pointer';
+    dirty = true;
   } else {
     tooltip.style.display = 'none';
     canvas.style.cursor = dragging ? 'grabbing' : 'grab';
@@ -584,7 +595,16 @@ canvas.addEventListener('wheel', e => {
   e.preventDefault();
   rotX += e.deltaY * 0.001;
   rotX = Math.max(-1.2, Math.min(0.5, rotX));
+  dirty = true;
 }, { passive: false });
+
+// ============================================================
+// Page Visibility — pause when tab is hidden
+// ============================================================
+document.addEventListener('visibilitychange', () => {
+  visible = !document.hidden;
+  if (visible) { dirty = true; animFrame = requestAnimationFrame(render); }
+});
 
 // ============================================================
 // INIT

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NN Trading Architecture</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a2e; }
+        #info { position: absolute; top: 10px; left: 10px; color: white; font-family: Arial; }
+        h1 { margin: 0; font-size: 24px; }
+        p { margin: 5px 0; font-size: 14px; color: #888; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>NN Trading Architecture</h1>
+        <p>LSTM + Attention Ensemble</p>
+        <p>12 Instruments | 15m Timeframe</p>
+        <p>Threshold: 0.3-0.6 | Stop: -3% | TP: +4%</p>
+    </div>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Input layer (55 features)
+        const inputGeom = new THREE.BoxGeometry(2, 0.5, 2);
+        const inputMat = new THREE.MeshBasicMaterial({color: 0x4CAF50, transparent: true, opacity: 0.8});
+        const input = new THREE.Mesh(inputGeom, inputMat);
+        input.position.set(0, 0, -4);
+        scene.add(input);
+
+        // LSTM layer
+        const lstmGeom = new THREE.BoxGeometry(1.5, 0.5, 1.5);
+        const lstmMat = new THREE.MeshBasicMaterial({color: 0x2196F3, transparent: true, opacity: 0.8});
+        const lstm = new THREE.Mesh(lstmGeom, lstmMat);
+        lstm.position.set(-1.5, 0, -2);
+        scene.add(lstm);
+
+        // Attention layer
+        const attGeom = new THREE.BoxGeometry(1.5, 0.5, 1.5);
+        const attMat = new THREE.MeshBasicMaterial({color: 0xFF9800, transparent: true, opacity: 0.8});
+        const att = new THREE.Mesh(attGeom, attMat);
+        att.position.set(1.5, 0, -2);
+        scene.add(att);
+
+        // Output layer
+        const outputGeom = new THREE.BoxGeometry(2, 0.5, 2);
+        const outputMat = new THREE.MeshBasicMaterial({color: 0xF44336, transparent: true, opacity: 0.8});
+        const output = new THREE.Mesh(outputGeom, outputMat);
+        output.position.set(0, 0, 0);
+        scene.add(output);
+
+        // Connections
+        const lineMat = new THREE.LineBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.5});
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-1, 0, -4), new THREE.Vector3(-1.5, 0, -2)
+        ]), lineMat));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(1, 0, -4), new THREE.Vector3(1.5, 0, -2)
+        ]), lineMat));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-1.5, 0, -2), new THREE.Vector3(-1, 0, 0)
+        ]), lineMat));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(1.5, 0, -2), new THREE.Vector3(1, 0, 0)
+        ]), lineMat));
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            input.rotation.y += 0.005;
+            lstm.rotation.y += 0.005;
+            att.rotation.y += 0.005;
+            output.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

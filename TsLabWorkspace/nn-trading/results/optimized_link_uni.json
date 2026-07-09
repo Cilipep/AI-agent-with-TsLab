@@ -1,0 +1,18 @@
+{
+  "LINK": {
+    "before": -25.35,
+    "after": 26.68,
+    "threshold": 0.6,
+    "pf": 1.72,
+    "sharpe": 6.08,
+    "maxdd": -5.25
+  },
+  "UNI": {
+    "before": -14.18,
+    "after": 152.43,
+    "threshold": 0.4,
+    "pf": 1.16,
+    "sharpe": 6.44,
+    "maxdd": -6.99
+  }
+}

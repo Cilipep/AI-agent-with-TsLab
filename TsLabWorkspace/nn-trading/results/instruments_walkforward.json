@@ -1,0 +1,335 @@
+{
+  "instruments": [
+    {
+      "instrument": "NEAR",
+      "total_return": 18.24,
+      "max_drawdown": -22.86,
+      "total_trades": 262,
+      "avg_win_rate": 36.4,
+      "sharpe": 0.8,
+      "sortino": 2.93,
+      "calmar": 0.8,
+      "folds": [
+        {
+          "fold": 1,
+          "return": 2.87,
+          "trades": 157,
+          "win_rate": 30.6,
+          "sharpe": 0.34,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 10.75,
+          "trades": 37,
+          "win_rate": 40.5,
+          "sharpe": 2.81,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": 3.78,
+          "trades": 68,
+          "win_rate": 38.2,
+          "sharpe": 0.82,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "XLM",
+      "total_return": 20.62,
+      "max_drawdown": -8.08,
+      "total_trades": 71,
+      "avg_win_rate": 39.9,
+      "sharpe": 2.48,
+      "sortino": 15.62,
+      "calmar": 2.55,
+      "folds": [
+        {
+          "fold": 1,
+          "return": -6.02,
+          "trades": 17,
+          "win_rate": 29.4,
+          "sharpe": -7.95,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 2.51,
+          "trades": 17,
+          "win_rate": 47.1,
+          "sharpe": 2.86,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": 25.2,
+          "trades": 37,
+          "win_rate": 43.2,
+          "sharpe": 4.36,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "SOL",
+      "total_return": 11.7,
+      "max_drawdown": -11.14,
+      "total_trades": 111,
+      "avg_win_rate": 21.8,
+      "sharpe": 1.26,
+      "sortino": 6.02,
+      "calmar": 1.05,
+      "folds": [
+        {
+          "fold": 1,
+          "return": 16.78,
+          "trades": 68,
+          "win_rate": 35.3,
+          "sharpe": 2.51,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": -1.06,
+          "trades": 3,
+          "win_rate": 0.0,
+          "sharpe": -26.25,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": -3.32,
+          "trades": 40,
+          "win_rate": 30.0,
+          "sharpe": -0.97,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "AAVE",
+      "total_return": 9.06,
+      "max_drawdown": -10.33,
+      "total_trades": 134,
+      "avg_win_rate": 25.4,
+      "sharpe": 1.01,
+      "sortino": 4.42,
+      "calmar": 0.88,
+      "folds": [
+        {
+          "fold": 1,
+          "return": 0.0,
+          "trades": 0,
+          "win_rate": 0,
+          "sharpe": 0.0,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 6.73,
+          "trades": 34,
+          "win_rate": 44.1,
+          "sharpe": 2.95,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": 2.19,
+          "trades": 100,
+          "win_rate": 32.0,
+          "sharpe": 0.42,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "LINK",
+      "total_return": -13.41,
+      "max_drawdown": -19.41,
+      "total_trades": 104,
+      "avg_win_rate": 25.8,
+      "sharpe": -1.97,
+      "sortino": -6.12,
+      "calmar": -0.69,
+      "folds": [
+        {
+          "fold": 1,
+          "return": 0.0,
+          "trades": 0,
+          "win_rate": 0,
+          "sharpe": 0.0,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 7.32,
+          "trades": 19,
+          "win_rate": 52.6,
+          "sharpe": 5.17,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": -19.32,
+          "trades": 85,
+          "win_rate": 24.7,
+          "sharpe": -3.92,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "ADA",
+      "total_return": -7.74,
+      "max_drawdown": -17.04,
+      "total_trades": 172,
+      "avg_win_rate": 33.0,
+      "sharpe": -0.54,
+      "sortino": -2.05,
+      "calmar": -0.45,
+      "folds": [
+        {
+          "fold": 1,
+          "return": 1.32,
+          "trades": 25,
+          "win_rate": 36.0,
+          "sharpe": 0.82,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": -4.79,
+          "trades": 58,
+          "win_rate": 29.3,
+          "sharpe": -1.2,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": -4.37,
+          "trades": 89,
+          "win_rate": 33.7,
+          "sharpe": -0.55,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "BCH",
+      "total_return": 2.36,
+      "max_drawdown": -4.72,
+      "total_trades": 19,
+      "avg_win_rate": 26.5,
+      "sharpe": 1.55,
+      "sortino": 6.27,
+      "calmar": 0.5,
+      "folds": [
+        {
+          "fold": 1,
+          "return": -3.32,
+          "trades": 6,
+          "win_rate": 33.3,
+          "sharpe": -9.63,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 0.0,
+          "trades": 0,
+          "win_rate": 0,
+          "sharpe": 0.0,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": 5.87,
+          "trades": 13,
+          "win_rate": 46.2,
+          "sharpe": 5.2,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "TRX",
+      "total_return": -42.57,
+      "max_drawdown": -42.57,
+      "total_trades": 247,
+      "avg_win_rate": 35.2,
+      "sharpe": -2.95,
+      "sortino": -6.47,
+      "calmar": -1.0,
+      "folds": [
+        {
+          "fold": 1,
+          "return": -26.96,
+          "trades": 103,
+          "win_rate": 29.1,
+          "sharpe": -5.2,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 13.37,
+          "trades": 44,
+          "win_rate": 45.5,
+          "sharpe": 2.88,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": -30.65,
+          "trades": 100,
+          "win_rate": 31.0,
+          "sharpe": -5.57,
+          "threshold": 0.5
+        }
+      ]
+    },
+    {
+      "instrument": "UNI",
+      "total_return": -22.8,
+      "max_drawdown": -27.15,
+      "total_trades": 176,
+      "avg_win_rate": 29.6,
+      "sharpe": -1.43,
+      "sortino": -7.1,
+      "calmar": -0.84,
+      "folds": [
+        {
+          "fold": 1,
+          "return": -7.01,
+          "trades": 20,
+          "win_rate": 30.0,
+          "sharpe": -5.63,
+          "threshold": 0.5
+        },
+        {
+          "fold": 2,
+          "return": 8.01,
+          "trades": 47,
+          "win_rate": 34.0,
+          "sharpe": 1.56,
+          "threshold": 0.5
+        },
+        {
+          "fold": 3,
+          "return": -23.14,
+          "trades": 109,
+          "win_rate": 24.8,
+          "sharpe": -2.87,
+          "threshold": 0.5
+        }
+      ]
+    }
+  ],
+  "profitable": [
+    "XLM",
+    "NEAR",
+    "SOL",
+    "AAVE",
+    "BCH"
+  ]
+}

@@ -5,11 +5,21 @@ from pathlib import Path
 
 
 def load_results():
-    path = Path("results/walk_forward_mtf_results.json")
-    if path.exists():
-        with open(path) as f:
-            return json.load(f)["instruments"]
-    return []
+    # Load from instruments walkforward (10 instruments)
+    path1 = Path("results/instruments_walkforward.json")
+    # Load from mtf results (BTC, ETH, SOL)
+    path2 = Path("results/walk_forward_mtf_results.json")
+
+    results = []
+    if path1.exists():
+        with open(path1) as f:
+            results.extend(json.load(f).get("instruments", []))
+    if path2.exists():
+        with open(path2) as f:
+            for inst in json.load(f).get("instruments", []):
+                if inst["instrument"] not in [r["instrument"] for r in results]:
+                    results.append(inst)
+    return results
 
 
 def allocate_portfolio(instruments, max_alloc=0.25, min_alloc=0.05):

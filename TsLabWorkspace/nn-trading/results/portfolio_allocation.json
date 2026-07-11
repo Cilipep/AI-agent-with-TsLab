@@ -1,7 +1,12 @@
 {
   "allocation": {
-    "Ethereum": 50.0,
-    "Solana": 50.0
+    "NEAR": 7.1,
+    "XLM": 22.2,
+    "SOL": 11.3,
+    "AAVE": 9.0,
+    "BCH": 13.8,
+    "Ethereum": 10.5,
+    "Solana": 26.1
   },
-  "expected_return": 215.33
+  "expected_return": 114.03
 }

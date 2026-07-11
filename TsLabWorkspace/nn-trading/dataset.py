@@ -34,8 +34,11 @@ FEATURE_COLS = [
 
 def auto_select_features(df: pd.DataFrame, y: pd.Series, max_features: int = 40) -> list:
     """Auto-select top features using Random Forest importance + mutual information."""
-    # Filter to only available columns
-    available = [c for c in FEATURE_COLS if c in df.columns]
+    # Use all available numeric columns (not just FEATURE_COLS)
+    exclude = {"Open", "High", "Low", "Close", "Volume", "label"}
+    available = [c for c in df.columns if c not in exclude
+                 and df[c].dtype in [np.float64, np.float32, np.int64]
+                 and not df[c].isna().all()]
     if len(available) <= max_features:
         return available
 

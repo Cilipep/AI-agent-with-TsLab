@@ -98,14 +98,14 @@ def main():
     # 4. Results
     add_heading(doc, "4. Результаты")
 
-    # Load results
-    results_path = Path("results/walk_forward_mtf_results.json")
+    # Load 10-instrument results
+    results_path = Path("results/instruments_walkforward.json")
     if results_path.exists():
         with open(results_path) as f:
             data = json.load(f)
         instruments = data.get("instruments", [])
 
-        add_heading(doc, "4.1 Результаты по инструментам", level=2)
+        add_heading(doc, "4.1 Walk-forward: 10 инструментов (3 фолда)", level=2)
         headers = ["Инструмент", "Return", "Drawdown", "Win Rate", "Sharpe", "Sortino"]
         rows = []
         for inst in instruments:
@@ -121,9 +121,24 @@ def main():
 
         profitable = [i for i in instruments if i["total_return"] > 0]
         avg_ret = sum(i["total_return"] for i in profitable) / len(profitable) if profitable else 0
+        avg_sharpe = sum(i["sharpe"] for i in profitable) / len(profitable) if profitable else 0
 
         doc.add_paragraph(f"\nПрибыльных инструментов: {len(profitable)}/{len(instruments)}")
         doc.add_paragraph(f"Средняя доходность (прибыльных): {avg_ret:+.2f}%")
+        doc.add_paragraph(f"Средний Sharpe (прибыльных): {avg_sharpe:+.2f}")
+
+    # Load 3-year backtest results
+    bt_path = Path("results/full_backtest_3yr.json")
+    if bt_path.exists():
+        with open(bt_path) as f:
+            bt_data = json.load(f)
+        portfolio = bt_data.get("portfolio", {})
+
+        add_heading(doc, "4.2 3-летний бэктест портфеля", level=2)
+        doc.add_paragraph(f"Total Return: {portfolio.get('total_return', 0):+.2f}%")
+        doc.add_paragraph(f"Max Drawdown: {portfolio.get('max_drawdown', 0):.2f}%")
+        doc.add_paragraph(f"Sharpe Ratio: {portfolio.get('sharpe', 0):.2f}")
+        doc.add_paragraph(f"Sortino Ratio: {portfolio.get('sortino', 0):.2f}")
 
     # 5. Portfolio
     add_heading(doc, "5. Portfolio Analysis")
@@ -140,11 +155,12 @@ def main():
     # 6. Recommendations
     add_heading(doc, "6. Рекомендации")
     doc.add_paragraph(
-        "1. ETH и SOL показали стабильную прибыльность — основные инструменты\n"
-        "2. BTC требует进一步 оптимизации (RL, больше данных)\n"
-        "3. Использовать агрессивный фильтр (порог 0.6+) для снижения количества сделок\n"
-        "4. Ребалансировка портфеля ежемесячно\n"
-        "5. Мониторинг drawdown — при превышении 20% снижать позиции"
+        "1. XLM, NEAR, SOL, AAVE, BCH — прибыльные инструменты, основа портфеля\n"
+        "2. ADA, LINK, UNI, TRX — убыточны, исключить из портфеля\n"
+        "3. Динамическая ребалансировка каждые 30 баров\n"
+        "4. Confidence threshold 0.5+ для снижения количества сделок\n"
+        "5. Мониторинг drawdown — при превышении 15% снижать позиции\n"
+        "6. BTC требует further оптимизации (RL, больше данных)"
     )
 
     # 7. Technical details

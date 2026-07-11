@@ -22,7 +22,7 @@ def prepare_features(df, max_features=80):
 
 def walk_forward_rl(df, name, n_folds=5, window=30, min_confidence=0.6):
     from features import make_label
-    df["label"] = make_label(df, 5, 0.001)
+    df["label"] = make_label(df, 5, 0.001).values
     df = df.dropna()
 
     features_df = prepare_features(df)

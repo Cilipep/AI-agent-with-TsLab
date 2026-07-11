@@ -65,7 +65,8 @@ def run_backtest_v2(model, dataset, df: pd.DataFrame, config, device,
             probs.extend(prob)
 
     probs = np.array(probs)
-    predictions = (probs > threshold).astype(int)
+    # Short signals: prob > threshold → long, prob < (1-threshold) → short
+    predictions = np.where(probs > threshold, 1, np.where(probs < (1 - threshold), -1, 0))
 
     if start_idx is None:
         start_idx = config.window
@@ -87,71 +88,104 @@ def run_backtest_v2(model, dataset, df: pd.DataFrame, config, device,
     # Total transaction cost per trade (entry + exit)
     total_cost_pct = commission_pct * 2 + slippage_pct * 2 + spread_pct
 
-    # Simulation with enhanced risk management
+    # Simulation with long + short support
     equity = [1.0]
-    position = 0
+    position = 0  # 0=flat, 1=long, -1=short
     entry_price = 0
     position_size = 0
     stop_price = 0
     tp_price = 0
-    highest_since_entry = 0
+    trailing_ref = 0  # highest for long, lowest for short
     trades = []
 
     for i in range(len(preds) - 1):
         current_equity = equity[-1]
+        signal = preds[i]
 
         if position == 0:
-            if preds[i] == 1:
+            # Open new position
+            if signal == 1:  # LONG
                 position = 1
                 entry_price = prices[i]
-                highest_since_entry = prices[i]
-
-                # Dynamic position sizing based on ATR
+                trailing_ref = prices[i]
                 if use_dynamic_sizing:
-                    volatility = atr[i] / prices[i] if prices[i] > 0 else 0.02
-                    # Smaller position when volatility is high
-                    size_multiplier = min(1.0, 0.02 / max(volatility, 0.01))
-                    position_size = (current_equity * risk_per_trade * size_multiplier) / stop_loss
+                    vol = atr[i] / prices[i] if prices[i] > 0 else 0.02
+                    size_mult = min(1.0, 0.02 / max(vol, 0.01))
+                    position_size = (current_equity * risk_per_trade * size_mult) / stop_loss
                 else:
                     position_size = (current_equity * risk_per_trade) / stop_loss
-
                 stop_price = entry_price * (1 - stop_loss)
                 tp_price = entry_price * (1 + take_profit)
+
+            elif signal == -1:  # SHORT
+                position = -1
+                entry_price = prices[i]
+                trailing_ref = prices[i]
+                if use_dynamic_sizing:
+                    vol = atr[i] / prices[i] if prices[i] > 0 else 0.02
+                    size_mult = min(1.0, 0.02 / max(vol, 0.01))
+                    position_size = (current_equity * risk_per_trade * size_mult) / stop_loss
+                else:
+                    position_size = (current_equity * risk_per_trade) / stop_loss
+                stop_price = entry_price * (1 + stop_loss)   # short stop is ABOVE entry
+                tp_price = entry_price * (1 - take_profit)   # short TP is BELOW entry
+
         else:
-            # Update highest price since entry
-            highest_since_entry = max(highest_since_entry, prices[i])
+            # Manage open position
+            if position == 1:  # LONG
+                trailing_ref = max(trailing_ref, prices[i])
+                if use_trailing_stop:
+                    ts = trailing_ref * (1 - trailing_stop_pct)
+                    stop_price = max(stop_price, ts)
+                hit_sl = lows[i] <= stop_price
+                hit_tp = highs[i] >= tp_price
+                exit_price = None
+                reason = None
+                if hit_sl:
+                    exit_price = stop_price; reason = "TS" if stop_price > entry_price * (1 - stop_loss) else "SL"
+                elif hit_tp:
+                    exit_price = tp_price; reason = "TP"
+                elif signal != 1:
+                    exit_price = prices[i]; reason = "SIG"
+                if exit_price is not None:
+                    pnl = (exit_price - entry_price) / entry_price - total_cost_pct
+                    equity.append(current_equity + position_size * pnl)
+                    trades.append({"entry": entry_price, "exit": exit_price, "pnl": pnl, "side": "long", "reason": reason})
+                    position = 0
 
-            # Update trailing stop if enabled
-            if use_trailing_stop:
-                trailing_stop = highest_since_entry * (1 - trailing_stop_pct)
-                stop_price = max(stop_price, trailing_stop)
+            elif position == -1:  # SHORT
+                trailing_ref = min(trailing_ref, prices[i])
+                if use_trailing_stop:
+                    ts = trailing_ref * (1 + trailing_stop_pct)
+                    stop_price = min(stop_price, ts)
+                hit_sl = highs[i] >= stop_price
+                hit_tp = lows[i] <= tp_price
+                exit_price = None
+                reason = None
+                if hit_sl:
+                    exit_price = stop_price; reason = "TS" if stop_price < entry_price * (1 + stop_loss) else "SL"
+                elif hit_tp:
+                    exit_price = tp_price; reason = "TP"
+                elif signal != -1:
+                    exit_price = prices[i]; reason = "SIG"
+                if exit_price is not None:
+                    pnl = (entry_price - exit_price) / entry_price - total_cost_pct  # short profit
+                    equity.append(current_equity + position_size * pnl)
+                    trades.append({"entry": entry_price, "exit": exit_price, "pnl": pnl, "side": "short", "reason": reason})
+                    position = 0
 
-            hit_sl = lows[i] <= stop_price
-            hit_tp = highs[i] >= tp_price
+        if equity[-1] == current_equity and position != 0:
+            equity.append(current_equity)
 
-            if hit_sl:
-                pnl = (stop_price - entry_price) / entry_price - total_cost_pct
-                equity.append(current_equity + position_size * pnl)
-                reason = "TS" if use_trailing_stop and stop_price > entry_price * (1 - stop_loss) else "SL"
-                trades.append({"entry": entry_price, "exit": stop_price, "pnl": pnl, "reason": reason})
-                position = 0
-            elif hit_tp:
-                pnl = (tp_price - entry_price) / entry_price - total_cost_pct
-                equity.append(current_equity + position_size * pnl)
-                trades.append({"entry": entry_price, "exit": tp_price, "pnl": pnl, "reason": "TP"})
-                position = 0
-            elif preds[i] == 0:
-                pnl = (prices[i] - entry_price) / entry_price - total_cost_pct
-                equity.append(current_equity + position_size * pnl)
-                trades.append({"entry": entry_price, "exit": prices[i], "pnl": pnl, "reason": "SIG"})
-                position = 0
-            else:
-                equity.append(current_equity)
-
+    # Close open position at end
     if position == 1:
         pnl = (prices[-1] - entry_price) / entry_price - total_cost_pct
         equity.append(equity[-1] + position_size * pnl)
-        trades.append({"entry": entry_price, "exit": prices[-1], "pnl": pnl, "reason": "END"})
+        trades.append({"entry": entry_price, "exit": prices[-1], "pnl": pnl, "side": "long", "reason": "END"})
+    elif position == -1:
+        pnl = (entry_price - prices[-1]) / entry_price - total_cost_pct
+        equity.append(equity[-1] + position_size * pnl)
+        trades.append({"entry": entry_price, "exit": prices[-1], "pnl": pnl, "side": "short", "reason": "END"})
 
     equity = np.array(equity)
     trades_df = pd.DataFrame(trades) if trades else pd.DataFrame()
@@ -200,7 +234,8 @@ def run_backtest_original(model, dataset, df: pd.DataFrame, config, device,
             probs.extend(prob)
 
     probs = np.array(probs)
-    predictions = (probs > threshold).astype(int)
+    # Short signals: prob > threshold → long, prob < (1-threshold) → short
+    predictions = np.where(probs > threshold, 1, np.where(probs < (1 - threshold), -1, 0))
 
     start_idx = config.window
     preds = np.array(predictions[:len(df) - start_idx])

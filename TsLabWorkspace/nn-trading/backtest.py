@@ -23,7 +23,7 @@ def run_backtest(model, dataset, df: pd.DataFrame, config, device,
             probs.extend(prob)
 
     probs = np.array(probs)
-    predictions = (probs > threshold).astype(int)
+    predictions = np.where(probs > threshold, 1, np.where(probs < (1 - threshold), -1, 0))
 
     start_idx = config.window
     preds = np.array(predictions[:len(df) - start_idx])

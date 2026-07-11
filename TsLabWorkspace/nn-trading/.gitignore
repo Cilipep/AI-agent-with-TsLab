@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+optuna_*.db
+catboost_info/
+data/*.csv
+results/*.json
+*.onnx
+*.pt
+models/

@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Subset
 
-from dataset import TimeSeriesDataset, auto_select_features, FEATURE_COLS
+from dataset import TimeSeriesDataset, auto_select_features, fit_scaler, FEATURE_COLS
 from model import build_model, Ensemble, StackingEnsemble, train_stacking, build_sklearn_models, HybridEnsemble
 from train import train
 from backtest_v2 import run_backtest_v2
@@ -80,26 +80,25 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
     if feature_cols is None:
         feature_cols = auto_select_features(df, df["label"], max_features=config.max_features)
 
-    ds = TimeSeriesDataset(df, config.window, feature_cols=feature_cols)
-    total = len(ds)
+    total = len(df)
     test_size = total // (n_folds + 1)
     min_train_size = total // (n_folds + 1)
+    embargo = 7  # bars to skip between train and test
 
     all_results = []
     equity_parts = []
-    position_offset = 0
 
     seeds = [42 + i * 17 for i in range(config.n_models)]
 
     print(f"\n{'='*60}")
-    print(f"ANCHORED WALK-FORWARD: {n_folds} folds")
+    print(f"ANCHORED WALK-FORWARD: {n_folds} folds (embargo={embargo})")
     print(f"Total data: {total} | Test size per fold: {test_size}")
-    print(f"Features: {len(ds.cols)} | Stacking: {'ON' if use_stacking else 'OFF'}")
+    print(f"Features: {len(feature_cols)} | Stacking: {'ON' if use_stacking else 'OFF'}")
     print(f"{'='*60}")
 
     for fold in range(n_folds):
         train_end = min_train_size + fold * test_size
-        test_start = train_end
+        test_start = train_end + embargo
         test_end = min(test_start + test_size, total)
 
         if test_end <= test_start:
@@ -108,17 +107,25 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
         print(f"\n{'='*60}")
         print(f"Fold {fold+1}/{n_folds} | "
               f"train: 0-{train_end} ({train_end} bars) | "
+              f"embargo: {embargo} | "
               f"test: {test_start}-{test_end} ({test_end - test_start} bars)")
 
-        # Split dataset into train/val/test
-        full_train_indices = list(range(0, train_end - config.window))
+        # FIT SCALER ON TRAIN ONLY
+        train_df = df.iloc[:train_end]
+        scaler = fit_scaler(train_df, feature_cols)
+
+        # Create datasets with PRE-FITTED scaler
+        train_ds_full = TimeSeriesDataset(df.iloc[:train_end], config.window, feature_cols=feature_cols, scaler=scaler)
+        full_train_indices = list(range(0, len(train_ds_full)))
         val_split = int(len(full_train_indices) * 0.85)
         train_indices = full_train_indices[:val_split]
         val_indices = full_train_indices[val_split:]
 
-        train_ds = Subset(ds, train_indices)
-        val_ds = Subset(ds, val_indices)
-        test_ds = Subset(ds, range(test_start - config.window, test_end - config.window))
+        train_ds = Subset(train_ds_full, train_indices)
+        val_ds = Subset(train_ds_full, val_indices)
+
+        test_start_idx = max(0, test_start - config.window)
+        test_ds = TimeSeriesDataset(df.iloc[test_start_idx:test_end], config.window, feature_cols=feature_cols, scaler=scaler)
 
         print(f"  train={len(train_ds)} val={len(val_ds)} test={len(test_ds)}")
 
@@ -129,15 +136,15 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
             random.seed(seed)
             np.random.seed(seed)
 
-            model = build_model(config, len(ds.cols))
+            model = build_model(config, len(feature_cols))
             model = train(model, train_ds, val_ds, config, device, quiet=True)
             base_models.append(model)
 
         # Train sklearn models on flattened data
-        X_train_flat, y_train_flat = _flatten_sequences(train_ds, config.window, len(ds.cols))
+        X_train_flat, y_train_flat = _flatten_sequences(train_ds, config.window, len(feature_cols))
         sklearn_wrappers = build_sklearn_models(
             X_train_flat, y_train_flat,
-            window=config.window, n_features=len(ds.cols),
+            window=config.window, n_features=len(feature_cols),
             n_cpu=config.n_cpu_threads,
         )
 

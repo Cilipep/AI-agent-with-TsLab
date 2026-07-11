@@ -1,10 +1,10 @@
 {
   "strategy": {
     "name": "DOGE Adaptive Reinvestment Strategy",
-    "version": "1.0",
-    "description": "SMA Crossover с адаптивным реинвестированием по тренду",
+    "version": "2.0",
+    "description": "SMA Crossover с адаптивным реинвестированием по тренду (оптимизировано)",
     "author": "TSLab AI Agent",
-    "created_at": "2026-06-30"
+    "created_at": "2026-07-07"
   },
   "instrument": {
     "symbol": "DOGEUSD_PERP",
@@ -15,7 +15,7 @@
   "capital": {
     "initial": 25,
     "currency": "USDT",
-    "leverage": 3,
+    "leverage": 1.7,
     "max_position_pct": 100
   },
   "entry": {
@@ -72,21 +72,21 @@
     },
     "stop_loss": {
       "type": "atr",
-      "atr_multiplier": 2.5,
-      "description": "2.5x ATR от входа"
+      "atr_multiplier": 1.6,
+      "description": "1.6x ATR от входа"
     },
     "take_profit": {
       "type": "atr",
-      "atr_multiplier": 3,
-      "description": "3x ATR от входа"
+      "atr_multiplier": 2.5,
+      "description": "2.5x ATR от входа"
     },
     "trailing_stop": {
       "enabled": true,
       "activation": "immediate",
-      "trail_pct": 1.5,
-      "description": "Трейлинг стоп 1.5% от пика"
+      "trail_pct": 0.8,
+      "description": "Трейлинг стоп 0.8% от пика"
     },
-    "max_drawdown_pct": 50,
+    "max_drawdown_pct": 25,
     "liquidation_threshold_pct": 90
   },
   "reinvestment": {
@@ -95,13 +95,13 @@
     "rules": {
       "uptrend": {
         "condition": "Price > EMA200 * 1.02",
-        "reinvest_pct": 15,
-        "description": "Восходящий тренд: реинвест 15% прибыли"
+        "reinvest_pct": 8,
+        "description": "Восходящий тренд: реинвест 8% прибыли"
       },
       "sideways": {
         "condition": "EMA200 * 0.98 <= Price <= EMA200 * 1.02",
-        "reinvest_pct": 5,
-        "description": "Боковой рынок: реинвест 5% прибыли"
+        "reinvest_pct": 2,
+        "description": "Боковой рынок: реинвест 2% прибыли"
       },
       "downtrend": {
         "condition": "Price < EMA200 * 0.98",
@@ -126,41 +126,47 @@
     "description": "0.1% комиссия за сделку"
   },
   "backtest_results": {
-    "period": "2026-01-01 - 2026-06-30",
+    "period": "2026-01-08 - 2026-07-07",
     "days": 180,
     "bars": 4320,
     "initial_capital": 25,
-    "final_capital": 40.85,
-    "net_profit": 15.85,
-    "return_pct": 63.4,
-    "max_drawdown_pct": 49.34,
-    "sharpe_ratio": 1.28,
-    "profit_factor": 1.52,
+    "final_capital": 33.13,
+    "net_profit": 8.13,
+    "return_pct": 32.51,
+    "max_drawdown_pct": 23.71,
+    "sharpe_ratio": 1.37,
+    "profit_factor": 1.49,
     "total_trades": 38,
-    "winning_trades": 16,
-    "losing_trades": 22,
-    "win_rate": 42.1,
-    "total_reinvested": 2.11
+    "winning_trades": 19,
+    "losing_trades": 19,
+    "win_rate": 50.0,
+    "total_reinvested": 0.57
   },
   "optimization_history": [
     {
       "date": "2026-06-30",
       "version": "1.0",
       "changes": "Initial strategy with adaptive reinvestment",
-      "result": "+63.4%"
+      "result": "+63.4% (DD: 49.34%)"
+    },
+    {
+      "date": "2026-07-07",
+      "version": "2.0",
+      "changes": "Optimized for lower drawdown: leverage 1.7x, SL 1.6x ATR, TP 2.5x ATR, Trail 0.8%",
+      "result": "+32.51% (DD: 23.71%)"
     }
   ],
   "notes": {
     "key_findings": [
+      "Снижение плеча с 3x до 1.7x снизило просадку с 49% до 24%",
       "Адаптивное реинвестирование работает лучше фиксированного",
       "В нисходящем тренде (58% времени) вывод прибыли защищает капитал",
-      "В восходящем тренде компаунд-эффект работает на рост",
-      "Боковой рынок - единственная убыточная зона"
+      "Win Rate вырос с 42% до 50% благодаря жёстким стопам"
     ],
     "recommendations": [
-      "Использовать 3x плечо для волатильных активов",
-      "Реинвест 15% только в подтвержденном восходящем тренде",
-      "Trail Stop 1.5% защищает прибыль от разворота",
+      "Использовать 1.7x плечо для контроля просадки",
+      "Реинвест 8% только в подтвержденном восходящем тренде",
+      "Trail Stop 0.8% защищает прибыль от разворота",
       "Фильтр EMA200 снижает количество убыточных сделок"
     ]
   }

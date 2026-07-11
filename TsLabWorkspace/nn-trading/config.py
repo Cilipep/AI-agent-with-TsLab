@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Config:
     # Data
-    symbol: str = "BTC-USD"
+    symbol: str = "BTCUSDT"
     interval: str = "1d"  # Daily data for longer history
     period: str = "1820d"  # 5 years of data
 

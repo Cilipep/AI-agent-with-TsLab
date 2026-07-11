@@ -1,8 +1,8 @@
 """
-GridBot_Final.py — Оптимизированная Grid стратегия для BTC
-Параметры: Grid=2.5x ATR, Stop=3.0x ATR, Risk=10%, Reinvest=10%
-Результаты: +124.4% PnL, 68% Win Rate, PF=1.54, Sharpe=5.13
-Бэктест: 1 месяц, 1441 баров, BTC/USD 30m
+GridBot_Final.py — Grid стратегия для BTC
+Параметры: Grid=2.5x ATR, Stop=3.0x ATR, Risk=10%, Leverage=20x, Reinvest=30%
+Результаты: +$1,387 PnL, 67% Win Rate, PF=1.03, Sharpe=8.96
+Бэктест: 30 дней, 1399 баров, BTC/USD 30m
 """
 
 import json
@@ -15,7 +15,7 @@ from datetime import datetime
 CONFIG = {
     'symbol': 'BTC/USDT:USDT',
     'timeframe': '30m',
-    'initial_capital': 40.0,
+    'initial_capital': 60.0,
     'leverage': 20,
     'grid_multiplier': 2.5,
     'stop_multiplier': 3.0,
@@ -28,9 +28,13 @@ CONFIG = {
     'stop_loss_pct': 0.03,       # 3% стоп-лосс (если use_atr_sl_tp=False)
     'take_profit_pct': 0.05,     # 5% тейк-профит (если use_atr_sl_tp=False)
     # Trailing Up/Down (Bybit-style)
-    'trailing_up_stop': 70000,    # Стоп-цена восходящего трейлинга
+    'trailing_up_stop': 90000,    # Стоп-цена восходящего трейлинга
     'trailing_down_stop': 50000,  # Стоп-цена нисходящего трейлинга
     'trailing_enabled': True,     # Включить трейлинг
+    # Volume Filter
+    'volume_filter_enabled': False,  # Отключить фильтр объёма
+    'volume_ma_period': 20,         # Период MA для объёма
+    'volume_threshold': 1.0,        # Порог: объём > MA * threshold
 }
 
 
@@ -165,7 +169,7 @@ class GridBotFinal:
         })
         self.position = None
 
-    def process_bar(self, close, low, high, atr):
+    def process_bar(self, close, low, high, atr, volume=0, vol_ma=0):
         """Обработка одного бара."""
         # Trailing Up/Down check (Bybit-style)
         if not pd.isna(atr) and atr > 0:
@@ -180,7 +184,12 @@ class GridBotFinal:
                 if high >= pos['stop']: self.close_position(pos['stop'], 'stop')
                 elif low <= pos['tp']: self.close_position(pos['tp'], 'tp')
 
-        if self.position is None and self.capital > 1 and not pd.isna(atr) and atr > 0:
+        # Volume Filter
+        volume_ok = True
+        if self.config['volume_filter_enabled'] and vol_ma > 0:
+            volume_ok = volume > vol_ma * self.config['volume_threshold']
+
+        if self.position is None and self.capital > 1 and not pd.isna(atr) and atr > 0 and volume_ok:
             prev_close = self.equity[-1]['close'] if self.equity else close
             if close < prev_close:
                 self.open_position('long', close, atr)
@@ -197,8 +206,10 @@ class GridBotFinal:
         """Запуск бэктеста."""
         df = df.copy()
         df['ATR'] = self.calc_atr(df, self.config['atr_period'])
+        df['VolMA'] = df['Volume'].rolling(self.config['volume_ma_period']).mean()
         for i in range(20, len(df)):
-            self.process_bar(df['Close'].iloc[i], df['Low'].iloc[i], df['High'].iloc[i], df['ATR'].iloc[i])
+            self.process_bar(df['Close'].iloc[i], df['Low'].iloc[i], df['High'].iloc[i],
+                           df['ATR'].iloc[i], df['Volume'].iloc[i], df['VolMA'].iloc[i])
         if self.position:
             self.close_position(df['Close'].iloc[-1], 'end')
         return self.get_metrics()
@@ -293,18 +304,118 @@ class GridBotFinal:
         print(f"\nСохранено: {path}")
 
 
-def run():
-    import yfinance as yf
-    print("Загрузка данных BTC...")
-    df = yf.download('BTC-USD', period='1mo', interval='30m', progress=False)
-    df.columns = df.columns.droplevel(1)
-    print(f"Данные: {len(df)} баров, ${df['Close'].iloc[0]:.0f} — ${df['Close'].iloc[-1]:.0f}")
+def calc_atr(df, period=14):
+    """Расчёт Average True Range для тестнета."""
+    h, l, c = df['high'], df['low'], df['close'].shift(1)
+    tr = pd.concat([h-l, (h-c).abs(), (l-c).abs()], axis=1).max(axis=1)
+    return tr.rolling(period).mean()
 
+
+def run_testnet():
+    """Запуск бота на тестнете Binance."""
+    import ccxt
+    import time
+    
+    print("="*65)
+    print("  GRID BOT — ТЕСТНЕТ BINANCE")
+    print("="*65)
+    
+    # Подключение к тестнету Binance
+    exchange = ccxt.binance({
+        'apiKey': '',
+        'secret': '',
+        'sandbox': True,  # Тестнет
+        'options': {'defaultType': 'future'}
+    })
+    
+    # Загрузка рынков
+    exchange.load_markets()
+    
+    symbol = 'BTC/USDT:USDT'
+    timeframe = '30m'
+    
+    print(f"Символ: {symbol}")
+    print(f"Таймфрейм: {timeframe}")
+    print(f"Капитал: ${CONFIG['initial_capital']}")
+    print(f"Плечо: {CONFIG['leverage']}x")
+    print()
+    
+    # Получение текущей цены
+    ticker = exchange.fetch_ticker(symbol)
+    current_price = ticker['last']
+    print(f"Текущая цена BTC: ${current_price:,.2f}")
+    print()
+    
+    # Получение исторических данных для ATR
+    ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=50)
+    df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    df['ATR'] = calc_atr(df)
+    
+    # Инициализация бота
     bot = GridBotFinal(CONFIG)
-    m = bot.backtest(df)
-    bot.print_report(m)
-    bot.save_results('TsLabWorkspace/GridADAUSDT/GridBot_Final_Results.json')
-    return bot, m
+    
+    print("Бот запущен на тестнете Binance...")
+    print("Нажмите Ctrl+C для остановки")
+    print()
+    
+    try:
+        iteration = 0
+        while True:
+            iteration += 1
+            
+            # Получение текущей цены
+            ticker = exchange.fetch_ticker(symbol)
+            close = ticker['last']
+            low = ticker['low']
+            high = ticker['high']
+            
+            # Получение ATR
+            ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=50)
+            df_temp = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+            atr = calc_atr(df_temp).iloc[-1]
+            
+            if pd.isna(atr) or atr <= 0:
+                print(f"[{iteration}] ATR не доступен, ждём...")
+                time.sleep(60)
+                continue
+            
+            # Обработка бара
+            bot.process_bar(close, low, high, atr)
+            
+            # Вывод статуса
+            pos_info = f"{bot.position['type']} @ ${bot.position['entry']:.0f}" if bot.position else "Нет позиции"
+            print(f"[{iteration}] Цена: ${close:,.0f} | ATR: ${atr:.0f} | Капитал: ${bot.capital:.2f} | {pos_info}")
+            
+            time.sleep(1800)  # 30 минут
+            
+    except KeyboardInterrupt:
+        print("\nБот остановлен пользователем")
+        if bot.position:
+            ticker = exchange.fetch_ticker(symbol)
+            bot.close_position(ticker['last'], 'manual')
+        m = bot.get_metrics()
+        bot.print_report(m)
+        bot.save_results('TsLabWorkspace/GridADAUSDT/GridBot_Testnet_Results.json')
+
+
+def run():
+    import sys
+    testnet = '--testnet' in sys.argv
+    
+    if testnet:
+        run_testnet()
+    else:
+        import yfinance as yf
+        print("Загрузка данных BTC за 2026 год...")
+        df = yf.download('BTC-USD', period='30d', interval='30m', progress=False)
+        df.columns = df.columns.droplevel(1)
+        print(f"Данные: {len(df)} баров, ${df['Close'].iloc[0]:.0f} — ${df['Close'].iloc[-1]:.0f}")
+
+        bot = GridBotFinal(CONFIG)
+        m = bot.backtest(df)
+        bot.print_report(m)
+        bot.save_results('TsLabWorkspace/GridADAUSDT/GridBot_Final_Results.json')
+        return bot, m
 
 
 if __name__ == '__main__':

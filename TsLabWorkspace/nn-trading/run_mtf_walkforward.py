@@ -52,22 +52,21 @@ def walk_forward_mtf(df_daily, config, device, n_folds=5):
     """Walk-forward with multi-timeframe features."""
     # Compute labels on daily data
     from features import make_label
-    df_daily["label"] = make_label(df_daily, config.horizon, config.threshold)
+    df_daily["label"] = make_label(df_daily, config.horizon, config.threshold).values
     df_daily = df_daily.dropna()
 
-    # Auto-select from ALL columns (excluding non-numeric / label / OHLC)
     exclude = {"Open", "High", "Low", "Close", "Volume", "label"}
-    feature_cols = [c for c in df_daily.columns if c not in exclude]
-    # Further auto-select top N
+    feature_cols = [c for c in df_daily.columns if c not in exclude
+                    and df_daily[c].dtype in [np.float64, np.float32, np.int64]]
     if len(feature_cols) > config.max_features:
         feature_cols = auto_select_features(df_daily, df_daily["label"], max_features=config.max_features)
 
     print(f"  Features: {len(feature_cols)}")
 
-    ds = TimeSeriesDataset(df_daily, config.window, feature_cols=feature_cols)
-    total = len(ds)
+    total = len(df_daily)
     test_size = total // (n_folds + 1)
     min_train_size = total // (n_folds + 1)
+    embargo = 7
 
     seeds = [42 + i * 17 for i in range(config.n_models)]
     all_results = []
@@ -75,21 +74,25 @@ def walk_forward_mtf(df_daily, config, device, n_folds=5):
 
     for fold in range(n_folds):
         train_end = min_train_size + fold * test_size
-        test_start = train_end
+        test_start = train_end + embargo
         test_end = min(test_start + test_size, total)
         if test_end <= test_start:
             break
 
-        print(f"\n  Fold {fold+1}/{n_folds} | train: 0-{train_end} | test: {test_start}-{test_end}")
+        print(f"\n  Fold {fold+1}/{n_folds} | train: 0-{train_end} | embargo: {embargo} | test: {test_start}-{test_end}")
 
-        full_train_indices = list(range(0, train_end - config.window))
-        val_split = int(len(full_train_indices) * 0.85)
-        train_indices = full_train_indices[:val_split]
-        val_indices = full_train_indices[val_split:]
+        # FIT SCALER ON TRAIN ONLY
+        from dataset import fit_scaler
+        train_df = df_daily.iloc[:train_end]
+        scaler = fit_scaler(train_df, feature_cols)
 
-        train_ds = Subset(ds, train_indices)
-        val_ds = Subset(ds, val_indices)
-        test_ds = Subset(ds, range(test_start - config.window, test_end - config.window))
+        train_ds_full = TimeSeriesDataset(df_daily.iloc[:train_end], config.window, feature_cols=feature_cols, scaler=scaler)
+        vs = int(len(train_ds_full) * 0.85)
+        train_sub = torch.utils.data.Subset(train_ds_full, range(0, vs))
+        val_sub = torch.utils.data.Subset(train_ds_full, range(vs, len(train_ds_full)))
+
+        test_start_idx = max(0, test_start - config.window)
+        test_ds = TimeSeriesDataset(df_daily.iloc[test_start_idx:test_end], config.window, feature_cols=feature_cols, scaler=scaler)
 
         # Train neural models
         base_models = []
@@ -97,21 +100,21 @@ def walk_forward_mtf(df_daily, config, device, n_folds=5):
             torch.manual_seed(seed)
             random.seed(seed)
             np.random.seed(seed)
-            model = build_model(config, len(ds.cols))
-            model = train(model, train_ds, val_ds, config, device, quiet=True)
+            model = build_model(config, len(feature_cols))
+            model = train(model, train_sub, val_sub, config, device, quiet=True)
             base_models.append(model)
 
         # Train sklearn
-        X_train, y_train = flatten_ds(train_ds)
+        X_train, y_train = flatten_ds(train_sub)
         sklearn_wrappers = build_sklearn_models(
-            X_train, y_train, config.window, len(ds.cols), n_cpu=config.n_cpu_threads,
+            X_train, y_train, config.window, len(feature_cols), n_cpu=config.n_cpu_threads,
         )
         all_sklearn = [w for _, w in sklearn_wrappers]
 
         ensemble = HybridEnsemble(base_models, all_sklearn)
 
-        val_start_idx = val_split + config.window
-        best_threshold = find_best_threshold(ensemble, val_ds, df_daily, config, device, val_start_idx)
+        val_start_idx = vs + config.window
+        best_threshold = find_best_threshold(ensemble, val_sub, df_daily, config, device, val_start_idx)
 
         result = run_backtest_v2(
             ensemble, test_ds, df_daily, config, device,
@@ -162,9 +165,9 @@ def walk_forward_mtf(df_daily, config, device, n_folds=5):
 
 def main():
     instruments = [
-        ("BTC-USD", "Bitcoin", {"hidden_size": 64, "num_layers": 2, "dropout": 0.3, "window": 30, "stop_loss_pct": 0.025, "take_profit_pct": 0.08}),
-        ("ETH-USD", "Ethereum", {"hidden_size": 32, "num_layers": 2, "dropout": 0.35, "window": 30, "stop_loss_pct": 0.03, "take_profit_pct": 0.07}),
-        ("SOL-USD", "Solana",   {"hidden_size": 32, "num_layers": 1, "dropout": 0.35, "window": 30, "stop_loss_pct": 0.03, "take_profit_pct": 0.07}),
+        ("BTCUSDT", "Bitcoin", {"hidden_size": 64, "num_layers": 2, "dropout": 0.3, "window": 30, "stop_loss_pct": 0.025, "take_profit_pct": 0.08}),
+        ("ETHUSDT", "Ethereum", {"hidden_size": 32, "num_layers": 2, "dropout": 0.35, "window": 30, "stop_loss_pct": 0.03, "take_profit_pct": 0.07}),
+        ("SOLUSDT", "Solana",   {"hidden_size": 32, "num_layers": 1, "dropout": 0.35, "window": 30, "stop_loss_pct": 0.03, "take_profit_pct": 0.07}),
     ]
 
     all_results = []

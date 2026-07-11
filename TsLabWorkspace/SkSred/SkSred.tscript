@@ -47,12 +47,6 @@
         </Block>
         <Pane Key="pane_price" Category="GraphPane" Location="53 0" Order="0" IsVisible="true" HideLegend="false" LeftAxisPrecision="-1" LeftAxisByPercents="false" LeftDownHysteresis="0" LeftUpHysteresis="0" RightAxisPrecision="-1" RightAxisByPercents="false" RightDownHysteresis="0" RightUpHysteresis="0" />
         <Pane Key="pane_sma2" Category="GraphPane" Location="313 0" Order="1" IsVisible="true" HideLegend="false" LeftAxisPrecision="-1" LeftAxisByPercents="false" LeftDownHysteresis="0" LeftUpHysteresis="0" RightAxisPrecision="-1" RightAxisByPercents="false" RightDownHysteresis="0" RightUpHysteresis="0" />
-        <Block Key="Src1" Category="TradableSecurity" Location="-5 466" TypeName="TradableSecuritySourceItem">
-          <EditItem Guid="6db1ca41-1240-487f-ac96-f85251215e7f" CodeName="Src1" IsParametersVisible="true" OnlyValueHandlersCanUsed="false" />
-        </Block>
-        <Block Key="Commission1" Category="TradeMath" Location="398 475" TypeName="ConverterItem">
-          <EditItem Guid="18fd5428-8b39-460a-a1e0-3eae68e56564" CodeName="Commission1" IsParametersVisible="true" OnlyValueHandlersCanUsed="false" HandlerTypeName="TSLab.Script.Handlers.RelativeCommission, TSLab.Script.Handlers" />
-        </Block>
         <Link From="Src" To="Commission" FromPort="Out" ToPort="Src" ToPortNum="0" />
         <Link From="Src" To="OpenLong" FromPort="Out" ToPort="Src" ToPortNum="0" />
         <Link From="OpenLong" To="CloseLong" FromPort="Out" ToPort="Pos" ToPortNum="0" />
@@ -83,14 +77,6 @@
             </GraphData>
           </Data>
         </GraphLink>
-        <GraphLink From="Src1" To="pane_price" FromPort="Out" ToPort="RIGHT" Category="ChartCandleLink">
-          <Data>
-            <GraphData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ListStyle="LINE" CandleStyle="BAR_CANDLE" LineStyle="SOLID" Color="-49277" AltColor="-13415947" Opacity="0" HideLastValue="false" Thickness="1" AltThickness="1" PaneSide="RIGHT" Visible="true" ShowTrades="true" CandleFillStyle="Decreasing" Autoscaling="true">
-              <Points />
-            </GraphData>
-          </Data>
-        </GraphLink>
-        <Link From="Src1" To="Commission1" FromPort="Out" ToPort="Src" ToPortNum="0" />
       </Model>
     </ViewModel>
   </EditData>
@@ -243,9 +229,6 @@
   <Mappings>
     <Sources>
       <Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="DOGEUSD_PERP" Name="345E441C-165F-46B3-9329-3B10A5E99C97" Name2="Src" VisualTypeName="Tradable instrument" IsOption="false">
-        <Records />
-      </Source>
-      <Source DataSourceName="BinanceCoin-MFutures" BrokerId="BinanceFutCoin" SecurityId="NEARUSD_PERP" Name="6db1ca41-1240-487f-ac96-f85251215e7f" VisualTypeName="Торгуемый инструмент" IsOption="false">
         <Records />
       </Source>
     </Sources>

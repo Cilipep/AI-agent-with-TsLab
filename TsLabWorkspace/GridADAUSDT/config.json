@@ -1,12 +1,12 @@
 {
-  "name": "GridBot_Final",
-  "version": "1.0",
-  "description": "Grid Trading Bot — финальная конфигурация",
+  "name": "GridBot_Final_Optimal",
+  "version": "5.0",
+  "description": "Grid Trading Bot — 50 USDT, 20x leverage",
   "created": "2026-07-07",
   
   "symbol": "BTC/USDT:USDT",
   "timeframe": "30m",
-  "initial_capital": 40.0,
+  "initial_capital": 50.0,
   "leverage": 20,
   
   "grid_multiplier": 2.5,
@@ -20,22 +20,18 @@
   "stop_loss_pct": 0.03,
   "take_profit_pct": 0.05,
   
-  "trailing_up_stop": 70000,
+  "trailing_up_stop": 90000,
   "trailing_down_stop": 50000,
   "trailing_enabled": true,
   
   "results": {
-    "backtest_period": "1 month (June-July 2026)",
-    "net_profit": 1561.75,
-    "net_profit_pct": 3904.4,
-    "total_trades": 59,
-    "winning_trades": 40,
-    "losing_trades": 19,
-    "win_rate": 68,
-    "profit_factor": 0.97,
-    "max_drawdown": 59.4,
-    "sharpe_ratio": 9.53,
-    "total_reinvested": 1723.28,
-    "total_commission": 961.44
+    "backtest_period": "2 months",
+    "net_profit": 790.66,
+    "net_profit_pct": 1581.3,
+    "total_trades": 132,
+    "win_rate": 58,
+    "profit_factor": 0.98,
+    "max_drawdown": 99.4,
+    "sharpe_ratio": 6.28
   }
 }

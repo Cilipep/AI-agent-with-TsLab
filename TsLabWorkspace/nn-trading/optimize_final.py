@@ -296,9 +296,9 @@ def main():
     torch.set_num_threads(2)
 
     instruments = [
-        ("BTC-USD", "Bitcoin"),
-        ("ETH-USD", "Ethereum"),
-        ("SOL-USD", "Solana"),
+        ("BTCUSDT", "Bitcoin"),
+        ("ETHUSDT", "Ethereum"),
+        ("SOLUSDT", "Solana"),
     ]
 
     Path("data").mkdir(exist_ok=True)

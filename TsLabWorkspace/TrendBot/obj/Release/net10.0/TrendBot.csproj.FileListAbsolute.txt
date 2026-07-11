@@ -1,0 +1,13 @@
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\bin\Release\net10.0\TrendBot.deps.json
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\bin\Release\net10.0\TrendBot.dll
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\bin\Release\net10.0\TrendBot.pdb
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.csproj.AssemblyReference.cache
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.AssemblyInfoInputs.cache
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.AssemblyInfo.cs
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.csproj.CoreCompileInputs.cache
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.sourcelink.json
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.dll
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\refint\TrendBot.dll
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\TrendBot.pdb
+C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\TrendBot\obj\Release\net10.0\ref\TrendBot.dll

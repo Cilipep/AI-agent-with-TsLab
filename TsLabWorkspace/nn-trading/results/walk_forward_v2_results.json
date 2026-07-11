@@ -1,66 +1,28 @@
 {
-  "params": {
-    "hidden_size": 64,
-    "num_layers": 2,
-    "dropout": 0.2917688858920172,
-    "window": 60,
-    "batch_size": 64,
-    "learning_rate": 5.7431289815700545e-05,
-    "n_models": 2,
-    "stop_loss_pct": 0.015150602589196226,
-    "take_profit_pct": 0.041655521854518304
-  },
-  "n_folds": 6,
-  "total_return_pct": -55.12626569969139,
-  "max_drawdown_pct": -55.12626569969139,
-  "folds": [
+  "instruments": [
     {
-      "fold": 1,
-      "train_range": "0-244",
-      "test_range": "244-488",
-      "return_pct": 0.0,
-      "trades": 0,
-      "win_rate": 0
+      "instrument": "Bitcoin",
+      "total_return": -33.71,
+      "max_drawdown": -33.98,
+      "total_trades": 295,
+      "avg_win_rate": 29.2,
+      "folds": 5
     },
     {
-      "fold": 2,
-      "train_range": "0-488",
-      "test_range": "488-732",
-      "return_pct": 0.0,
-      "trades": 0,
-      "win_rate": 0
+      "instrument": "Ethereum",
+      "total_return": 19.41,
+      "max_drawdown": -10.96,
+      "total_trades": 463,
+      "avg_win_rate": 29.7,
+      "folds": 5
     },
     {
-      "fold": 3,
-      "train_range": "0-732",
-      "test_range": "732-976",
-      "return_pct": 0.0,
-      "trades": 0,
-      "win_rate": 0
-    },
-    {
-      "fold": 4,
-      "train_range": "0-976",
-      "test_range": "976-1220",
-      "return_pct": -1.4056590550940773,
-      "trades": 8,
-      "win_rate": 25.0
-    },
-    {
-      "fold": 5,
-      "train_range": "0-1220",
-      "test_range": "1220-1464",
-      "return_pct": -11.791446554478702,
-      "trades": 33,
-      "win_rate": 24.242424242424242
-    },
-    {
-      "fold": 6,
-      "train_range": "0-1464",
-      "test_range": "1464-1708",
-      "return_pct": -48.40239733977093,
-      "trades": 88,
-      "win_rate": 18.181818181818183
+      "instrument": "Solana",
+      "total_return": 31.75,
+      "max_drawdown": -6.45,
+      "total_trades": 550,
+      "avg_win_rate": 36.1,
+      "folds": 5
     }
   ]
 }

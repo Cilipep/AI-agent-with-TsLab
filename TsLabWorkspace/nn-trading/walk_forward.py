@@ -1,4 +1,4 @@
-"""Walk-forward validation: anchored (expanding window) with stacking ensemble support."""
+"""Walk-forward validation: anchored (expanding window) with hybrid ensemble support."""
 import random
 from dataclasses import dataclass
 
@@ -7,8 +7,8 @@ import pandas as pd
 import torch
 from torch.utils.data import Subset
 
-from dataset import TimeSeriesDataset
-from model import build_model, Ensemble, StackingEnsemble, train_stacking
+from dataset import TimeSeriesDataset, auto_select_features, FEATURE_COLS
+from model import build_model, Ensemble, StackingEnsemble, train_stacking, build_sklearn_models, HybridEnsemble
 from train import train
 from backtest_v2 import run_backtest_v2
 
@@ -54,26 +54,36 @@ def train_stacking_ensemble(base_models, train_ds, val_ds, config, device):
     return stacking
 
 
+def _flatten_sequences(ds, window, n_features):
+    """Flatten dataset sequences for sklearn: returns (X_flat, y)."""
+    X_flat = []
+    y = []
+    for i in range(len(ds)):
+        x, label = ds[i]
+        X_flat.append(x.numpy().flatten())
+        y.append(label.item())
+    return np.array(X_flat), np.array(y)
+
+
 def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
-                 use_stacking: bool = False):
+                 use_stacking: bool = False, feature_cols: list = None):
     """
-    Anchored (expanding window) walk-forward validation.
+    Anchored (expanding window) walk-forward validation with hybrid ensemble.
 
     For each fold i:
       train on [0..fold_size*(i+1)]
       test on [fold_size*(i+1)..fold_size*(i+2)]
 
     The training window EXPANDS each fold (anchored), giving more data over time.
-
-    Args:
-        n_folds: Number of test windows (default: 20 for statistical significance)
-        use_stacking: Use StackingEnsemble instead of weighted average
     """
-    ds = TimeSeriesDataset(df, config.window)
+    # Use provided feature_cols or auto-select
+    if feature_cols is None:
+        feature_cols = auto_select_features(df, df["label"], max_features=config.max_features)
+
+    ds = TimeSeriesDataset(df, config.window, feature_cols=feature_cols)
     total = len(ds)
-    # For anchored WF: train grows, test is fixed size
     test_size = total // (n_folds + 1)
-    min_train_size = total // (n_folds + 1)  # first fold train size
+    min_train_size = total // (n_folds + 1)
 
     all_results = []
     equity_parts = []
@@ -84,7 +94,7 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
     print(f"\n{'='*60}")
     print(f"ANCHORED WALK-FORWARD: {n_folds} folds")
     print(f"Total data: {total} | Test size per fold: {test_size}")
-    print(f"Stacking: {'ON' if use_stacking else 'OFF'}")
+    print(f"Features: {len(ds.cols)} | Stacking: {'ON' if use_stacking else 'OFF'}")
     print(f"{'='*60}")
 
     for fold in range(n_folds):
@@ -112,7 +122,7 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
 
         print(f"  train={len(train_ds)} val={len(val_ds)} test={len(test_ds)}")
 
-        # Train base models
+        # Train base neural models
         base_models = []
         for i, seed in enumerate(seeds):
             torch.manual_seed(seed)
@@ -123,15 +133,23 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
             model = train(model, train_ds, val_ds, config, device, quiet=True)
             base_models.append(model)
 
-        # Use stacking or weighted ensemble
-        if use_stacking and len(base_models) >= 2:
-            print("  Training stacking ensemble...")
-            ensemble = train_stacking_ensemble(base_models, train_ds, val_ds, config, device)
-        else:
-            ensemble = Ensemble(base_models)
+        # Train sklearn models on flattened data
+        X_train_flat, y_train_flat = _flatten_sequences(train_ds, config.window, len(ds.cols))
+        sklearn_wrappers = build_sklearn_models(
+            X_train_flat, y_train_flat,
+            window=config.window, n_features=len(ds.cols),
+            n_cpu=config.n_cpu_threads,
+        )
+
+        # Build hybrid ensemble
+        all_neural = base_models
+        all_sklearn = [w for _, w in sklearn_wrappers]
+        ensemble = HybridEnsemble(all_neural, all_sklearn)
+
+        print(f"  Models: {len(all_neural)} neural + {len(all_sklearn)} sklearn = {len(all_neural) + len(all_sklearn)} total")
 
         # Find optimal threshold on validation set
-        val_start_idx = val_split + config.window  # first price index in val
+        val_start_idx = val_split + config.window
         best_threshold = find_best_threshold(ensemble, val_ds, df, config, device, val_start_idx)
         print(f"  Best threshold: {best_threshold}")
 
@@ -182,7 +200,6 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
     avg_sharpe = np.mean([r.sharpe for r in all_results]) if all_results else 0
     avg_sortino = np.mean([r.sortino for r in all_results if r.sortino < 100]) if all_results else 0
 
-    # Calculate full-equity Sharpe/Sortino
     from backtest_v2 import calculate_sharpe, calculate_sortino, calculate_calmar
     full_sharpe = calculate_sharpe(full_equity)
     full_sortino = calculate_sortino(full_equity)
@@ -202,7 +219,6 @@ def walk_forward(df: pd.DataFrame, config, device: str, n_folds: int = 20,
     print(f"  Avg fold Sortino:{avg_sortino:.2f}")
     print(f"{'='*60}")
 
-    # Per-fold summary table
     print(f"\n{'Fold':>4} {'Train':>8} {'Test':>8} {'Return':>10} {'Trades':>7} {'Win%':>6} {'Sharpe':>8}")
     print("-" * 55)
     for r in all_results:

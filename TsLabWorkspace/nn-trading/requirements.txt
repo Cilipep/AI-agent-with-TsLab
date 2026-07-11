@@ -9,3 +9,6 @@ optuna>=3.0
 plotly>=5.0
 requests>=2.31
 websocket-client>=1.6
+xgboost>=2.0
+catboost>=1.2
+lightgbm>=4.0

@@ -12,14 +12,15 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
-# Limit CPU threads
+# CPU throttling — limit to 2 threads
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
+os.environ["NUMEXPR_NUM_THREADS"] = "2"
 
 from config import Config
 from features import prepare_features
-from dataset import TimeSeriesDataset
-from model import build_model, Ensemble
+from dataset import TimeSeriesDataset, auto_select_features, FEATURE_COLS
+from model import build_model, Ensemble, build_sklearn_models, HybridEnsemble
 from train import train
 from backtest import run_backtest
 
@@ -32,7 +33,6 @@ def download_data(symbol: str, period: str = "1820d", interval: str = "1d"):
     if cache_path.exists():
         print(f"  Loading cached data from {cache_path}")
         df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
-        # Handle multi-level columns from yfinance
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         return df
@@ -46,9 +46,9 @@ def download_data(symbol: str, period: str = "1820d", interval: str = "1d"):
     return df
 
 
-def prepare_ensemble_data(df, config, split_idx):
+def prepare_ensemble_data(df, config, split_idx, feature_cols=None):
     """Prepare data for both LSTM and sklearn models."""
-    ds = TimeSeriesDataset(df, config.window)
+    ds = TimeSeriesDataset(df, config.window, feature_cols=feature_cols)
     n = len(ds)
 
     # LSTM data
@@ -56,8 +56,9 @@ def prepare_ensemble_data(df, config, split_idx):
     test_ds = torch.utils.data.Subset(ds, range(split_idx, n))
 
     # Sklearn data - flatten sequences
-    feature_cols = [c for c in df.columns if c not in ["label", "Open", "High", "Low", "Close", "Volume"]]
-    X = df[feature_cols].values
+    cols = feature_cols or FEATURE_COLS
+    available_cols = [c for c in cols if c in df.columns]
+    X = df[available_cols].values
     y = df["label"].values
 
     # Create sequences for sklearn
@@ -79,7 +80,7 @@ def prepare_ensemble_data(df, config, split_idx):
 
 
 def train_ensemble_models(train_ds, config, ds, n_models=3):
-    """Train LSTM ensemble."""
+    """Train LSTM ensemble with different seeds."""
     seeds = [42 + i * 31 for i in range(n_models)]
     models = []
     for seed in seeds:
@@ -119,54 +120,56 @@ def train_gradient_boosting(X_train, y_train, trial):
 
 def combined_score(total_return, max_dd, win_rate, n_trades, lstm_acc, gb_acc):
     """Calculate combined score for ensemble."""
-    # Base score from backtest
     dd_penalty = 1.0 / (1.0 + max_dd / 5.0)
     win_factor = win_rate / 100.0
     trade_bonus = min(n_trades / 30, 1.0)
 
     base_score = total_return * dd_penalty * win_factor * trade_bonus
 
-    # Bonus for positive return
     if total_return > 0:
         base_score += 5.0
 
-    # Accuracy bonus
     acc_bonus = (lstm_acc + gb_acc) * 2
-
     return base_score + acc_bonus
 
 
 def objective(trial: Trial, df, config, device: str) -> float:
-    """Objective with LSTM + GradientBoosting ensemble."""
-    # Model parameters
-    config.hidden_size = trial.suggest_categorical("hidden_size", [16, 32])
-    config.num_layers = 1
-    config.dropout = trial.suggest_float("dropout", 0.3, 0.5)
-    config.window = trial.suggest_categorical("window", [20, 30])
+    """Objective with LSTM + GradientBoosting + hybrid ensemble."""
+    # Neural network parameters
+    config.hidden_size = trial.suggest_categorical("hidden_size", [32, 64, 128])
+    config.num_layers = trial.suggest_categorical("num_layers", [1, 2])
+    config.dropout = trial.suggest_float("dropout", 0.2, 0.5)
+    config.window = trial.suggest_categorical("window", [20, 30, 40])
     config.batch_size = trial.suggest_categorical("batch_size", [64, 128])
     config.learning_rate = trial.suggest_float("learning_rate", 1e-4, 5e-4, log=True)
-    config.epochs = 25
-    config.patience = 8
-    config.n_models = 3
+    config.epochs = 15
+    config.patience = 5
+    config.n_models = 1
+
+    # Feature selection
+    config.max_features = trial.suggest_categorical("max_features", [30, 40, 50])
 
     # Risk management
     config.stop_loss_pct = trial.suggest_float("stop_loss_pct", 0.02, 0.05)
     config.take_profit_pct = trial.suggest_float("take_profit_pct", 0.05, 0.12)
     config.risk_per_trade = 0.01
 
-    # Ensure TP >= 2 * SL
     if config.take_profit_pct < 2 * config.stop_loss_pct:
         config.take_profit_pct = 2 * config.stop_loss_pct
 
     try:
-        # Check memory
         import psutil
         if psutil.virtual_memory().percent > 85:
             return 0.0
 
+        # Auto-select features
+        feature_cols = auto_select_features(df, df["label"], max_features=config.max_features)
+
         # Prepare data
         split_idx = int(len(df) * 0.7)
-        train_ds, test_ds, X_train, y_train, X_test, y_test, ds = prepare_ensemble_data(df, config, split_idx)
+        train_ds, test_ds, X_train, y_train, X_test, y_test, ds = prepare_ensemble_data(
+            df, config, split_idx, feature_cols=feature_cols
+        )
 
         # Train LSTM ensemble
         lstm_ensemble = train_ensemble_models(train_ds, config, ds)
@@ -175,20 +178,31 @@ def objective(trial: Trial, df, config, device: str) -> float:
         lstm_probs = get_ensemble_predictions(lstm_ensemble, test_ds)
         lstm_preds = (lstm_probs > 0.5).astype(int)
 
-        # Train Gradient Boosting
+        # Train sklearn models
+        sklearn_wrappers = build_sklearn_models(
+            X_train, y_train,
+            window=config.window, n_features=len(feature_cols),
+            n_cpu=config.n_cpu_threads,
+        )
+        all_sklearn = [w for _, w in sklearn_wrappers]
+
+        # Hybrid ensemble predictions
+        hybrid = HybridEnsemble(lstm_ensemble.models, all_sklearn)
+        hybrid_probs = get_ensemble_predictions(hybrid, test_ds)
+        hybrid_preds = (hybrid_probs > 0.5).astype(int)
+
+        # Train Gradient Boosting for comparison
         gb = train_gradient_boosting(X_train, y_train, trial)
         gb_preds = gb.predict(X_test)
 
-        # Ensemble: majority vote
-        ensemble_preds = ((lstm_preds + gb_preds) >= 1).astype(int)
-
-        # Calculate accuracy
-        test_labels = y_test[:len(ensemble_preds)]
+        # Calculate accuracies
+        test_labels = y_test[:len(hybrid_preds)]
         lstm_acc = accuracy_score(test_labels, lstm_preds)
         gb_acc = accuracy_score(test_labels, gb_preds)
+        hybrid_acc = accuracy_score(test_labels, hybrid_preds)
 
-        # Run backtest with LSTM predictions
-        result = run_backtest(lstm_ensemble, test_ds, df, config, device)
+        # Run backtest with hybrid ensemble
+        result = run_backtest(hybrid, test_ds, df, config, device)
 
         total_return = result["total_return_pct"]
         max_dd = abs(result["max_drawdown_pct"])
@@ -198,8 +212,8 @@ def objective(trial: Trial, df, config, device: str) -> float:
         if n_trades < 5:
             return 0.0
 
-        # Combined score
-        score = combined_score(total_return, max_dd, win_rate, n_trades, lstm_acc, gb_acc)
+        # Score: prefer hybrid accuracy + backtest performance
+        score = combined_score(total_return, max_dd, win_rate, n_trades, hybrid_acc, gb_acc)
 
         trial.set_user_attr("total_return", total_return)
         trial.set_user_attr("max_drawdown", max_dd)
@@ -207,11 +221,14 @@ def objective(trial: Trial, df, config, device: str) -> float:
         trial.set_user_attr("win_rate", win_rate)
         trial.set_user_attr("lstm_acc", lstm_acc)
         trial.set_user_attr("gb_acc", gb_acc)
+        trial.set_user_attr("hybrid_acc", hybrid_acc)
 
         return score
 
     except Exception as e:
+        import traceback
         print(f"Trial failed: {e}")
+        traceback.print_exc()
         return 0.0
 
 
@@ -221,25 +238,22 @@ def optimize_for_instrument(df, instrument_name, n_trials=20):
     print(f"OPTIMIZING FOR: {instrument_name}")
     print("=" * 60)
 
-    # Prepare features
     print("Computing features...")
     cfg = Config()
     df = prepare_features(df, cfg)
     print(f"  {len(df)} rows after feature engineering")
 
-    # Create study
     study = optuna.create_study(
         direction="maximize",
-        study_name=f"nn_trading_{instrument_name}",
-        storage=f"sqlite:///optuna_{instrument_name}.db",
+        study_name=f"nn_trading_v2_{instrument_name}",
+        storage=f"sqlite:///optuna_v2_{instrument_name}.db",
         load_if_exists=True,
     )
 
-    # Optimize
     study.optimize(
         lambda trial: objective(trial, df, cfg, "cpu"),
         n_trials=n_trials,
-        timeout=900,
+        timeout=1800,
         show_progress_bar=True,
     )
 
@@ -250,14 +264,14 @@ def optimize_for_instrument(df, instrument_name, n_trials=20):
     return best
 
 
-def run_walk_forward_optimized(df, config, instrument_name, n_folds=6):
+def run_walk_forward_optimized(df, config, instrument_name, n_folds=6, feature_cols=None):
     """Run walk-forward with optimized parameters."""
     print(f"\n{'='*60}")
     print(f"WALK-FORWARD: {instrument_name}")
     print("=" * 60)
 
     from walk_forward import walk_forward
-    equity, results = walk_forward(df, config, "cpu", n_folds=n_folds)
+    equity, results = walk_forward(df, config, "cpu", n_folds=n_folds, feature_cols=feature_cols)
 
     total_return = (equity[-1] / equity[0] - 1) * 100
     max_dd = ((equity / np.maximum.accumulate(equity)) - 1).min() * 100
@@ -281,18 +295,15 @@ def run_walk_forward_optimized(df, config, instrument_name, n_folds=6):
 def main():
     torch.set_num_threads(2)
 
-    # Instruments to test
     instruments = [
         ("BTC-USD", "Bitcoin"),
         ("ETH-USD", "Ethereum"),
         ("SOL-USD", "Solana"),
     ]
 
-    # Create directories
     Path("data").mkdir(exist_ok=True)
     Path("results").mkdir(exist_ok=True)
 
-    # Download data for all instruments
     print("=" * 60)
     print("DOWNLOADING DATA")
     print("=" * 60)
@@ -309,25 +320,22 @@ def main():
         except Exception as e:
             print(f"  {name}: error downloading - {e}")
 
-    # Optimize for each instrument
     print("\n" + "=" * 60)
     print("OPTIMIZATION PHASE")
     print("=" * 60)
 
     optimized_params = {}
     for name, df in all_data.items():
-        best = optimize_for_instrument(df, name, n_trials=15)
+        best = optimize_for_instrument(df, name, n_trials=3)
         optimized_params[name] = {
             "params": best.params,
             "attrs": best.user_attrs,
             "value": best.value,
         }
 
-    # Save all optimized parameters
-    with open("results/optimized_all_instruments.json", "w") as f:
+    with open("results/optimized_v2_all.json", "w") as f:
         json.dump(optimized_params, f, indent=2)
 
-    # Run walk-forward for all instruments
     print("\n" + "=" * 60)
     print("WALK-FORWARD VALIDATION")
     print("=" * 60)
@@ -338,33 +346,31 @@ def main():
             cfg = Config()
             params = optimized_params[name]["params"]
 
-            # Apply parameters
-            cfg.hidden_size = params.get("hidden_size", 16)
-            cfg.num_layers = 1
+            cfg.hidden_size = params.get("hidden_size", 64)
+            cfg.num_layers = params.get("num_layers", 2)
             cfg.dropout = params.get("dropout", 0.35)
-            cfg.window = params.get("window", 20)
-            cfg.batch_size = params.get("batch_size", 128)
+            cfg.window = params.get("window", 30)
+            cfg.batch_size = params.get("batch_size", 64)
             cfg.learning_rate = params.get("learning_rate", 0.0003)
             cfg.n_models = 3
+            cfg.max_features = params.get("max_features", 40)
             cfg.stop_loss_pct = params.get("stop_loss_pct", 0.03)
             cfg.take_profit_pct = params.get("take_profit_pct", 0.07)
 
-            # Prepare features
             df_features = prepare_features(df, cfg)
+            feature_cols = auto_select_features(df_features, df_features["label"], max_features=cfg.max_features)
 
-            result = run_walk_forward_optimized(df_features, cfg, name, n_folds=5)
+            result = run_walk_forward_optimized(df_features, cfg, name, n_folds=5, feature_cols=feature_cols)
             walk_forward_results.append(result)
 
-    # Save final results
     final_output = {
         "instruments": walk_forward_results,
         "optimized_params": optimized_params,
     }
 
-    with open("results/final_results.json", "w") as f:
+    with open("results/final_v2_results.json", "w") as f:
         json.dump(final_output, f, indent=2)
 
-    # Print summary
     print("\n" + "=" * 60)
     print("FINAL SUMMARY")
     print("=" * 60)
@@ -376,7 +382,6 @@ def main():
         print(f"  Trades: {result['total_trades']}")
         print(f"  Win Rate: {result['avg_win_rate']:.1f}%")
 
-    # Portfolio stats
     if walk_forward_results:
         avg_return = np.mean([r['total_return'] for r in walk_forward_results])
         avg_dd = np.mean([r['max_drawdown'] for r in walk_forward_results])
@@ -384,7 +389,7 @@ def main():
         print(f"  Avg Return: {avg_return:+.2f}%")
         print(f"  Avg Drawdown: {avg_dd:.2f}%")
 
-    print(f"\nResults saved to results/final_results.json")
+    print(f"\nResults saved to results/final_v2_results.json")
 
 
 if __name__ == "__main__":

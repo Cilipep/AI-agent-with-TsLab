@@ -3,17 +3,62 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import mutual_info_classif
 
 
 FEATURE_COLS = [
-    "returns", "rsi", "stoch_k", "williams_r",
+    # Momentum
+    "returns", "rsi", "rsi_7", "stoch_k", "stoch_d",
+    "williams_r", "cci", "mfi",
+    "stoch_rsi_k", "stoch_rsi_d",
+    "roc_10", "roc_20", "momentum", "ultosc",
+    # Trend
     "macd", "macd_signal", "macd_hist",
-    "ema_10", "ema_20", "adx",
-    "bb_upper", "bb_lower", "bb_width", "atr",
+    "ema_10", "ema_20", "ema_50", "ema_200",
+    "sma_10", "sma_20", "sma_50",
+    "adx", "adx_pos", "adx_neg",
+    "aroon_up", "aroon_down", "aroonosc",
+    "sar", "trix", "linreg_slope",
+    # Volatility
+    "bb_upper", "bb_lower", "bb_width", "bb_pct",
+    "atr", "atr_pct", "natr",
+    # Volume
+    "volume_ratio", "volume_trend", "vpt", "obv", "adosc",
+    # Multi-timeframe returns
+    "returns_3", "returns_5", "returns_10", "returns_20",
+    # Pattern
+    "cdl_doji", "cdl_engulfing", "cdl_hammer",
 ]
 
-# Add volume_ratio if present — handled dynamically
-VOLUME_COL = "volume_ratio"
+
+def auto_select_features(df: pd.DataFrame, y: pd.Series, max_features: int = 40) -> list:
+    """Auto-select top features using Random Forest importance + mutual information."""
+    # Filter to only available columns
+    available = [c for c in FEATURE_COLS if c in df.columns]
+    if len(available) <= max_features:
+        return available
+
+    X = df[available].copy()
+    X = X.fillna(0)
+
+    # Random Forest importance
+    rf = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42, n_jobs=1)
+    rf.fit(X, y)
+    rf_importance = pd.Series(rf.feature_importances_, index=available)
+
+    # Mutual information
+    mi = mutual_info_classif(X, y, random_state=42)
+    mi_importance = pd.Series(mi, index=available)
+
+    # Combined score: normalize and average
+    rf_norm = (rf_importance - rf_importance.min()) / (rf_importance.max() - rf_importance.min() + 1e-8)
+    mi_norm = (mi_importance - mi_importance.min()) / (mi_importance.max() - mi_importance.min() + 1e-8)
+    combined = (rf_norm + mi_norm) / 2
+
+    selected = combined.sort_values(ascending=False).head(max_features).index.tolist()
+    print(f"  Auto-selected {len(selected)} features from {len(available)}")
+    return selected
 
 
 class TimeSeriesDataset(Dataset):

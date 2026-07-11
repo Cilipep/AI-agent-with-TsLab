@@ -13,17 +13,16 @@ class Config:
     window: int = 30  # bars lookback
     horizon: int = 5  # bars ahead for label
     threshold: float = 0.001  # price change threshold for label
+    max_features: int = 40  # auto-select top N features
+    use_feature_selection: bool = True
 
-    # Model - increased capacity with attention
+    # Model
     hidden_size: int = 64
     num_layers: int = 2
+    nhead: int = 8  # attention heads
     dropout: float = 0.35
     model_type: str = "attention"  # "lstm", "tcn", "transformer", "attention"
-    n_models: int = 1  # single model for now
-
-    # Feature selection - use FEATURE_COLS
-    use_feature_selection: bool = False
-    max_features: int = 14
+    n_models: int = 3  # base models in ensemble
 
     # Training
     batch_size: int = 64
@@ -46,6 +45,15 @@ class Config:
     # Walk-forward
     n_folds: int = 20                 # Anchored walk-forward folds
     use_stacking: bool = False        # Use StackingEnsemble
+
+    # Hybrid ensemble (neural + sklearn)
+    use_xgboost: bool = True
+    use_catboost: bool = True
+    use_lightgbm: bool = True
+    use_random_forest: bool = True
+
+    # CPU throttling
+    n_cpu_threads: int = 2
 
     # Paths
     data_dir: Path = Path("data")

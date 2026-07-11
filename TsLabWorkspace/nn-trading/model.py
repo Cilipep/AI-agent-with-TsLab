@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -530,3 +531,166 @@ def train_stacking(stacking_ensemble, train_ds, val_ds, config, device, epochs=2
     if best_state:
         stacking_ensemble.meta.load_state_dict(best_state)
     return stacking_ensemble
+
+
+# ============================================================
+# sklearn model wrappers for hybrid ensemble
+# ============================================================
+
+class SklearnModelWrapper:
+    """Base wrapper for sklearn models. Outputs logits (pre-sigmoid) for Ensemble compatibility."""
+
+    def __init__(self, model, window: int, n_features: int):
+        self.model = model
+        self.window = window
+        self.n_features = n_features
+        self._is_fitted = False
+
+    def fit(self, X_flat: np.ndarray, y: np.ndarray):
+        """Train on flattened sequences: (n_samples, window * n_features)."""
+        self.model.fit(X_flat, y)
+        self._is_fitted = True
+
+    def predict_proba_logits(self, X_flat: np.ndarray) -> np.ndarray:
+        """Return logits (pre-sigmoid) from predict_proba[:, 1]."""
+        proba = self.model.predict_proba(X_flat)[:, 1]
+        # Convert probability to logit: logit = log(p / (1-p))
+        eps = 1e-7
+        proba = np.clip(proba, eps, 1 - eps)
+        return np.log(proba / (1 - proba))
+
+    def eval(self):
+        pass  # no-op for sklearn
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """Accept batched tensor (batch, seq, features), return logits (batch, 1)."""
+        was_numpy = False
+        if isinstance(x, torch.Tensor):
+            x_np = x.detach().cpu().numpy()
+        else:
+            x_np = x
+            was_numpy = True
+
+        batch_size = x_np.shape[0]
+        # Flatten: (batch, seq, features) -> (batch, seq * features)
+        X_flat = x_np.reshape(batch_size, -1)
+        logits = self.predict_proba_logits(X_flat)
+        result = torch.tensor(logits, dtype=torch.float32).unsqueeze(1)
+        return result
+
+
+def _train_sklearn_model(model_cls, X_train, y_train, n_cpu=2, **kwargs):
+    """Helper to train an sklearn model with CPU throttling."""
+    import os
+    os.environ["OMP_NUM_THREADS"] = str(n_cpu)
+    os.environ["MKL_NUM_THREADS"] = str(n_cpu)
+    # Remove conflicting kwargs
+    kwargs.pop("n_jobs", None)
+    kwargs.pop("thread_count", None)
+    m = model_cls(**kwargs, random_state=42, n_jobs=1)
+    m.fit(X_train, y_train)
+    return m
+
+
+def build_sklearn_models(X_train: np.ndarray, y_train: np.ndarray,
+                         window: int, n_features: int,
+                         config=None, n_cpu: int = 2) -> list:
+    """Build and train all enabled sklearn models, return list of SklearnModelWrapper."""
+    models = []
+
+    # XGBoost
+    try:
+        from xgboost import XGBClassifier
+        xgb = _train_sklearn_model(
+            XGBClassifier, X_train, y_train, n_cpu,
+            n_estimators=100, max_depth=5, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8, eval_metric="logloss",
+            verbosity=0, use_label_encoder=False,
+        )
+        models.append(("xgboost", SklearnModelWrapper(xgb, window, n_features)))
+    except ImportError:
+        pass
+
+    # CatBoost
+    try:
+        from catboost import CatBoostClassifier
+        os.environ["OMP_NUM_THREADS"] = str(n_cpu)
+        os.environ["MKL_NUM_THREADS"] = str(n_cpu)
+        cat = CatBoostClassifier(
+            iterations=100, depth=6, learning_rate=0.05,
+            random_seed=42, verbose=0, thread_count=n_cpu,
+        )
+        cat.fit(X_train, y_train)
+        models.append(("catboost", SklearnModelWrapper(cat, window, n_features)))
+    except ImportError:
+        pass
+
+    # LightGBM
+    try:
+        from lightgbm import LGBMClassifier
+        lgb = _train_sklearn_model(
+            LGBMClassifier, X_train, y_train, n_cpu,
+            n_estimators=100, max_depth=6, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8, verbose=-1,
+        )
+        models.append(("lightgbm", SklearnModelWrapper(lgb, window, n_features)))
+    except ImportError:
+        pass
+
+    # Random Forest
+    from sklearn.ensemble import RandomForestClassifier
+    rf = _train_sklearn_model(
+        RandomForestClassifier, X_train, y_train, n_cpu,
+        n_estimators=100, max_depth=8, min_samples_leaf=5,
+    )
+    models.append(("random_forest", SklearnModelWrapper(rf, window, n_features)))
+
+    return models
+
+
+class HybridEnsemble:
+    """Ensemble combining neural network models and sklearn models."""
+
+    def __init__(self, neural_models: list, sklearn_wrappers: list = None,
+                 weights: list = None):
+        self.neural_models = neural_models
+        self.sklearn_wrappers = sklearn_wrappers or []
+        all_models = neural_models + self.sklearn_wrappers
+        self.all_models = all_models
+
+        if weights is None:
+            self.weights = [1.0 / len(all_models)] * len(all_models)
+        else:
+            total = sum(weights)
+            self.weights = [w / total for w in weights]
+
+    def eval(self):
+        for m in self.neural_models:
+            if hasattr(m, "eval"):
+                m.eval()
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """Weighted average of logits from all models (neural + sklearn)."""
+        logits = []
+        for i, m in enumerate(self.all_models):
+            if not callable(m):
+                raise TypeError(f"all_models[{i}] is {type(m).__name__}, not callable: {m!r}")
+            logits.append(m(x))
+        logits = torch.stack(logits)  # (N, batch, 1)
+        weights = torch.tensor(self.weights, device=x.device).view(-1, 1, 1)
+        return (logits * weights).sum(dim=0)  # (batch, 1)
+
+    def save(self, path):
+        state = {
+            "neural_models": [{k: v.cpu() for k, v in m.state_dict().items()} for m in self.neural_models],
+            "weights": self.weights,
+        }
+        torch.save(state, path)
+
+    @classmethod
+    def load(cls, path, neural_models, sklearn_wrappers=None, device="cpu"):
+        data = torch.load(path, map_location=device, weights_only=True)
+        for state, m in zip(data["neural_models"], neural_models):
+            m.load_state_dict(state)
+            m.to(device)
+        return cls(neural_models, sklearn_wrappers, data.get("weights"))

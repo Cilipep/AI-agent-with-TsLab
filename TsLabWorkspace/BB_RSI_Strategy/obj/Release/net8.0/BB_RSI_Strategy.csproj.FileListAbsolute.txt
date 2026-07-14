@@ -1,5 +1,0 @@
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\BB_RSI_Strategy\obj\Release\net8.0\BB_RSI_Strategy.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\BB_RSI_Strategy\obj\Release\net8.0\BB_RSI_Strategy.AssemblyInfoInputs.cache
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\BB_RSI_Strategy\obj\Release\net8.0\BB_RSI_Strategy.AssemblyInfo.cs
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\BB_RSI_Strategy\obj\Release\net8.0\BB_RSI_Strategy.csproj.CoreCompileInputs.cache
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\BB_RSI_Strategy\obj\Release\net8.0\BB_RSI_Strategy.sourcelink.json

@@ -1,0 +1,19 @@
+{
+  "input_size": 10,
+  "hidden_size": 64,
+  "num_layers": 2,
+  "sequence_length": 60,
+  "features": [
+    "close_norm",
+    "volume_norm",
+    "rsi_14",
+    "macd_norm",
+    "macd_signal_norm",
+    "bb_width",
+    "ema_9_dist",
+    "ema_21_dist",
+    "volume_ratio",
+    "volatility_20"
+  ],
+  "min_confidence": 0.6
+}

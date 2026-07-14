@@ -1,0 +1,16 @@
+{
+  "instruments": [
+    {
+      "instrument": "BTC",
+      "total_return": 0.36,
+      "max_drawdown": -0.73,
+      "sharpe": 0.52
+    },
+    {
+      "instrument": "ETH",
+      "total_return": 0.8,
+      "max_drawdown": -1.22,
+      "sharpe": 0.86
+    }
+  ]
+}

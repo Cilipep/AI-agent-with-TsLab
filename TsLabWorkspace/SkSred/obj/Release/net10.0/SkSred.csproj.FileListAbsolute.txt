@@ -1,6 +1,0 @@
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.csproj.AssemblyReference.cache
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.AssemblyInfoInputs.cache
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.AssemblyInfo.cs
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.csproj.CoreCompileInputs.cache
-C:\Users\i59400f\Desktop\ai-agent\TsLabWorkspace\SkSred\obj\Release\net10.0\SkSred.sourcelink.json

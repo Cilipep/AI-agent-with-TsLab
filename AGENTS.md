@@ -1,7 +1,33 @@
-﻿# Agent Instructions: TSLab Web API
+# Agent Instructions: TSLab AI Agent
 
-This file is the public router.
-Keep the common workflow in `AGENTS-FastPath.md` and keep this file short.
+## Quick start
+
+```powershell
+# Start TSLab (if not running)
+./start-local-tslab.ps1
+
+# Verify API
+curl.exe -s http://localhost:5000/api/status
+
+# Create and run a script
+./create-script.ps1 "MyStrategy"
+./run-lifecycle.ps1 "MyStrategy"
+```
+
+## Project structure
+
+- **TSLab API workspace** (root): PowerShell helpers, AGENTS docs, local skills
+- **TsLabWorkspace/nn-trading/**: Python NN trading models (PyTorch, TA-Lib, walk-forward)
+- **analytics/**: Advanced metrics (Sortino, Calmar, regime detection)
+- **optimization/**: Walk-forward, Monte Carlo, grid search
+- **risk/**: Position sizing, circuit breaker
+- **chart-analyzer/**: 3D crypto charts (Plotly)
+
+## Prerequisites
+
+- TSLab 3.0 installed at `C:\Program Files\TSLab\TSLab 3.0\`
+- Python 3.10+ with `pip install -r requirements.txt`
+- TSLab Desktop or Console running (API at `http://localhost:5000/api`)
 
 ## Instruction boundary
 
@@ -48,6 +74,19 @@ Keep the common workflow in `AGENTS-FastPath.md` and keep this file short.
 - Mapping data reload is also a dangerous desktop operation. Use only `POST /api/scripts/{name}/mappings/reload-data` with a `mappingKey` from `GET /api/scripts/{name}/mappings`, only when the user explicitly asks to refresh/re-download data or a stale/corrupt cache is proved, and only when desktop `AllowDangerousWebApiOperations=true`. Do not send `reloadData` to `run` or `optimization/start`.
 - History request workflow is separate from `mappings/reload-data`: use `POST /api/scripts/{name}/history/requests`, `GET /api/scripts/{name}/history/requests/{requestKey}`, and `GET /api/scripts/{name}/history/requests/{requestKey}/bars` to request/poll/read provider bars for diagnostics, controlled backfill, or LLM cleanup. Only `POST /api/scripts/{name}/history/apply` mutates the platform cache; by default it replaces the submitted time range without clearing cached bars outside that range. Send `options.replaceExistingBars=true` for full bars replacement through the same API. It requires desktop `AllowDangerousWebApiOperations=true`.
 
+## Key gotchas agents miss
+
+- **TSLab Console vs Desktop**: Console (`TSLabConsole.exe`) runs headless API only. Desktop (`TSLabApp.exe`) loads instruments and shows charts. Scripts created via API may not show trades if Console has `instrumentsLoaded=0`.
+- **Handler binding**: When creating blocks via `/ops`, the `handlerTypeName` in `AddBlock` may not persist. If `explain` shows wrong handler, use `PUT /api/scripts/{name}/json` with fixed XML `HandlerTypeName` attribute in the viewModel.
+- **GreaterHandler/LessHandler ports**: Use port names `"Input0"` and `"Input1"` (not `"1"` and `"2"`). The handler contract shows `name: ""` but the actual port names are `Input0`/`Input1`.
+- **TwoOrMoreInputsItem**: Use `typeName="GreaterHandler"` with `blockType="TwoOrMoreInputsItem"` for comparison blocks. Do not use `typeName="TwoOrMoreInputsItem"` alone.
+- **Graph XML handler fix**: If `explain` shows wrong `HandlerTypeName`, get graph via `GET /api/scripts/{name}/graph`, fix the XML string, then `PUT /api/scripts/{name}/json` with the corrected JSON.
+- **NNFormulaIndicator**: Must have `HandlerTypeName="NNFormulaIndicator, NNFormulaIndicator"` in the EditItem XML. Generic `ConverterItem` handler will not work.
+- **Lab options not persisting**: Set via `POST /api/scripts/{name}/lab-options` with `{ "options": { "initDeposit": 60, "tradeMode": 1 } }`. Verify via `GET /api/scripts/{name}/graph` → `options.initDeposit`.
+- **Datasource instruments**: `instrumentsLoaded=0` means no instruments are cached. In Desktop, manually add instruments via UI. In Console, instruments may not load without schedule enabled.
+- **Python NN trading**: Use `python train_solusdt.py` for single-instrument walk-forward, or `python run_all_instruments.py` for multi-instrument. Requires `data/binance_*_3tf.csv` files.
+- **3D visualization**: Self-contained HTML files in `TsLabWorkspace/nn-trading/`. Open via `file:///` protocol. Three.js r128 CDN required.
+
 ## Status first
 
 - API base: `http://localhost:5000/api`
@@ -89,4 +128,3 @@ Keep the common workflow in `AGENTS-FastPath.md` and keep this file short.
 - keep all work in the same packaged workspace root
 - keep shell `workdir` at `.` or the exact last successful packaged-workspace path; do not hand-type timestamped absolute workspace paths from memory
 - use workspace-local relative paths for all prompt inputs and request bodies. Keep request bodies under `./tmp/...` or `./ops.json`; never use absolute temp roots, drive roots, repo roots, `/workspace/tmp/...`, `C:\tmp\...`, or parent-workspace paths.
-

@@ -40,3 +40,6 @@ obj/
 *.dll
 *.pdb
 *.cache
+
+# Nested git repos
+AlrzA2003_BinanceTrader/

@@ -1,1 +1,43 @@
-﻿{"resolvedArtifactRouteName":"NN_XRP","scriptName":"NN_XRP","scriptId":132}
+{
+  "scriptName": "NN_ETH",
+  "description": "NN Trading ETH - HybridEnsemble (Optuna optimized)",
+  "symbol": "ETHUSDT",
+  "exchange": "BINANCE",
+  "interval": "1d",
+  "model": {
+    "type": "attention",
+    "hidden_size": 32,
+    "num_layers": 2,
+    "nhead": 8,
+    "dropout": 0.4899
+  },
+  "data": {
+    "window": 20,
+    "max_features": 40,
+    "batch_size": 128,
+    "learning_rate": 0.000181
+  },
+  "risk": {
+    "stop_loss_pct": 0.0332,
+    "take_profit_pct": 0.0852,
+    "trailing_stop_pct": 0.015
+  },
+  "ensemble": {
+    "n_models": 3,
+    "use_xgboost": true,
+    "use_catboost": true,
+    "use_lightgbm": true,
+    "use_random_forest": true
+  },
+  "validation": {
+    "method": "walk_forward",
+    "n_folds": 5,
+    "embargo": 7
+  },
+  "metrics": {
+    "return": 15.79,
+    "sharpe": 0.84,
+    "max_dd": -14.37,
+    "win_rate": 34.0
+  }
+}

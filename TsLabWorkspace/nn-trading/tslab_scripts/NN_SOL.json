@@ -1,1 +1,43 @@
-﻿{"resolvedArtifactRouteName":"NN_XRP","scriptName":"NN_XRP","scriptId":132}
+{
+  "scriptName": "NN_SOL",
+  "description": "NN Trading SOL - HybridEnsemble (Optuna optimized)",
+  "symbol": "SOLUSDT",
+  "exchange": "BINANCE",
+  "interval": "1d",
+  "model": {
+    "type": "attention",
+    "hidden_size": 16,
+    "num_layers": 2,
+    "nhead": 4,
+    "dropout": 0.3037
+  },
+  "data": {
+    "window": 30,
+    "max_features": 40,
+    "batch_size": 128,
+    "learning_rate": 0.000209
+  },
+  "risk": {
+    "stop_loss_pct": 0.0415,
+    "take_profit_pct": 0.103,
+    "trailing_stop_pct": 0.015
+  },
+  "ensemble": {
+    "n_models": 3,
+    "use_xgboost": true,
+    "use_catboost": true,
+    "use_lightgbm": true,
+    "use_random_forest": true
+  },
+  "validation": {
+    "method": "walk_forward",
+    "n_folds": 5,
+    "embargo": 7
+  },
+  "metrics": {
+    "return": 8.3,
+    "sharpe": 0.62,
+    "max_dd": -8.17,
+    "win_rate": 36.4
+  }
+}

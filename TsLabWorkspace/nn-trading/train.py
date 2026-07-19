@@ -1,6 +1,36 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import random
+import numpy as np
 from torch.utils.data import DataLoader
+
+
+def set_seed(seed: int = 42):
+    """Set all random seeds for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+
+class FocalLoss(nn.Module):
+    """Focal Loss for binary classification — handles class imbalance."""
+    def __init__(self, alpha=0.25, gamma=2.0):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, logits, targets):
+        bce = F.binary_cross_entropy_with_logits(logits, targets, reduction='none')
+        probs = torch.sigmoid(logits)
+        pt = torch.where(targets == 1, probs, 1 - probs)
+        alpha_t = torch.where(targets == 1, self.alpha, 1 - self.alpha)
+        focal_weight = alpha_t * (1 - pt) ** self.gamma
+        return (focal_weight * bce).mean()
 
 
 def train_epoch(model, loader, optimizer, criterion, device, max_grad_norm=1.0):
@@ -39,11 +69,23 @@ def eval_epoch(model, loader, criterion, device):
     return total_loss / total, correct / total
 
 
-def train(model, train_ds, val_ds, config, device, quiet=False):
+def train(model, train_ds, val_ds, config, device, quiet=False, use_focal=True):
     model = model.to(device)
-    # Weight decay for regularization
+
+    # Auto-detect class imbalance for FocalLoss alpha
+    if use_focal:
+        n_pos = sum(1 for _, y in train_ds if y.item() == 1)
+        n_neg = len(train_ds) - n_pos
+        pos_ratio = n_pos / len(train_ds) if len(train_ds) > 0 else 0.5
+        # alpha = weight for positive class (higher = more focus on minority)
+        alpha = max(0.25, min(0.75, 1.0 - pos_ratio))
+        criterion = FocalLoss(alpha=alpha, gamma=2.0)
+        if not quiet:
+            print(f"  FocalLoss alpha={alpha:.2f} (pos={n_pos}/{len(train_ds)}, {pos_ratio*100:.1f}%)")
+    else:
+        criterion = nn.BCEWithLogitsLoss()
+
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=0.01)
-    criterion = nn.BCEWithLogitsLoss()
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.epochs, eta_min=1e-6)
 
     train_loader = DataLoader(train_ds, batch_size=config.batch_size, shuffle=True)

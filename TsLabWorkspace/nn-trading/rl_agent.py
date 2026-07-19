@@ -1,7 +1,5 @@
 """DQN Reinforcement Learning agent for BTC trading."""
 import os
-os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["MKL_NUM_THREADS"] = "2"
 
 import random
 import numpy as np

@@ -70,5 +70,74 @@
       "win_rate": 36.36363636363637
     },
     "value": 8.214063424472169
+  },
+  "XLM": {
+    "params": {
+      "hidden_size": 16,
+      "num_layers": 1,
+      "dropout": 0.3443,
+      "nhead": 4,
+      "window": 40,
+      "max_features": 40,
+      "batch_size": 32,
+      "learning_rate": 0.000232,
+      "stop_loss_pct": 0.0236,
+      "take_profit_pct": 0.081
+    },
+    "attrs": {
+      "total_return": 35.74,
+      "max_drawdown": -19.7,
+      "total_trades": 212,
+      "win_rate": 41.5,
+      "sharpe": 0.65,
+      "sortino": 1.1
+    },
+    "value": 0.23231000000000002
+  },
+  "NEAR": {
+    "params": {
+      "hidden_size": 32,
+      "num_layers": 2,
+      "dropout": 0.3246,
+      "nhead": 4,
+      "window": 30,
+      "max_features": 50,
+      "batch_size": 32,
+      "learning_rate": 0.000253,
+      "stop_loss_pct": 0.0256,
+      "take_profit_pct": 0.1111
+    },
+    "attrs": {
+      "total_return": 82.72,
+      "max_drawdown": -13.15,
+      "total_trades": 214,
+      "win_rate": 36.0,
+      "sharpe": 0.96,
+      "sortino": 2.59
+    },
+    "value": 0.7941119999999999
+  },
+  "AAVE": {
+    "params": {
+      "hidden_size": 16,
+      "num_layers": 2,
+      "dropout": 0.4361,
+      "nhead": 4,
+      "window": 40,
+      "max_features": 30,
+      "batch_size": 64,
+      "learning_rate": 0.000335,
+      "stop_loss_pct": 0.0209,
+      "take_profit_pct": 0.1196
+    },
+    "attrs": {
+      "total_return": 155.45,
+      "max_drawdown": -12.91,
+      "total_trades": 214,
+      "win_rate": 43.4,
+      "sharpe": 1.34,
+      "sortino": 3.19
+    },
+    "value": 2.08303
   }
 }

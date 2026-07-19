@@ -12,3 +12,5 @@ websocket-client>=1.6
 xgboost>=2.0
 catboost>=1.2
 lightgbm>=4.0
+websockets>=11.0
+aiohttp>=3.9.0

@@ -1,483 +1,1328 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<title>NN Trading — 3D Архитектура</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN Trading — 3D Визуализация моделей нейросетей</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#080818;font-family:'Segoe UI',Arial,sans-serif;color:#fff;overflow:hidden}
-#sidebar{position:fixed;top:0;left:0;width:380px;height:100%;background:rgba(0,8,24,0.92);border-right:1px solid rgba(0,100,255,0.2);z-index:20;overflow-y:auto;padding:16px;backdrop-filter:blur(12px)}
-#sidebar::-webkit-scrollbar{width:4px}
-#sidebar::-webkit-scrollbar-thumb{background:rgba(0,100,255,0.3);border-radius:2px}
-#sidebar h1{color:#00ccff;font-size:16px;margin-bottom:4px}
-#sidebar h2{color:#00aaff;font-size:13px;margin:14px 0 6px;border-bottom:1px solid rgba(0,100,255,0.2);padding-bottom:4px}
-#sidebar h3{color:#00ff88;font-size:12px;margin:8px 0 3px}
-#sidebar p,#sidebar li{color:#889;font-size:11px;line-height:1.5}
-#sidebar ul{padding-left:14px}
-.model-card{background:rgba(0,40,80,0.35);border:1px solid rgba(0,100,255,0.15);border-radius:6px;padding:8px 10px;margin:4px 0;transition:border-color .2s}
-.model-card:hover{border-color:rgba(0,150,255,0.5)}
-.model-card h4{color:#00ff88;font-size:12px;margin:0 0 2px}
-.model-card .type{color:#ff6600;font-size:10px}
-.model-card .params{color:#667;font-size:10px;margin-top:2px;font-family:monospace}
-table{width:100%;border-collapse:collapse;font-size:10px;margin:4px 0}
-th{background:rgba(0,80,160,0.3);color:#88ccff;padding:4px 6px;text-align:left}
-td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0}
-.stat{display:inline-block}
-.stat .v{font-size:18px;font-weight:bold;color:#00ff88}
-.stat .l{font-size:9px;color:#667}
-.stat.neg .v{color:#ff4444}
-.btn-group{display:flex;gap:4px;margin:8px 0}
-.btn{background:rgba(0,80,160,0.3);border:1px solid rgba(0,100,255,0.3);color:#88ccff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;transition:all .2s}
-.btn:hover{background:rgba(0,100,200,0.4);color:#fff}
-.btn.active{background:rgba(0,120,255,0.5);color:#fff;border-color:#00aaff}
-#tooltip{position:fixed;display:none;background:rgba(0,12,30,0.95);color:#fff;padding:10px 14px;border-radius:6px;font-size:11px;pointer-events:none;z-index:100;border:1px solid #00aaff;max-width:280px;box-shadow:0 4px 20px rgba(0,100,255,0.3)}
-#tooltip b{color:#00ccff}
-#stats{position:fixed;bottom:0;left:380px;right:0;height:36px;background:rgba(0,8,24,0.85);border-top:1px solid rgba(0,100,255,0.2);z-index:20;display:flex;align-items:center;padding:0 16px;gap:20px;font-size:10px;color:#667}
-#stats span{color:#88ccff}
-#lang-toggle{position:fixed;top:12px;right:16px;z-index:25}
-#lang-toggle .btn{font-size:11px;padding:5px 12px}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; color: #e0e0e0; }
+
+#canvas3d { width: 100vw; height: 100vh; display: block; }
+
+/* Left sidebar */
+#sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 300px;
+  background: rgba(10,10,30,0.92); backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; z-index: 10;
+  transition: transform 0.3s;
+}
+#sidebar.collapsed { transform: translateX(-300px); }
+
+#sidebar-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(0,204,255,0.15), rgba(170,0,255,0.1));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+#sidebar-header h1 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+#sidebar-header p { font-size: 11px; color: #888; }
+
+/* Tabs */
+#model-tabs {
+  display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  max-height: 160px; overflow-y: auto;
+}
+#model-tabs::-webkit-scrollbar { width: 3px; }
+#model-tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+.tab-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04); color: #aaa; font-size: 10px;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.tab-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.tab-btn.active { background: rgba(0,204,255,0.2); color: #00ccff; border-color: rgba(0,204,255,0.4); }
+.tab-btn.ensemble { border-color: rgba(255,255,255,0.2); }
+.tab-btn.ensemble.active { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+/* Info panel */
+#info-panel {
+  flex: 1; overflow-y: auto; padding: 12px 16px;
+  font-size: 11px; line-height: 1.5;
+}
+#info-panel::-webkit-scrollbar { width: 3px; }
+#info-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+.info-section { margin-bottom: 12px; }
+.info-section h3 { color: #00ccff; font-size: 11px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.info-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.info-row .label { color: #888; }
+.info-row .value { color: #ccc; font-family: 'Consolas', monospace; font-size: 10px; }
+
+.layer-item {
+  padding: 6px 8px; margin: 3px 0; border-radius: 4px;
+  background: rgba(255,255,255,0.03); border-left: 3px solid #333;
+  cursor: pointer; transition: all 0.15s;
+}
+.layer-item:hover { background: rgba(255,255,255,0.08); }
+.layer-item .layer-name { color: #ddd; font-weight: 600; font-size: 11px; }
+.layer-item .layer-detail { color: #777; font-size: 9px; margin-top: 2px; font-family: 'Consolas', monospace; }
+
+/* Right controls */
+#controls {
+  position: fixed; right: 12px; top: 12px; z-index: 10;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ctrl-btn {
+  width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,30,0.85); backdrop-filter: blur(8px);
+  color: #aaa; font-size: 16px; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.ctrl-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.ctrl-btn.active { background: rgba(0,204,255,0.2); color: #00ccff; border-color: rgba(0,204,255,0.4); }
+
+/* Toggle sidebar */
+#toggle-sidebar {
+  position: fixed; left: 306px; top: 50%; transform: translateY(-50%); z-index: 11;
+  width: 20px; height: 40px; border-radius: 0 6px 6px 0;
+  background: rgba(10,10,30,0.85); border: 1px solid rgba(255,255,255,0.12);
+  border-left: none; color: #888; cursor: pointer; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: left 0.3s;
+}
+#sidebar.collapsed ~ #toggle-sidebar { left: 0; }
+
+/* Bottom bar */
+#stats-bar {
+  position: fixed; bottom: 0; left: 300px; right: 0; height: 32px;
+  background: rgba(10,10,30,0.9); border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; padding: 0 16px; gap: 20px;
+  font-size: 10px; color: #666; z-index: 10;
+  transition: left 0.3s;
+}
+#sidebar.collapsed ~ #stats-bar { left: 0; }
+.stat-item { display: flex; align-items: center; gap: 4px; }
+.stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Tooltip */
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 100;
+  background: rgba(10,10,30,0.95); backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,204,255,0.3); border-radius: 8px;
+  padding: 10px 14px; max-width: 280px; display: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#tooltip .tt-title { color: #00ccff; font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+#tooltip .tt-detail { color: #999; font-size: 10px; line-height: 1.4; font-family: 'Consolas', monospace; }
+
+/* Language toggle */
+#lang-toggle {
+  position: fixed; top: 12px; right: 56px; z-index: 10;
+  display: flex; gap: 4px;
+}
+.lang-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,30,0.85); color: #888; font-size: 11px;
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.lang-btn.active { background: rgba(0,204,255,0.2); color: #00ccff; border-color: rgba(0,204,255,0.4); }
 </style>
 </head>
 <body>
 
+<canvas id="canvas3d"></canvas>
+
 <div id="sidebar">
-  <h1>NN Trading — 3D Архитектура</h1>
-  <p style="color:#667;font-size:10px">Гибридная система: 15 моделей + 4 sklearn</p>
-
-  <div class="btn-group">
-    <div class="btn active" onclick="setView('full')">Полная</div>
-    <div class="btn" onclick="setView('nn')">Только NN</div>
-    <div class="btn" onclick="setView('ml')">Только ML</div>
-    <div class="btn" onclick="setView('hybrid')">Hybrid</div>
+  <div id="sidebar-header">
+    <h1>NN Trading — 3D Архитектура</h1>
+    <p data-i18n="subtitle">Интерактивная визуализация нейросетей</p>
   </div>
-
-  <h2>Нейросетевые модели</h2>
-
-  <div class="model-card" data-layer="lstm">
-    <h4>LSTMModel</h4>
-    <div class="type">Рекуррентная сеть</div>
-    <div class="params">Input → LSTM(64,2) → FC(32) → ReLU → FC(1)</div>
-    <p>Запоминает последовательности. Hidden: 64, Layers: 2, Dropout: 0.35</p>
-  </div>
-
-  <div class="model-card" data-layer="tcn">
-    <h4>TCNModel</h4>
-    <div class="type">Temporal Convolutional Network</div>
-    <div class="params">Input → Conv1d(k=3,d=2^i) × N → BN → FC三层</div>
-    <p>Каузальные свёртки с дилатацией. Моделирует длинные зависимости.</p>
-  </div>
-
-  <div class="model-card" data-layer="transformer">
-    <h4>TransformerModel</h4>
-    <div class="type">Self-Attention</div>
-    <div class="params">Input → Proj → PosEnc → TransEnc(h=8) → FC三层</div>
-    <p>Multi-head attention. Pre-norm, GELU. 4x feed-forward.</p>
-  </div>
-
-  <div class="model-card" data-layer="attention">
-    <h4>AttentionTransformer</h4>
-    <div class="type">Custom Attention Blocks</div>
-    <div class="params">Input → Proj → PosEnc → N×AttnBlock → FC</div>
-    <p>Кастомные блоки с residual connections.</p>
-  </div>
-
-  <div class="model-card" data-layer="multitask">
-    <h4>MultiTaskModel</h4>
-    <div class="type">Multi-Task Learning</div>
-    <div class="params">LSTM → ClassHead + RegHead + ConfHead</div>
-    <p>3 выхода: buy/sell, изменение цены, уверенность.</p>
-  </div>
-
-  <h2>Ансамбли</h2>
-
-  <div class="model-card" data-layer="ensemble">
-    <h4>Ensemble</h4>
-    <div class="type">Weighted Average</div>
-    <div class="params">logits = Σ(w_i × model_i(x))</div>
-    <p>N моделей, веса оптимизируются на validation.</p>
-  </div>
-
-  <div class="model-card" data-layer="stacking">
-    <h4>StackingEnsemble</h4>
-    <div class="type">Meta-Learning</div>
-    <div class="params">Base → Concat → Meta(n→16→1)</div>
-    <p>Base заморожены, meta обучается на предсказаниях.</p>
-  </div>
-
-  <div class="model-card" data-layer="hybrid">
-    <h4>HybridEnsemble</h4>
-    <div class="type">Neural + sklearn</div>
-    <div class="params">3 NN + 4 sklearn → Weighted Avg</div>
-    <p>Комбинация LSTM/Attention + XGBoost/CatBoost/LightGBM/RF.</p>
-  </div>
-
-  <h2>sklearn модели</h2>
-  <table>
-    <tr><th>Модель</th><th>Тип</th><th>Параметры</th></tr>
-    <tr><td>XGBoost</td><td>GB</td><td>n=100, d=5, lr=0.05</td></tr>
-    <tr><td>CatBoost</td><td>GB</td><td>i=100, d=6, lr=0.05</td></tr>
-    <tr><td>LightGBM</td><td>GB</td><td>n=100, d=6, lr=0.05</td></tr>
-    <tr><td>RandomForest</td><td>Bag</td><td>n=100, d=8</td></tr>
-  </table>
-
-  <h2>Результаты (Binance, 3 года)</h2>
-  <div class="stat-row">
-    <div class="stat"><div class="v">5/9</div><div class="l">Прибыльных</div></div>
-    <div class="stat"><div class="v">+12.4%</div><div class="l">Средний Return</div></div>
-    <div class="stat"><div class="v">+1.42</div><div class="l">Sharpe</div></div>
-    <div class="stat neg"><div class="v">-1.43%</div><div class="l">Portfolio 3yr</div></div>
-    <div class="stat"><div class="v">-2.69%</div><div class="l">Max DD</div></div>
-  </div>
-
-  <h2>Пайплайн</h2>
-  <ul>
-    <li>Скачивание: Binance API (5m-1M), пагинация, кеш</li>
-    <li>Фичи: 40-50 мультитаймфреймовых (1d+1w+1M)</li>
-    <li>Auto-select: RF importance + MI</li>
-    <li>Walk-forward: anchored, 85/15 split</li>
-    <li>Backtest: trailing stop, ATR sizing, costs 0.2%</li>
-  </ul>
+  <div id="model-tabs"></div>
+  <div id="info-panel"></div>
 </div>
 
-<div id="tooltip"></div>
-<div id="stats">
-  <span>FPS:</span><span id="fps">60</span>
-  <span>Nodes:</span><span id="node-count">0</span>
-  <span>Edges:</span><span id="edge-count">0</span>
-  <span>View:</span><span id="current-view">full</span>
+<button id="toggle-sidebar" onclick="toggleSidebar()">◀</button>
+
+<div id="controls">
+  <button class="ctrl-btn active" id="btn-rotate" onclick="toggleAutoRotate()" title="Авто-вращение">⟳</button>
+  <button class="ctrl-btn" id="btn-wireframe" onclick="toggleWireframe()" title="Wireframe">▦</button>
+  <button class="ctrl-btn" id="btn-reset" onclick="resetView()" title="Сброс вида">⌂</button>
+  <button class="ctrl-btn" id="btn-labels" onclick="toggleLabels()" title="Метки слоёв">Aa</button>
 </div>
 
 <div id="lang-toggle">
-  <div class="btn" onclick="toggleLang()">RU/EN</div>
+  <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
 </div>
 
-<canvas id="c"></canvas>
+<div id="stats-bar">
+  <div class="stat-item"><div class="stat-dot" style="background:#00ccff"></div><span id="stat-models">10 моделей</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:#ff6600"></div><span id="stat-ensembles">4 ансамбля</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:#33cc66"></div><span id="stat-features">55+ признаков</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:#ff3366"></div><span id="stat-params">~200K+ параметров</span></div>
+</div>
 
+<div id="tooltip">
+  <div class="tt-title"></div>
+  <div class="tt-detail"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-// ===== CONFIG =====
-var LAYER_DEFS = [
-  {id:'input',   name:'Input (40-50 фичей)',     n:10, x:-20, y:0,  color:0x336699, type:'sphere'},
-  {id:'lstm',    name:'LSTM (64, 2 layers)',       n:8,  x:-14, y:3,  color:0x00ccff, type:'sphere'},
-  {id:'tcn',     name:'TCN (kernel=3, dilated)',    n:7,  x:-14, y:-3, color:0xff8800, type:'sphere'},
-  {id:'transf',  name:'Transformer (8 heads)',      n:8,  x:-8,  y:3,  color:0xff0066, type:'sphere'},
-  {id:'attn',    name:'Attention (custom blocks)',   n:7,  x:-8,  y:-3, color:0xff6600, type:'sphere'},
-  {id:'xgb',     name:'XGBoost (n=100, d=5)',       n:5,  x:-2,  y:4,  color:0x00ff88, type:'box'},
-  {id:'cat',     name:'CatBoost (iter=100, d=6)',   n:4,  x:0,   y:4,  color:0xff0066, type:'box'},
-  {id:'lgbm',    name:'LightGBM (n=100, d=6)',      n:4,  x:2,   y:4,  color:0xffff00, type:'box'},
-  {id:'rf',      name:'RandomForest (n=100, d=8)',   n:4,  x:4,   y:4,  color:0xaa00ff, type:'box'},
-  {id:'meta',    name:'Meta-Learner (stacking)',     n:5,  x:10,  y:0,  color:0xffffff, type:'box'},
-  {id:'output',  name:'Output (Buy/Hold/Sell)',      n:3,  x:16,  y:0,  color:0x00ffcc, type:'sphere'},
-];
+// ═══════════════════════════════════════════════════════════════
+// i18n
+// ═══════════════════════════════════════════════════════════════
+const i18n = {
+  ru: {
+    subtitle: 'Интерактивная визуализация нейросетей',
+    statModels: 'моделей', statEnsembles: 'ансамбля', statFeatures: 'признаков', statParams: 'параметров',
+    tabs: {
+      overview: 'Обзор',
+      lstm: 'LSTM',
+      tcn: 'TCN',
+      attention: 'Attention',
+      transformer: 'Transformer',
+      lstmReg: 'LSTM Reg',
+      tcnReg: 'TCN Reg',
+      transReg: 'Trans Reg',
+      multiTask: 'MultiTask',
+      dqn: 'Dueling DQN',
+      ensemble: 'Ensemble',
+      stacking: 'Stacking',
+      hybrid: 'Hybrid'
+    },
+    info: {
+      overviewTitle: 'Проект NN Trading',
+      overviewDesc: 'Система торговли криптовалютой (Binance Coin-M Futures). Ансамбли нейросетей для бинарной классификации: пойдёт ли цена вверх на X% за Y баров.',
+      type: 'Тип', input: 'Вход', output: 'Выход', layers: 'Слои', params: 'Параметры',
+      typeClassif: 'Бинарная классификация', typeRegress: 'Регрессия', typeRL: 'Reinforcement Learning',
+      typeEnsemble: 'Ансамбль', typeMulti: 'Multi-task',
+      inputDesc: '(batch, seq_len, features)', outputUp: 'Логит → вероятность роста',
+      outputReg: 'Логит → % изменения цены', outputRL: 'Q(s,a): hold / buy / sell',
+      outputMulti: 'cls + reg + confidence',
+      inputFeatures: '55+ технических индикаторов (TA-Lib + ta)',
+      hiddenSize: 'hidden_size', numLayers: 'num_layers', dropout: 'dropout',
+      window: 'Окно', features: 'Признаки',
+      layersList: 'Слои',
+      headDesc: 'Классификационная голова',
+      regressHead: 'Регрессионная голова',
+      confHead: 'Голова уверенности',
+      featExtract: 'Извлечение признаков',
+      valueNet: 'Value stream',
+      advantageNet: 'Advantage stream',
+      metaLearner: 'Мета-обучатель',
+      sklearnWrap: 'sklearn обёртка',
+      baseModels: 'Базовые модели',
+      modelTypes: { lstm:'LSTM', tcn:'TCN', attention:'Attention Transformer', transformer:'Transformer' }
+    },
+    layers: {
+      input: 'Вход', lstm: 'LSTM', linear: 'Linear', relu: 'ReLU', dropout: 'Dropout',
+      conv1d: 'Conv1d', batchnorm: 'BatchNorm1d', gelu: 'GELU', layernorm: 'LayerNorm',
+      mha: 'MultiheadAttention', ffn: 'Feed-Forward', posenc: 'Positional Encoding',
+      sigmoid: 'Sigmoid', output: 'Выход', tcnBlock: 'TCN Block', attnBlock: 'Attention Block',
+      transformerEnc: 'TransformerEncoder', proj: 'Projection', identity: 'Identity/Residual',
+      catboost: 'CatBoost', xgboost: 'XGBoost', lightgbm: 'LightGBM', randomforest: 'RandomForest'
+    }
+  },
+  en: {
+    subtitle: 'Interactive neural network visualization',
+    statModels: 'models', statEnsembles: 'ensembles', statFeatures: 'features', statParams: 'params',
+    tabs: {
+      overview: 'Overview',
+      lstm: 'LSTM', tcn: 'TCN', attention: 'Attention', transformer: 'Transformer',
+      lstmReg: 'LSTM Reg', tcnReg: 'TCN Reg', transReg: 'Trans Reg',
+      multiTask: 'MultiTask', dqn: 'Dueling DQN',
+      ensemble: 'Ensemble', stacking: 'Stacking', hybrid: 'Hybrid'
+    },
+    info: {
+      overviewTitle: 'NN Trading Project',
+      overviewDesc: 'Crypto trading system (Binance Coin-M Futures). Neural network ensembles for binary classification: will price go up X% in Y bars?',
+      type: 'Type', input: 'Input', output: 'Output', layers: 'Layers', params: 'Parameters',
+      typeClassif: 'Binary classification', typeRegress: 'Regression', typeRL: 'Reinforcement Learning',
+      typeEnsemble: 'Ensemble', typeMulti: 'Multi-task',
+      inputDesc: '(batch, seq_len, features)', outputUp: 'Logit → probability of price up',
+      outputReg: 'Logit → % price change', outputRL: 'Q(s,a): hold / buy / sell',
+      outputMulti: 'cls + reg + confidence',
+      inputFeatures: '55+ technical indicators (TA-Lib + ta)',
+      hiddenSize: 'hidden_size', numLayers: 'num_layers', dropout: 'dropout',
+      window: 'Window', features: 'Features',
+      layersList: 'Layers',
+      headDesc: 'Classification head',
+      regressHead: 'Regression head',
+      confHead: 'Confidence head',
+      featExtract: 'Feature extraction',
+      valueNet: 'Value stream',
+      advantageNet: 'Advantage stream',
+      metaLearner: 'Meta-learner',
+      sklearnWrap: 'sklearn wrapper',
+      baseModels: 'Base models',
+      modelTypes: { lstm:'LSTM', tcn:'TCN', attention:'Attention Transformer', transformer:'Transformer' }
+    },
+    layers: {
+      input: 'Input', lstm: 'LSTM', linear: 'Linear', relu: 'ReLU', dropout: 'Dropout',
+      conv1d: 'Conv1d', batchnorm: 'BatchNorm1d', gelu: 'GELU', layernorm: 'LayerNorm',
+      mha: 'MultiheadAttention', ffn: 'Feed-Forward', posenc: 'Positional Encoding',
+      sigmoid: 'Sigmoid', output: 'Output', tcnBlock: 'TCN Block', attnBlock: 'Attention Block',
+      transformerEnc: 'TransformerEncoder', proj: 'Projection', identity: 'Identity/Residual',
+      catboost: 'CatBoost', xgboost: 'XGBoost', lightgbm: 'LightGBM', randomforest: 'RandomForest'
+    }
+  }
+};
+let currentLang = 'ru';
+function t(key, replacements) {
+  const keys = key.split('.');
+  let val = i18n[currentLang];
+  for (const k of keys) val = val?.[k];
+  if (!val) return key;
+  if (replacements) Object.entries(replacements).forEach(([rk, rv]) => val = val.replace(`{${rk}}`, rv));
+  return val;
+}
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const key = btn.dataset.tab;
+    if (i18n[currentLang].tabs[key]) btn.textContent = i18n[currentLang].tabs[key];
+  });
+  updateInfoPanel();
+}
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === lang));
+  applyLang();
+}
 
-var EDGES_DEF = [
-  {from:'input',to:'lstm'},{from:'input',to:'tcn'},
-  {from:'lstm',to:'transf'},{from:'tcn',to:'attn'},
-  {from:'transf',to:'meta'},{from:'attn',to:'meta'},
-  {from:'xgb',to:'meta'},{from:'cat',to:'meta'},
-  {from:'lgbm',to:'meta'},{from:'rf',to:'meta'},
-  {from:'meta',to:'output'},
-];
+// ═══════════════════════════════════════════════════════════════
+// Model Definitions
+// ═══════════════════════════════════════════════════════════════
+const CONFIG = {
+  hidden_size: 64, num_layers: 2, dropout: 0.35, window: 30,
+  features: 40, nhead: 8, seq_len: 30, input_size: 40
+};
 
-// ===== SCENE SETUP =====
-var canvas = document.getElementById('c');
-var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:false});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const modelDefs = {
+  lstm: {
+    name: 'LSTMModel', type: 'classification', color: 0x00ccff,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'lstm', name: 'LSTM', shape: '40→64×2', neurons: 20, color: 0x00ccff, detail: 'input=40, hidden=64, layers=2, batch_first, dropout=0.35' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: 'hidden_size → 32' },
+      { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'Активация ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: '32 → 1 (логит)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Сигмоида → P(рост)' }
+    ]
+  },
+  tcn: {
+    name: 'TCNModel', type: 'classification', color: 0xff6600,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'tcnBlock', name: 'TCN Block ×2', shape: '40→64', neurons: 16, color: 0xff6600, detail: 'Conv1d(40→64, k=3, d=1) + BN + ReLU + Conv1d + BN + Residual' },
+      { type: 'tcnBlock', name: 'TCN Block ×2', shape: '64→64', neurons: 16, color: 0xff8833, detail: 'Conv1d(64→64, k=3, d=2) + BN + ReLU + Conv1d + BN + Residual' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: 'hidden_size//2 → hidden_size//4' },
+      { type: 'batchnorm', name: 'BN', shape: '32', neurons: 8, color: 0x6633cc, detail: 'BatchNorm1d(32)' },
+      { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'Активация ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: 'hidden_size//4 → 1 (логит)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Сигмоида → P(рост)' }
+    ]
+  },
+  attention: {
+    name: 'AttentionTransformer', type: 'classification', color: 0xaa00ff,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'proj', name: 'Input Projection', shape: '40→64', neurons: 10, color: 0x9933cc, detail: 'Linear(40→64) + LayerNorm(64) + GELU + Dropout' },
+      { type: 'posenc', name: 'Positional Encoding', shape: 'd=64', neurons: 8, color: 0xcc6600, detail: 'Sinusoidal PE, max_len=5000' },
+      { type: 'attnBlock', name: 'Attention Block ×2', shape: 'd=64, h=4', neurons: 16, color: 0xaa00ff, detail: 'MultiheadAttention(64, 4 heads) + LayerNorm + FFN(64→256→64) + GELU + Residual' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: 'hidden_size//2 → 32' },
+      { type: 'layernorm', name: 'LayerNorm', shape: '32', neurons: 8, color: 0x669933, detail: 'LayerNorm(32)' },
+      { type: 'gelu', name: 'GELU', neurons: 6, color: 0xff33aa, detail: 'Активация GELU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: '32 → 1 (логит)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Сигмоида → P(рост)' }
+    ]
+  },
+  transformer: {
+    name: 'TransformerModel', type: 'classification', color: 0xff0066,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'proj', name: 'Input Projection', shape: '40→64', neurons: 10, color: 0x9933cc, detail: 'Linear(40→64) + LayerNorm(64) + ReLU + Dropout' },
+      { type: 'posenc', name: 'Positional Encoding', shape: 'd=64', neurons: 8, color: 0xcc6600, detail: 'Sinusoidal PE, max_len=5000' },
+      { type: 'transformerEnc', name: 'TransformerEncoder ×2', shape: 'd=64, h=4', neurons: 16, color: 0xff0066, detail: 'EncoderLayer(64, 4 heads, FF=256, GELU, Pre-Norm) ×2' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: 'hidden_size//2 → hidden_size//4' },
+      { type: 'layernorm', name: 'LayerNorm', shape: '32', neurons: 8, color: 0x669933, detail: 'LayerNorm(32)' },
+      { type: 'gelu', name: 'GELU', neurons: 6, color: 0xff33aa, detail: 'GELU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→16', neurons: 5, color: 0x00aa66, detail: 'hidden_size//4 → 16' },
+      { type: 'layernorm', name: 'LayerNorm', shape: '16', neurons: 5, color: 0x669933, detail: 'LayerNorm(16)' },
+      { type: 'gelu', name: 'GELU', neurons: 4, color: 0xff33aa, detail: 'GELU' },
+      { type: 'dropout', name: 'Dropout', neurons: 4, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '16→1', neurons: 2, color: 0x00aa66, detail: '16 → 1 (логит)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Сигмоида → P(рост)' }
+    ]
+  },
+  lstmReg: {
+    name: 'LSTMRegression', type: 'regression', color: 0x00ccff,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'lstm', name: 'LSTM', shape: '40→64×2', neurons: 20, color: 0x00ccff, detail: 'input=40, hidden=64, layers=2, batch_first, dropout=0.35' },
+      { type: 'linear', name: 'Linear', shape: '64→64', neurons: 12, color: 0x00aa66, detail: 'hidden_size → 64' },
+      { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: '64 → 32' },
+      { type: 'relu', name: 'ReLU', neurons: 5, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 5, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: '32 → 1 (% изменения)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Предсказание: % изменения цены' }
+    ]
+  },
+  tcnReg: {
+    name: 'TCNRegression', type: 'regression', color: 0xff6600,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'tcnBlock', name: 'TCN Block ×2', shape: '40→64', neurons: 16, color: 0xff6600, detail: 'Conv1d(40→64, k=3, d=1) + BN + ReLU + Conv1d + BN + Residual' },
+      { type: 'tcnBlock', name: 'TCN Block ×2', shape: '64→64', neurons: 16, color: 0xff8833, detail: 'Conv1d(64→64, k=3, d=2) + BN + ReLU + Conv1d + BN + Residual' },
+      { type: 'linear', name: 'Linear', shape: '64→64', neurons: 12, color: 0x00aa66, detail: 'hidden_size → 64' },
+      { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: '64 → 32' },
+      { type: 'relu', name: 'ReLU', neurons: 5, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 5, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: '32 → 1 (% изменения)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Предсказание: % изменения цены' }
+    ]
+  },
+  transReg: {
+    name: 'TransformerRegression', type: 'regression', color: 0xff0066,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'proj', name: 'Projection', shape: '40→64', neurons: 10, color: 0x9933cc, detail: 'Linear(40→64)' },
+      { type: 'posenc', name: 'Positional Encoding', shape: 'd=64', neurons: 8, color: 0xcc6600, detail: 'Sinusoidal PE' },
+      { type: 'transformerEnc', name: 'TransformerEncoder ×2', shape: 'd=64, h=4', neurons: 16, color: 0xff0066, detail: 'EncoderLayer(64, 4 heads, FF=256) ×2' },
+      { type: 'linear', name: 'Linear', shape: '64→64', neurons: 12, color: 0x00aa66, detail: 'hidden_size → 64' },
+      { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 6, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '64→32', neurons: 10, color: 0x00aa66, detail: '64 → 32' },
+      { type: 'relu', name: 'ReLU', neurons: 5, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 5, color: 0x888888, detail: 'p=0.35' },
+      { type: 'linear', name: 'Linear', shape: '32→1', neurons: 3, color: 0x00aa66, detail: '32 → 1 (% изменения)' },
+      { type: 'output', name: 'Output', shape: '(B, 1)', neurons: 1, color: 0xff3333, detail: 'Предсказание: % изменения цены' }
+    ]
+  },
+  multiTask: {
+    name: 'MultiTaskModel', type: 'multi-task', color: 0xffcc00,
+    layers: [
+      { type: 'input', name: 'Input', shape: '(B, 30, 40)', neurons: 12, color: 0x336699, detail: 'batch, seq_len=30, features=40' },
+      { type: 'lstm', name: 'LSTM (shared)', shape: '40→64×2', neurons: 20, color: 0x00ccff, detail: 'input=40, hidden=64, layers=2 — общая LSTM' },
+    ],
+    branches: [
+      {
+        name: 'Classification Head', nameRu: 'Классификация',
+        layers: [
+          { type: 'linear', name: 'Linear', shape: '64→32', neurons: 8, color: 0x00aa66, detail: '64 → 32' },
+          { type: 'relu', name: 'ReLU', neurons: 4, color: 0xff6600, detail: 'ReLU' },
+          { type: 'dropout', name: 'Dropout', neurons: 4, color: 0x888888, detail: 'p=0.35' },
+          { type: 'linear', name: 'Linear', shape: '32→1', neurons: 2, color: 0x00aa66, detail: '32 → 1' },
+          { type: 'output', name: 'Out: P(рост)', neurons: 1, color: 0x33ff33, detail: 'Логит для бинарной классификации' }
+        ]
+      },
+      {
+        name: 'Regression Head', nameRu: 'Регрессия',
+        layers: [
+          { type: 'linear', name: 'Linear', shape: '64→32', neurons: 8, color: 0x00aa66, detail: '64 → 32' },
+          { type: 'relu', name: 'ReLU', neurons: 4, color: 0xff6600, detail: 'ReLU' },
+          { type: 'dropout', name: 'Dropout', neurons: 4, color: 0x888888, detail: 'p=0.35' },
+          { type: 'linear', name: 'Linear', shape: '32→1', neurons: 2, color: 0x00aa66, detail: '32 → 1' },
+          { type: 'output', name: 'Out: % change', neurons: 1, color: 0x3366ff, detail: 'Предсказание % изменения цены' }
+        ]
+      },
+      {
+        name: 'Confidence Head', nameRu: 'Уверенность',
+        layers: [
+          { type: 'linear', name: 'Linear', shape: '64→16', neurons: 5, color: 0x00aa66, detail: '64 → 16' },
+          { type: 'relu', name: 'ReLU', neurons: 3, color: 0xff6600, detail: 'ReLU' },
+          { type: 'linear', name: 'Linear', shape: '16→1', neurons: 2, color: 0x00aa66, detail: '16 → 1' },
+          { type: 'sigmoid', name: 'Sigmoid', neurons: 1, color: 0xffaa00, detail: 'Sigmoid → [0, 1] уверенность' }
+        ]
+      }
+    ]
+  },
+  dqn: {
+    name: 'DuelingDQN', type: 'rl', color: 0xff9900,
+    layers: [
+      { type: 'input', name: 'State Input', shape: '(state_size)', neurons: 12, color: 0x336699, detail: 'Размер состояния (features × window)' },
+      { type: 'linear', name: 'Linear', shape: 'state→128', neurons: 12, color: 0x00aa66, detail: 'state_size → 128' },
+      { type: 'relu', name: 'ReLU', neurons: 8, color: 0xff6600, detail: 'ReLU' },
+      { type: 'linear', name: 'Linear', shape: '128→128', neurons: 12, color: 0x00aa66, detail: '128 → 128' },
+      { type: 'relu', name: 'ReLU', neurons: 8, color: 0xff6600, detail: 'ReLU' },
+    ],
+    branches: [
+      {
+        name: 'Value Stream V(s)', nameRu: 'Value stream',
+        layers: [
+          { type: 'linear', name: 'Linear', shape: '128→64', neurons: 10, color: 0x3366ff, detail: '128 → 64' },
+          { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'ReLU' },
+          { type: 'linear', name: 'Linear', shape: '64→1', neurons: 2, color: 0x3366ff, detail: '64 → 1 (ценность состояния)' },
+        ]
+      },
+      {
+        name: 'Advantage Stream A(s,a)', nameRu: 'Advantage stream',
+        layers: [
+          { type: 'linear', name: 'Linear', shape: '128→64', neurons: 10, color: 0xff3333, detail: '128 → 64' },
+          { type: 'relu', name: 'ReLU', neurons: 6, color: 0xff6600, detail: 'ReLU' },
+          { type: 'linear', name: 'Linear', shape: '64→3', neurons: 3, color: 0xff3333, detail: '64 → 3 (hold/buy/sell)' },
+        ]
+      }
+    ],
+    extra: 'Q(s,a) = V(s) + A(s,a) − mean(A)'
+  },
+  ensemble: {
+    name: 'Ensemble', type: 'ensemble', color: 0xffffff,
+    layers: [],
+    ensembleModels: ['LSTM', 'TCN', 'Attention', 'Transformer'],
+    ensembleDesc: 'Взвешенное усреднение логитов N базовых моделей'
+  },
+  stacking: {
+    name: 'StackingEnsemble', type: 'ensemble', color: 0xffffff,
+    layers: [],
+    ensembleModels: ['LSTM', 'TCN', 'Attention', 'Transformer'],
+    metaLayers: [
+      { type: 'linear', name: 'Meta Linear', shape: 'N→16', neurons: 6, color: 0xffffff, detail: 'nn.Linear(N, 16) — мета-обучатель' },
+      { type: 'relu', name: 'ReLU', neurons: 4, color: 0xff6600, detail: 'ReLU' },
+      { type: 'dropout', name: 'Dropout', neurons: 4, color: 0x888888, detail: 'p=0.2' },
+      { type: 'linear', name: 'Meta Linear', shape: '16→1', neurons: 2, color: 0xffffff, detail: 'nn.Linear(16, 1)' },
+      { type: 'output', name: 'Output', neurons: 1, color: 0xff3333, detail: 'Финальный логит' }
+    ],
+    ensembleDesc: 'Базовые модели заморожены → мета-обучатель'
+  },
+  hybrid: {
+    name: 'HybridEnsemble', type: 'ensemble', color: 0xffffff,
+    layers: [],
+    ensembleModels: ['LSTM', 'TCN', 'Attention', 'Transformer'],
+    sklearnModels: [
+      { name: 'XGBoost', color: 0x00ff88 },
+      { name: 'CatBoost', color: 0xffff00 },
+      { name: 'LightGBM', color: 0x00aaff },
+      { name: 'RandomForest', color: 0xff4488 }
+    ],
+    ensembleDesc: 'Нейросети + sklearn-модели → взвешенное усреднение'
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Three.js Setup
+// ═══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('canvas3d');
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0a1a, 0.012);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 8, 22);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x080818);
-renderer.shadowMap.enabled = true;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x0a0a1a);
 
-var scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x080818, 0.012);
-
-var camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 200);
-camera.position.set(0, 15, 35);
-
-var controls = new THREE.OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.5;
-controls.target.set(0, 0, 0);
-controls.minDistance = 10;
-controls.maxDistance = 80;
+controls.maxDistance = 50;
+controls.minDistance = 5;
 
-// ===== LIGHTING =====
-scene.add(new THREE.AmbientLight(0x334466, 0.5));
-var dl = new THREE.DirectionalLight(0xffffff, 0.7);
-dl.position.set(10, 20, 15);
-scene.add(dl);
-var pl = new THREE.PointLight(0x0088ff, 0.6, 60);
-pl.position.set(-10, 10, 10);
-scene.add(pl);
-var pl2 = new THREE.PointLight(0xff4400, 0.3, 50);
-pl2.position.set(10, -5, -10);
-scene.add(pl2);
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x222244, 0.6);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(10, 20, 10);
+scene.add(dirLight);
+const pointLight1 = new THREE.PointLight(0x00ccff, 0.5, 40);
+pointLight1.position.set(-10, 5, 10);
+scene.add(pointLight1);
+const pointLight2 = new THREE.PointLight(0xaa00ff, 0.4, 40);
+pointLight2.position.set(10, 5, -10);
+scene.add(pointLight2);
 
-// ===== MATERIALS =====
-var layerGroups = {};
-var allNodes = [];
-var allMeshes = [];
-
-function makeMat(color, emissive) {
-  return new THREE.MeshPhongMaterial({
-    color: color,
-    emissive: emissive || color,
-    emissiveIntensity: 0.3,
-    shininess: 80,
-    transparent: true,
-    opacity: 0.9,
-  });
-}
-
-function makeLineMat(color) {
-  return new THREE.LineBasicMaterial({color: color, transparent:true, opacity:0.15});
-}
-
-// ===== FACTORY: NEURONS =====
-function createNeuron(x, y, z, color, size) {
-  var geo = new THREE.SphereGeometry(size || 0.25, 12, 8);
-  var mat = makeMat(color);
-  var mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(x, y, z);
-  mesh.userData = {baseColor: color, baseEmissive: 0.3, pulsPhase: Math.random() * Math.PI * 2};
-  allMeshes.push(mesh);
-  return mesh;
-}
-
-function createBlock(x, y, z, color, sx, sy, sz) {
-  var geo = new THREE.BoxGeometry(sx || 0.6, sy || 0.5, sz || 0.5);
-  var mat = makeMat(color);
-  var mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(x, y, z);
-  mesh.userData = {baseColor: color, baseEmissive: 0.3, pulsPhase: Math.random() * Math.PI * 2};
-  allMeshes.push(mesh);
-  return mesh;
-}
-
-// ===== FACTORY: LABELS =====
-function createLabel(text, x, y, z, fontSize) {
-  var canvas2d = document.createElement('canvas');
-  canvas2d.width = 512; canvas2d.height = 64;
-  var ctx = canvas2d.getContext('2d');
-  ctx.fillStyle = '#88ccff';
-  ctx.font = 'bold ' + (fontSize || 28) + 'px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(text, 256, 44);
-  var texture = new THREE.CanvasTexture(canvas2d);
-  texture.minFilter = THREE.LinearFilter;
-  var material = new THREE.SpriteMaterial({map: texture, transparent: true, opacity: 0.9});
-  var sprite = new THREE.Sprite(material);
-  sprite.position.set(x, y, z);
-  sprite.scale.set(4, 0.5, 1);
-  return sprite;
-}
-
-// ===== BUILD LAYERS =====
-var layerPositions = {};
-
-LAYER_DEFS.forEach(function(def) {
-  var group = new THREE.Group();
-  group.userData = {id: def.id, name: def.name};
-  var nodes = [];
-
-  for (var i = 0; i < def.n; i++) {
-    var yy = def.y + (i - (def.n-1)/2) * 1.1;
-    var mesh;
-    if (def.type === 'box') {
-      mesh = createBlock(def.x, yy, 0, def.color);
-    } else {
-      mesh = createNeuron(def.x, yy, 0, def.color);
-    }
-    group.add(mesh);
-    nodes.push({mesh: mesh, x: def.x, y: yy, z: 0});
-    allNodes.push({mesh: mesh, layer: def.id, x: def.x, y: yy, z: 0});
-  }
-
-  // Label above
-  var label = createLabel(def.name, def.x, def.y + (def.n/2) * 1.1 + 1.2, 0, 20);
-  group.add(label);
-
-  scene.add(group);
-  layerGroups[def.id] = {group: group, nodes: nodes, def: def};
-  layerPositions[def.id] = {x: def.x, y: def.y, nodes: nodes};
-});
-
-// ===== BUILD EDGES =====
-var edgeLines = [];
-
-EDGES_DEF.forEach(function(e) {
-  var fromLayer = layerPositions[e.from];
-  var toLayer = layerPositions[e.to];
-  if (!fromLayer || !toLayer) return;
-
-  fromLayer.nodes.forEach(function(fn) {
-    toLayer.nodes.forEach(function(tn) {
-      var geo = new THREE.BufferGeometry();
-      var verts = new Float32Array([fn.x, fn.y, fn.z, tn.x, tn.y, tn.z]);
-      geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
-      var mat = makeLineMat(0x223355);
-      var line = new THREE.Line(geo, mat);
-      scene.add(line);
-      edgeLines.push(line);
-    });
-  });
-});
-
-// ===== BACKGROUND PARTICLES =====
-var particleCount = 500;
-var particleGeo = new THREE.BufferGeometry();
-var particlePositions = new Float32Array(particleCount * 3);
-var particleSpeeds = [];
-for (var i = 0; i < particleCount; i++) {
-  particlePositions[i*3] = (Math.random()-0.5)*80;
-  particlePositions[i*3+1] = (Math.random()-0.5)*40;
-  particlePositions[i*3+2] = (Math.random()-0.5)*80;
-  particleSpeeds.push(0.005 + Math.random()*0.015);
-}
-particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-var particleMat = new THREE.PointsMaterial({
-  color: 0x2244aa,
-  size: 0.08,
-  transparent: true,
-  opacity: 0.6,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false,
-});
-var particles = new THREE.Points(particleGeo, particleMat);
+// ═══════════════════════════════════════════════════════════════
+// Particles Background
+// ═══════════════════════════════════════════════════════════════
+const particleCount = 500;
+const particleGeo = new THREE.BufferGeometry();
+const particlePos = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount * 3; i++) particlePos[i] = (Math.random() - 0.5) * 80;
+particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0x334466, size: 0.15, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// ===== TOOLTIP (Raycaster) =====
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
-var tooltip = document.getElementById('tooltip');
+// ═══════════════════════════════════════════════════════════════
+// State
+// ═══════════════════════════════════════════════════════════════
+let currentModel = 'overview';
+let currentGroup = null;
+let autoRotate = true;
+let wireframeMode = false;
+let showLabels = true;
+let allMeshes = [];
+let labelSprites = [];
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+let hoveredObj = null;
 
-document.addEventListener('mousemove', function(e) {
+// ═══════════════════════════════════════════════════════════════
+// Build Tabs
+// ═══════════════════════════════════════════════════════════════
+const tabsContainer = document.getElementById('model-tabs');
+const tabOrder = ['overview','lstm','tcn','attention','transformer','lstmReg','tcnReg','transReg','multiTask','dqn','ensemble','stacking','hybrid'];
+tabOrder.forEach(key => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (['ensemble','stacking','hybrid'].includes(key) ? ' ensemble' : '');
+  btn.dataset.tab = key;
+  btn.textContent = i18n.ru.tabs[key] || key;
+  btn.onclick = () => switchModel(key);
+  tabsContainer.appendChild(btn);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 3D Builder Functions
+// ═══════════════════════════════════════════════════════════════
+function createNeuron(x, y, z, color, radius, type) {
+  let geo;
+  if (type === 'linear' || type === 'proj' || type === 'batchnorm' || type === 'layernorm') {
+    geo = new THREE.BoxGeometry(radius * 1.4, radius * 1.4, radius * 1.4);
+  } else if (type === 'dropout') {
+    geo = new THREE.OctahedronGeometry(radius * 0.8);
+  } else if (type === 'output') {
+    geo = new THREE.SphereGeometry(radius * 1.1, 16, 16);
+  } else {
+    geo = new THREE.SphereGeometry(radius, 12, 12);
+  }
+  const mat = new THREE.MeshPhongMaterial({
+    color, emissive: color, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.88, wireframe: wireframeMode
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, y, z);
+  mesh.userData = { baseEmissive: 0.15, baseColor: color };
+  allMeshes.push(mesh);
+  return mesh;
+}
+
+function createConnection(p1, p2, color) {
+  const points = [new THREE.Vector3(p1.x, p1.y, p1.z), new THREE.Vector3(p2.x, p2.y, p2.z)];
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.25 });
+  return new THREE.Line(geo, mat);
+}
+
+function createLayerGroup(layerDef, xOffset, yBase, zOffset) {
+  const group = new THREE.Group();
+  const n = layerDef.neurons;
+  const spacing = 0.9;
+  const startY = yBase;
+
+  for (let i = 0; i < n; i++) {
+    const y = startY + (i - (n - 1) / 2) * spacing;
+    const neuron = createNeuron(xOffset, y, zOffset, layerDef.color, 0.35, layerDef.type);
+    group.add(neuron);
+  }
+
+  // Label
+  const labelCanvas = document.createElement('canvas');
+  labelCanvas.width = 512; labelCanvas.height = 128;
+  const ctx = labelCanvas.getContext('2d');
+  ctx.fillStyle = 'rgba(10,10,30,0.8)';
+  ctx.roundRect(0, 0, 512, 128, 16);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(' + ((layerDef.color >> 16) & 0xff) + ',' + ((layerDef.color >> 8) & 0xff) + ',' + (layerDef.color & 0xff) + ',0.5)';
+  ctx.lineWidth = 2;
+  ctx.roundRect(0, 0, 512, 128, 16);
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 32px Segoe UI';
+  ctx.textAlign = 'center';
+  ctx.fillText(layerDef.name, 256, 50);
+  ctx.fillStyle = '#aaaaaa';
+  ctx.font = '24px Consolas';
+  if (layerDef.shape) ctx.fillText(layerDef.shape, 256, 85);
+
+  const texture = new THREE.CanvasTexture(labelCanvas);
+  const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.position.set(xOffset, yBase + (n - 1) / 2 * spacing + 1.2, zOffset);
+  sprite.scale.set(3, 0.75, 1);
+  sprite.userData = { isLabel: true };
+  group.add(sprite);
+  labelSprites.push(sprite);
+
+  return { group, neurons: group.children.filter(c => c.isMesh), yTop: startY + (n - 1) / 2 * spacing + spacing };
+}
+
+function buildSimpleModel(def) {
+  const group = new THREE.Group();
+  const layerSpacing = 3.5;
+  const xOffset = -((def.layers.length - 1) * layerSpacing) / 2;
+  let prevNeurons = [];
+
+  def.layers.forEach((layer, li) => {
+    const x = xOffset + li * layerSpacing;
+    const result = createLayerGroup(layer, x, 0, 0);
+    group.add(result.group);
+
+    // Connect to previous layer
+    if (prevNeurons.length > 0) {
+      result.neurons.forEach(n => {
+        const connectCount = Math.min(3, prevNeurons.length);
+        for (let c = 0; c < connectCount; c++) {
+          const pi = Math.floor(c * prevNeurons.length / connectCount);
+          group.add(createConnection(prevNeurons[pi].position, n.position, layer.color));
+        }
+      });
+    }
+    prevNeurons = result.neurons;
+  });
+
+  return group;
+}
+
+function buildMultiBranchModel(def) {
+  const group = new THREE.Group();
+  const layerSpacing = 3.5;
+  const xOffset = -((def.layers.length - 1) * layerSpacing) / 2;
+  let prevNeurons = [];
+
+  // Shared layers
+  def.layers.forEach((layer, li) => {
+    const x = xOffset + li * layerSpacing;
+    const result = createLayerGroup(layer, x, 0, 0);
+    group.add(result.group);
+    if (prevNeurons.length > 0) {
+      result.neurons.forEach(n => {
+        const connectCount = Math.min(3, prevNeurons.length);
+        for (let c = 0; c < connectCount; c++) {
+          const pi = Math.floor(c * prevNeurons.length / connectCount);
+          group.add(createConnection(prevNeurons[pi].position, n.position, layer.color));
+        }
+      });
+    }
+    prevNeurons = result.neurons;
+  });
+
+  // Branches
+  const branchSpacing = 6;
+  const branchXStart = xOffset + def.layers.length * layerSpacing;
+  const numBranches = def.branches.length;
+  const totalHeight = (numBranches - 1) * branchSpacing;
+
+  def.branches.forEach((branch, bi) => {
+    const yOff = -totalHeight / 2 + bi * branchSpacing;
+    let branchPrev = prevNeurons;
+    branch.layers.forEach((layer, li) => {
+      const x = branchXStart + li * layerSpacing;
+      const neurons = [];
+      const n = layer.neurons;
+      const spacing = 0.9;
+      const yBase = yOff;
+      for (let i = 0; i < n; i++) {
+        const y = yBase + (i - (n - 1) / 2) * spacing;
+        const z = (bi - (numBranches - 1) / 2) * 2;
+        const neuron = createNeuron(x, y, z, layer.color, 0.35, layer.type);
+        group.add(neuron);
+        neurons.push(neuron);
+      }
+      // Label
+      const labelCanvas = document.createElement('canvas');
+      labelCanvas.width = 512; labelCanvas.height = 96;
+      const ctx = labelCanvas.getContext('2d');
+      ctx.fillStyle = 'rgba(10,10,30,0.8)';
+      ctx.roundRect(0, 0, 512, 96, 12);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Segoe UI';
+      ctx.textAlign = 'center';
+      const name = currentLang === 'ru' ? (layer.nameRu || branch.nameRu || layer.name) : (branch.name || layer.name);
+      ctx.fillText(name, 256, 40);
+      ctx.fillStyle = '#aaaaaa';
+      ctx.font = '22px Consolas';
+      if (layer.shape) ctx.fillText(layer.shape, 256, 70);
+      const texture = new THREE.CanvasTexture(labelCanvas);
+      const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.position.set(x, yBase + (n - 1) / 2 * spacing + 1.0, (bi - (numBranches - 1) / 2) * 2);
+      sprite.scale.set(2.5, 0.55, 1);
+      sprite.userData = { isLabel: true };
+      group.add(sprite);
+      labelSprites.push(sprite);
+
+      if (branchPrev.length > 0 && li === 0) {
+        neurons.forEach(n => {
+          const connectCount = Math.min(2, branchPrev.length);
+          for (let c = 0; c < connectCount; c++) {
+            const pi = Math.floor(c * branchPrev.length / connectCount);
+            group.add(createConnection(branchPrev[pi].position, n.position, layer.color));
+          }
+        });
+      } else if (li > 0) {
+        neurons.forEach(n => {
+          const connectCount = Math.min(2, branchPrev.length);
+          for (let c = 0; c < connectCount; c++) {
+            const pi = Math.floor(c * branchPrev.length / connectCount);
+            group.add(createConnection(branchPrev[pi].position, n.position, layer.color));
+          }
+        });
+      }
+      branchPrev = neurons;
+    });
+  });
+
+  return group;
+}
+
+function buildEnsembleModel(def, stacking) {
+  const group = new THREE.Group();
+  const modelColors = [0x00ccff, 0xff6600, 0xaa00ff, 0xff0066];
+  const modelNames = def.ensembleModels || ['M1', 'M2', 'M3', 'M4'];
+  const spacing = 4;
+  const startX = -((modelNames.length - 1) * spacing) / 2;
+
+  modelNames.forEach((name, mi) => {
+    const x = startX + mi * spacing;
+    // Mini model representation
+    const layers = [
+      { n: 8, color: 0x336699, type: 'input' },
+      { n: 12, color: modelColors[mi], type: 'lstm' },
+      { n: 6, color: 0x00aa66, type: 'linear' },
+      { n: 1, color: 0xff3333, type: 'output' }
+    ];
+    let prevN = [];
+    layers.forEach((l, li) => {
+      const yBase = 0;
+      const neurons = [];
+      for (let i = 0; i < l.n; i++) {
+        const y = yBase + (i - (l.n - 1) / 2) * 0.7;
+        const z = (mi - (modelNames.length - 1) / 2) * 2;
+        const neuron = createNeuron(x + li * 2, y, z, l.color, 0.25, l.type);
+        group.add(neuron);
+        neurons.push(neuron);
+      }
+      if (prevN.length > 0) {
+        neurons.forEach(n => {
+          const cc = Math.min(2, prevN.length);
+          for (let c = 0; c < cc; c++) {
+            const pi = Math.floor(c * prevN.length / cc);
+            group.add(createConnection(prevN[pi].position, n.position, l.color));
+          }
+        });
+      }
+      prevN = neurons;
+    });
+
+    // Label per model
+    const labelCanvas = document.createElement('canvas');
+    labelCanvas.width = 256; labelCanvas.height = 64;
+    const ctx = labelCanvas.getContext('2d');
+    ctx.fillStyle = 'rgba(10,10,30,0.8)';
+    ctx.roundRect(0, 0, 256, 64, 8);
+    ctx.fill();
+    ctx.fillStyle = '#' + modelColors[mi].toString(16).padStart(6, '0');
+    ctx.font = 'bold 22px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, 128, 42);
+    const tex = new THREE.CanvasTexture(labelCanvas);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9 }));
+    spr.position.set(x + 3, 8, (mi - (modelNames.length - 1) / 2) * 2);
+    spr.scale.set(2, 0.5, 1);
+    group.add(spr);
+    labelSprites.push(spr);
+  });
+
+  // Merge point
+  if (stacking && def.metaLayers) {
+    const mergeX = startX + 4 * spacing;
+    let prevN = [];
+    // Connect all model outputs to meta learner
+    const allOutputs = [];
+    modelNames.forEach((_, mi) => {
+      const z = (mi - (modelNames.length - 1) / 2) * 2;
+      allOutputs.push(new THREE.Vector3(mergeX - 2, -2, z));
+    });
+
+    def.metaLayers.forEach((layer, li) => {
+      const x = mergeX + li * 2.5;
+      const neurons = [];
+      for (let i = 0; i < layer.neurons; i++) {
+        const y = (i - (layer.neurons - 1) / 2) * 0.8;
+        const neuron = createNeuron(x, y, 0, layer.color, 0.3, layer.type);
+        group.add(neuron);
+        neurons.push(neuron);
+      }
+      if (li === 0) {
+        neurons.forEach(n => {
+          allOutputs.forEach(p => group.add(createConnection(p, n.position, 0xffffff)));
+        });
+      } else if (prevN.length > 0) {
+        neurons.forEach(n => {
+          const cc = Math.min(3, prevN.length);
+          for (let c = 0; c < cc; c++) {
+            group.add(createConnection(prevN[c].position, n.position, layer.color));
+          }
+        });
+      }
+      prevN = neurons;
+    });
+
+    // Meta learner label
+    const labelCanvas = document.createElement('canvas');
+    labelCanvas.width = 384; labelCanvas.height = 64;
+    const ctx = labelCanvas.getContext('2d');
+    ctx.fillStyle = 'rgba(10,10,30,0.8)';
+    ctx.roundRect(0, 0, 384, 64, 8);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(currentLang === 'ru' ? 'Мета-обучатель' : 'Meta-learner', 192, 42);
+    const tex = new THREE.CanvasTexture(labelCanvas);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9 }));
+    spr.position.set(mergeX + 4, 6, 0);
+    spr.scale.set(3, 0.5, 1);
+    group.add(spr);
+    labelSprites.push(spr);
+  }
+
+  // Ensemble label
+  if (!stacking) {
+    const labelCanvas = document.createElement('canvas');
+    labelCanvas.width = 512; labelCanvas.height = 80;
+    const ctx = labelCanvas.getContext('2d');
+    ctx.fillStyle = 'rgba(10,10,30,0.8)';
+    ctx.roundRect(0, 0, 512, 80, 12);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 26px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(currentLang === 'ru' ? 'Взвешенное усреднение логитов' : 'Weighted logit averaging', 256, 50);
+    const tex = new THREE.CanvasTexture(labelCanvas);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9 }));
+    spr.position.set(0, -8, 0);
+    spr.scale.set(4, 0.6, 1);
+    group.add(spr);
+    labelSprites.push(spr);
+  }
+
+  return group;
+}
+
+function buildHybridModel(def) {
+  const group = new THREE.Group();
+  const modelColors = [0x00ccff, 0xff6600, 0xaa00ff, 0xff0066];
+  const nnNames = def.ensembleModels;
+  const sklearnDefs = def.sklearnModels;
+
+  // Neural network models (top row)
+  const nnSpacing = 3.5;
+  const nnStartX = -((nnNames.length - 1) * nnSpacing) / 2 - 3;
+  const nnY = 5;
+
+  nnNames.forEach((name, mi) => {
+    const x = nnStartX + mi * nnSpacing;
+    const n = [8, 10, 5, 1];
+    const colors = [0x336699, modelColors[mi], 0x00aa66, 0xff3333];
+    let prevN = [];
+    n.forEach((count, li) => {
+      const neurons = [];
+      for (let i = 0; i < count; i++) {
+        const y = nnY + (i - (count - 1) / 2) * 0.6;
+        const neuron = createNeuron(x + li * 1.8, y, 0, colors[li], 0.2, li === 0 ? 'input' : 'linear');
+        group.add(neuron);
+        neurons.push(neuron);
+      }
+      if (prevN.length > 0) {
+        neurons.forEach(n => {
+          const cc = Math.min(2, prevN.length);
+          for (let c = 0; c < cc; c++) group.add(createConnection(prevN[c].position, n.position, colors[li]));
+        });
+      }
+      prevN = neurons;
+    });
+    // Label
+    const lc = document.createElement('canvas');
+    lc.width = 256; lc.height = 48;
+    const ctx = lc.getContext('2d');
+    ctx.fillStyle = '#' + modelColors[mi].toString(16).padStart(6, '0');
+    ctx.font = 'bold 22px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, 128, 32);
+    const tex = new THREE.CanvasTexture(lc);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9 }));
+    spr.position.set(x + 2.7, nnY + 5, 0);
+    spr.scale.set(2, 0.4, 1);
+    group.add(spr);
+    labelSprites.push(spr);
+  });
+
+  // sklearn models (bottom row)
+  const skSpacing = 3;
+  const skStartX = -((sklearnDefs.length - 1) * skSpacing) / 2 - 2;
+  const skY = -5;
+
+  sklearnDefs.forEach((sk, si) => {
+    const x = skStartX + si * skSpacing;
+    // Single block for sklearn
+    const blockGeo = new THREE.BoxGeometry(1.5, 3, 1.5);
+    const blockMat = new THREE.MeshPhongMaterial({
+      color: sk.color, emissive: sk.color, emissiveIntensity: 0.2,
+      transparent: true, opacity: 0.85, wireframe: wireframeMode
+    });
+    const block = new THREE.Mesh(blockGeo, blockMat);
+    block.position.set(x, skY, 0);
+    block.userData = { baseEmissive: 0.2, baseColor: sk.color };
+    allMeshes.push(block);
+    group.add(block);
+
+    // Label
+    const lc = document.createElement('canvas');
+    lc.width = 256; lc.height = 48;
+    const ctx = lc.getContext('2d');
+    ctx.fillStyle = '#' + sk.color.toString(16).padStart(6, '0');
+    ctx.font = 'bold 22px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(sk.name, 128, 32);
+    const tex = new THREE.CanvasTexture(lc);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9 }));
+    spr.position.set(x, skY - 2.5, 0);
+    spr.scale.set(2, 0.4, 1);
+    group.add(spr);
+    labelSprites.push(spr);
+  });
+
+  // Merge line
+  const mergeY = 0;
+  const mergeX = Math.max(nnStartX + 3 * nnSpacing, skStartX + 3 * skSpacing) + 3;
+
+  // Merge block
+  const mergeGeo = new THREE.SphereGeometry(1.2, 16, 16);
+  const mergeMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3, wireframe: wireframeMode });
+  const mergeBlock = new THREE.Mesh(mergeGeo, mergeMat);
+  mergeBlock.position.set(mergeX, mergeY, 0);
+  allMeshes.push(mergeBlock);
+  group.add(mergeBlock);
+
+  // Connections from NN outputs to merge
+  nnNames.forEach((_, mi) => {
+    const x = nnStartX + mi * nnSpacing + 3 * 1.8;
+    group.add(createConnection(new THREE.Vector3(x, nnY, 0), mergeBlock.position, 0x555555));
+  });
+  // Connections from sklearn to merge
+  sklearnDefs.forEach((_, si) => {
+    const x = skStartX + si * skSpacing;
+    group.add(createConnection(new THREE.Vector3(x, skY, 0), mergeBlock.position, 0x555555));
+  });
+
+  // Output
+  const outGeo = new THREE.SphereGeometry(0.6, 12, 12);
+  const outMat = new THREE.MeshPhongMaterial({ color: 0xff3333, emissive: 0xff3333, emissiveIntensity: 0.3, wireframe: wireframeMode });
+  const outMesh = new THREE.Mesh(outGeo, outMat);
+  outMesh.position.set(mergeX + 4, mergeY, 0);
+  allMeshes.push(outMesh);
+  group.add(outMesh);
+  group.add(createConnection(mergeBlock.position, outMesh.position, 0xff3333));
+
+  // Labels
+  const mergeLabel = document.createElement('canvas');
+  mergeLabel.width = 256; mergeLabel.height = 48;
+  const mctx = mergeLabel.getContext('2d');
+  mctx.fillStyle = '#ffffff';
+  mctx.font = 'bold 20px Segoe UI';
+  mctx.textAlign = 'center';
+  mctx.fillText(currentLang === 'ru' ? 'Усреднение' : 'Averaging', 128, 32);
+  const mtex = new THREE.CanvasTexture(mergeLabel);
+  const mspr = new THREE.Sprite(new THREE.SpriteMaterial({ map: mtex, transparent: true, opacity: 0.9 }));
+  mspr.position.set(mergeX, mergeY + 2.5, 0);
+  mspr.scale.set(2, 0.4, 1);
+  group.add(mspr);
+  labelSprites.push(mspr);
+
+  return group;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Build View
+// ═══════════════════════════════════════════════════════════════
+function clearScene() {
+  if (currentGroup) {
+    scene.remove(currentGroup);
+    currentGroup.traverse(obj => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        else obj.material.dispose();
+      }
+    });
+  }
+  allMeshes = [];
+  labelSprites = [];
+}
+
+function buildView(modelKey) {
+  clearScene();
+  const def = modelDefs[modelKey];
+  if (!def) return;
+
+  if (modelKey === 'ensemble') {
+    currentGroup = buildEnsembleModel(def, false);
+  } else if (modelKey === 'stacking') {
+    currentGroup = buildEnsembleModel(def, true);
+  } else if (modelKey === 'hybrid') {
+    currentGroup = buildHybridModel(def);
+  } else if (def.branches) {
+    currentGroup = buildMultiBranchModel(def);
+  } else {
+    currentGroup = buildSimpleModel(def);
+  }
+
+  scene.add(currentGroup);
+  resetView();
+  updateInfoPanel();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Info Panel
+// ═══════════════════════════════════════════════════════════════
+function updateInfoPanel() {
+  const panel = document.getElementById('info-panel');
+  if (currentModel === 'overview') {
+    panel.innerHTML = `
+      <div class="info-section">
+        <h3>${t('info.overviewTitle')}</h3>
+        <p style="color:#888;font-size:11px;line-height:1.5">${t('info.overviewDesc')}</p>
+      </div>
+      <div class="info-section">
+        <h3>10 моделей</h3>
+        <div class="layer-item" style="border-color:#00ccff" onclick="switchModel('lstm')">
+          <div class="layer-name">LSTMModel</div><div class="layer-detail">Бинарная классификация · LSTM + FC Head</div>
+        </div>
+        <div class="layer-item" style="border-color:#ff6600" onclick="switchModel('tcn')">
+          <div class="layer-name">TCNModel</div><div class="layer-detail">Бинарная классификация · Temporal Conv Network</div>
+        </div>
+        <div class="layer-item" style="border-color:#aa00ff" onclick="switchModel('attention')">
+          <div class="layer-name">AttentionTransformer</div><div class="layer-detail">Бинарная классификация · Кастомный MultiheadAttention</div>
+        </div>
+        <div class="layer-item" style="border-color:#ff0066" onclick="switchModel('transformer')">
+          <div class="layer-name">TransformerModel</div><div class="layer-detail">Бинарная классификация · Стандартный PyTorch Encoder</div>
+        </div>
+        <div class="layer-item" style="border-color:#00ccff" onclick="switchModel('lstmReg')">
+          <div class="layer-name">LSTMRegression</div><div class="layer-detail">Регрессия · LSTM + регрессионная голова</div>
+        </div>
+        <div class="layer-item" style="border-color:#ff6600" onclick="switchModel('tcnReg')">
+          <div class="layer-name">TCNRegression</div><div class="layer-detail">Регрессия · TCN + регрессионная голова</div>
+        </div>
+        <div class="layer-item" style="border-color:#ff0066" onclick="switchModel('transReg')">
+          <div class="layer-name">TransformerRegression</div><div class="layer-detail">Регрессия · Transformer + регрессионная голова</div>
+        </div>
+        <div class="layer-item" style="border-color:#ffcc00" onclick="switchModel('multiTask')">
+          <div class="layer-name">MultiTaskModel</div><div class="layer-detail">Multi-task · LSTM + cls/reg/conf головы</div>
+        </div>
+        <div class="layer-item" style="border-color:#ff9900" onclick="switchModel('dqn')">
+          <div class="layer-name">DuelingDQN</div><div class="layer-detail">RL · Dueling DQN (hold/buy/sell)</div>
+        </div>
+      </div>
+      <div class="info-section">
+        <h3>4 ансамбля</h3>
+        <div class="layer-item" style="border-color:#ffffff" onclick="switchModel('ensemble')">
+          <div class="layer-name">Ensemble</div><div class="layer-detail">Взвешенное усреднение логитов</div>
+        </div>
+        <div class="layer-item" style="border-color:#ffffff" onclick="switchModel('stacking')">
+          <div class="layer-name">StackingEnsemble</div><div class="layer-detail">Мета-обучатель поверх базовых моделей</div>
+        </div>
+        <div class="layer-item" style="border-color:#ffffff" onclick="switchModel('hybrid')">
+          <div class="layer-name">HybridEnsemble</div><div class="layer-detail">Нейросети + XGBoost/CatBoost/LightGBM/RF</div>
+        </div>
+      </div>
+      <div class="info-section">
+        <h3>${t('info.inputFeatures')}</h3>
+        <p style="color:#666;font-size:10px">55+ индикаторов: RSI, MACD, Bollinger, ATR, ADX, Stochastic, CCI, Williams %R, OBV, MFI и др.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const def = modelDefs[currentModel];
+  if (!def) return;
+
+  let html = `<div class="info-section">
+    <h3>${def.name}</h3>
+    <div class="info-row"><span class="label">${t('info.type')}</span><span class="value">${t('info.type' + (def.type === 'classification' ? 'Classif' : def.type === 'regression' ? 'Regress' : def.type === 'rl' ? 'RL' : def.type === 'multi-task' ? 'Multi' : 'Ensemble'))}</span></div>
+    <div class="info-row"><span class="label">${t('info.input')}</span><span class="value">${def.layers[0]?.shape || '—'}</span></div>
+    <div class="info-row"><span class="label">${t('info.window')}</span><span class="value">${CONFIG.window}</span></div>
+    <div class="info-row"><span class="label">${t('info.features')}</span><span class="value">${CONFIG.features}</span></div>
+    <div class="info-row"><span class="label">${t('info.hiddenSize')}</span><span class="value">${CONFIG.hidden_size}</span></div>
+    <div class="info-row"><span class="label">${t('info.numLayers')}</span><span class="value">${CONFIG.num_layers}</span></div>
+    <div class="info-row"><span class="label">${t('info.dropout')}</span><span class="value">${CONFIG.dropout}</span></div>
+  </div>`;
+
+  if (def.layers.length > 0) {
+    html += `<div class="info-section"><h3>${t('info.layersList')}</h3>`;
+    def.layers.forEach(l => {
+      const borderColor = '#' + l.color.toString(16).padStart(6, '0');
+      html += `<div class="layer-item" style="border-color:${borderColor}">
+        <div class="layer-name">${l.name}</div>
+        <div class="layer-detail">${l.detail}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (def.branches) {
+    def.branches.forEach(branch => {
+      const branchName = currentLang === 'ru' ? branch.nameRu : branch.name;
+      html += `<div class="info-section"><h3>${branchName}</h3>`;
+      branch.layers.forEach(l => {
+        const borderColor = '#' + l.color.toString(16).padStart(6, '0');
+        html += `<div class="layer-item" style="border-color:${borderColor}">
+          <div class="layer-name">${l.name}</div>
+          <div class="layer-detail">${l.detail}</div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  if (def.extra) {
+    html += `<div class="info-section"><h3>Formula</h3><p style="color:#999;font-family:Consolas;font-size:10px">${def.extra}</p></div>`;
+  }
+
+  if (def.ensembleDesc) {
+    html += `<div class="info-section"><h3>Описание</h3><p style="color:#888;font-size:11px">${def.ensembleDesc}</p></div>`;
+  }
+
+  panel.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Switch Model
+// ═══════════════════════════════════════════════════════════════
+function switchModel(key) {
+  currentModel = key;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+  buildView(key);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Controls
+// ═══════════════════════════════════════════════════════════════
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+  controls.autoRotate = autoRotate;
+  document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
+}
+function toggleWireframe() {
+  wireframeMode = !wireframeMode;
+  document.getElementById('btn-wireframe').classList.toggle('active', wireframeMode);
+  allMeshes.forEach(m => { if (m.material) m.material.wireframe = wireframeMode; });
+}
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  labelSprites.forEach(s => s.visible = showLabels);
+}
+function resetView() {
+  camera.position.set(0, 8, 22);
+  controls.target.set(0, 0, 0);
+  controls.update();
+}
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  document.getElementById('toggle-sidebar').textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Raycaster / Tooltip
+// ═══════════════════════════════════════════════════════════════
+canvas.addEventListener('mousemove', e => {
   mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
   raycaster.setFromCamera(mouse, camera);
-  var intersects = raycaster.intersectObjects(allMeshes);
+  const intersects = raycaster.intersectObjects(allMeshes);
+
+  const tooltip = document.getElementById('tooltip');
   if (intersects.length > 0) {
-    var hit = intersects[0].object;
-    var layerId = '';
-    allNodes.forEach(function(n) { if (n.mesh === hit) layerId = n.layer; });
-    var def = LAYER_DEFS.find(function(d) { return d.id === layerId; });
-    if (def) {
+    const obj = intersects[0].object;
+    if (obj !== hoveredObj) {
+      if (hoveredObj && hoveredObj.material) hoveredObj.material.emissiveIntensity = hoveredObj.userData.baseEmissive || 0.15;
+      hoveredObj = obj;
+      obj.material.emissiveIntensity = 0.6;
+      // Find layer info
+      const layerInfo = findLayerForMesh(obj);
       tooltip.style.display = 'block';
       tooltip.style.left = (e.clientX + 16) + 'px';
-      tooltip.style.top = (e.clientY + 16) + 'px';
-      tooltip.innerHTML = '<b>' + def.name + '</b><br>' +
-        'Нейронов: ' + def.n + '<br>' +
-        'Тип: ' + (def.type === 'box' ? 'Обработка (sklearn)' : 'Нейрон (NN)');
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      tooltip.querySelector('.tt-title').textContent = layerInfo?.name || 'Element';
+      tooltip.querySelector('.tt-detail').textContent = layerInfo?.detail || '';
     }
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
   } else {
+    if (hoveredObj && hoveredObj.material) hoveredObj.material.emissiveIntensity = hoveredObj.userData.baseEmissive || 0.15;
+    hoveredObj = null;
     tooltip.style.display = 'none';
   }
 });
 
-// ===== VIEW BUTTONS =====
-var currentView = 'full';
-function setView(view) {
-  currentView = view;
-  document.getElementById('current-view').textContent = view;
-  document.querySelectorAll('.btn-group .btn').forEach(function(b) { b.classList.remove('active'); });
-  event.target.classList.add('active');
-
-  Object.keys(layerGroups).forEach(function(id) {
-    var g = layerGroups[id];
-    var show = true;
-    var nnLayers = ['input','lstm','tcn','transf','attn'];
-    var mlLayers = ['xgb','cat','lgbm','rf'];
-    var hybridLayers = ['meta','output'];
-
-    if (view === 'nn') show = nnLayers.indexOf(id) >= 0 || hybridLayers.indexOf(id) >= 0;
-    if (view === 'ml') show = mlLayers.indexOf(id) >= 0 || hybridLayers.indexOf(id) >= 0;
-    if (view === 'hybrid') show = true;
-
-    g.group.visible = show;
-  });
-
-  // Show/hide edges
-  edgeLines.forEach(function(line) { line.visible = (view === 'full' || view === 'hybrid'); });
+function findLayerForMesh(mesh) {
+  const def = modelDefs[currentModel];
+  if (!def) return null;
+  const allLayers = [...(def.layers || []), ...(def.branches || []).flatMap(b => b.layers), ...(def.metaLayers || [])];
+  // Match by color
+  return allLayers.find(l => l.color === mesh.userData.baseColor);
 }
 
-// ===== LANGUAGE TOGGLE =====
-var langRu = true;
-var ruNames = {};
-LAYER_DEFS.forEach(function(d) { ruNames[d.id] = d.name; });
-var enNames = {
-  input:'Input (40-50 features)', lstm:'LSTM (64, 2 layers)', tcn:'TCN (kernel=3)',
-  transf:'Transformer (8 heads)', attn:'Attention (custom)', xgb:'XGBoost',
-  cat:'CatBoost', lgbm:'LightGBM', rf:'RandomForest', meta:'Meta-Learner', output:'Output (Buy/Hold/Sell)'
-};
-
-function toggleLang() {
-  langRu = !langRu;
-  LAYER_DEFS.forEach(function(d) {
-    var names = langRu ? ruNames : enNames;
-    d.name = names[d.id] || d.name;
-  });
-  // Recreate labels (simplified: just reload)
-  location.reload();
-}
-
-// ===== ANIMATION LOOP =====
-var clock = new THREE.Clock();
-var frameCount = 0;
-var lastFpsTime = 0;
-
+// ═══════════════════════════════════════════════════════════════
+// Animation Loop
+// ═══════════════════════════════════════════════════════════════
+const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  var t = clock.getElapsedTime();
-  var dt = clock.getDelta();
-
-  controls.update();
+  const time = clock.getElapsedTime();
 
   // Pulse neurons
-  allMeshes.forEach(function(mesh) {
-    var ud = mesh.userData;
-    var pulse = 0.3 + 0.15 * Math.sin(t * 2 + ud.pulsPhase);
-    mesh.material.emissiveIntensity = pulse;
+  allMeshes.forEach((m, i) => {
+    if (m.material && m.userData.baseEmissive !== undefined) {
+      const pulse = Math.sin(time * 2 + i * 0.3) * 0.1 + 0.15;
+      if (m !== hoveredObj) m.material.emissiveIntensity = pulse;
+    }
   });
 
-  // Animate particles
-  var pos = particles.geometry.attributes.position;
-  for (var i = 0; i < particleCount; i++) {
-    pos.array[i*3+1] += particleSpeeds[i];
-    if (pos.array[i*3+1] > 20) pos.array[i*3+1] = -20;
-  }
-  pos.needsUpdate = true;
+  // Rotate particles
+  particles.rotation.y += 0.0003;
+  particles.rotation.x += 0.0001;
 
-  // Move lights
-  pl.position.x = Math.sin(t * 0.3) * 15;
-  pl.position.z = Math.cos(t * 0.3) * 15;
-  pl2.position.x = Math.cos(t * 0.2) * 12;
-
+  controls.update();
   renderer.render(scene, camera);
-
-  // FPS counter
-  frameCount++;
-  if (t - lastFpsTime >= 1) {
-    document.getElementById('fps').textContent = frameCount;
-    frameCount = 0;
-    lastFpsTime = t;
-  }
 }
 
-// ===== STATS =====
-document.getElementById('node-count').textContent = allNodes.length;
-document.getElementById('edge-count').textContent = edgeLines.length;
-
-// ===== RESIZE =====
-window.addEventListener('resize', function() {
+// ═══════════════════════════════════════════════════════════════
+// Resize
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ===== START =====
+// ═══════════════════════════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════════════════════════
+switchModel('overview');
 animate();
 </script>
 </body>

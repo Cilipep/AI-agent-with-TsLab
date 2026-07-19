@@ -1,1 +1,43 @@
-﻿{"resolvedArtifactRouteName":"NN_XRP","scriptName":"NN_XRP","scriptId":132}
+{
+  "scriptName": "NN_XLM",
+  "description": "NN Trading XLM - HybridEnsemble (Optuna optimized)",
+  "symbol": "XLMUSDT",
+  "exchange": "BINANCE",
+  "interval": "1d",
+  "model": {
+    "type": "attention",
+    "hidden_size": 16,
+    "num_layers": 1,
+    "nhead": 4,
+    "dropout": 0.3443
+  },
+  "data": {
+    "window": 40,
+    "max_features": 40,
+    "batch_size": 32,
+    "learning_rate": 0.000232
+  },
+  "risk": {
+    "stop_loss_pct": 0.0236,
+    "take_profit_pct": 0.081,
+    "trailing_stop_pct": 0.015
+  },
+  "ensemble": {
+    "n_models": 3,
+    "use_xgboost": true,
+    "use_catboost": true,
+    "use_lightgbm": true,
+    "use_random_forest": true
+  },
+  "validation": {
+    "method": "walk_forward",
+    "n_folds": 5,
+    "embargo": 7
+  },
+  "metrics": {
+    "return": 35.74,
+    "sharpe": 0.65,
+    "max_dd": -19.7,
+    "win_rate": 41.5
+  }
+}

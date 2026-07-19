@@ -563,7 +563,10 @@ class SklearnModelWrapper:
         pass  # no-op for sklearn
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        """Accept batched tensor (batch, seq, features), return logits (batch, 1)."""
+        """Accept batched tensor (batch, seq, features), return logits (batch, 1).
+
+        Always returns a CPU tensor — HybridEnsemble handles device transfer.
+        """
         was_numpy = False
         if isinstance(x, torch.Tensor):
             x_np = x.detach().cpu().numpy()
@@ -580,16 +583,29 @@ class SklearnModelWrapper:
 
 
 def _train_sklearn_model(model_cls, X_train, y_train, n_cpu=2, **kwargs):
-    """Helper to train an sklearn model with CPU throttling."""
+    """Helper to train an sklearn model with local CPU throttling (restores original values after)."""
     import os
-    os.environ["OMP_NUM_THREADS"] = str(n_cpu)
-    os.environ["MKL_NUM_THREADS"] = str(n_cpu)
-    # Remove conflicting kwargs
-    kwargs.pop("n_jobs", None)
-    kwargs.pop("thread_count", None)
-    m = model_cls(**kwargs, random_state=42, n_jobs=1)
-    m.fit(X_train, y_train)
-    return m
+    # Save original values
+    orig_omp = os.environ.get("OMP_NUM_THREADS")
+    orig_mkl = os.environ.get("MKL_NUM_THREADS")
+    try:
+        os.environ["OMP_NUM_THREADS"] = str(n_cpu)
+        os.environ["MKL_NUM_THREADS"] = str(n_cpu)
+        kwargs.pop("n_jobs", None)
+        kwargs.pop("thread_count", None)
+        m = model_cls(**kwargs, random_state=42, n_jobs=1)
+        m.fit(X_train, y_train)
+        return m
+    finally:
+        # Restore original values
+        if orig_omp is not None:
+            os.environ["OMP_NUM_THREADS"] = orig_omp
+        else:
+            os.environ.pop("OMP_NUM_THREADS", None)
+        if orig_mkl is not None:
+            os.environ["MKL_NUM_THREADS"] = orig_mkl
+        else:
+            os.environ.pop("MKL_NUM_THREADS", None)
 
 
 def build_sklearn_models(X_train: np.ndarray, y_train: np.ndarray,
@@ -614,14 +630,26 @@ def build_sklearn_models(X_train: np.ndarray, y_train: np.ndarray,
     # CatBoost
     try:
         from catboost import CatBoostClassifier
-        os.environ["OMP_NUM_THREADS"] = str(n_cpu)
-        os.environ["MKL_NUM_THREADS"] = str(n_cpu)
-        cat = CatBoostClassifier(
-            iterations=100, depth=6, learning_rate=0.05,
-            random_seed=42, verbose=0, thread_count=n_cpu,
-        )
-        cat.fit(X_train, y_train)
-        models.append(("catboost", SklearnModelWrapper(cat, window, n_features)))
+        orig_omp = os.environ.get("OMP_NUM_THREADS")
+        orig_mkl = os.environ.get("MKL_NUM_THREADS")
+        try:
+            os.environ["OMP_NUM_THREADS"] = str(n_cpu)
+            os.environ["MKL_NUM_THREADS"] = str(n_cpu)
+            cat = CatBoostClassifier(
+                iterations=100, depth=6, learning_rate=0.05,
+                random_seed=42, verbose=0, thread_count=n_cpu,
+            )
+            cat.fit(X_train, y_train)
+            models.append(("catboost", SklearnModelWrapper(cat, window, n_features)))
+        finally:
+            if orig_omp is not None:
+                os.environ["OMP_NUM_THREADS"] = orig_omp
+            else:
+                os.environ.pop("OMP_NUM_THREADS", None)
+            if orig_mkl is not None:
+                os.environ["MKL_NUM_THREADS"] = orig_mkl
+            else:
+                os.environ.pop("MKL_NUM_THREADS", None)
     except ImportError:
         pass
 
@@ -670,12 +698,20 @@ class HybridEnsemble:
                 m.eval()
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        """Weighted average of logits from all models (neural + sklearn)."""
+        """Weighted average of logits from all models (neural + sklearn).
+
+        Sklearn wrappers return CPU tensors; ensure they land on x.device.
+        """
         logits = []
         for i, m in enumerate(self.all_models):
             if not callable(m):
                 raise TypeError(f"all_models[{i}] is {type(m).__name__}, not callable: {m!r}")
-            logits.append(m(x))
+            out = m(x)
+            if isinstance(out, torch.Tensor):
+                out = out.to(x.device)
+            else:
+                out = torch.tensor(out, dtype=torch.float32, device=x.device)
+            logits.append(out)
         logits = torch.stack(logits)  # (N, batch, 1)
         weights = torch.tensor(self.weights, device=x.device).view(-1, 1, 1)
         return (logits * weights).sum(dim=0)  # (batch, 1)

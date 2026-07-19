@@ -226,20 +226,85 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def make_label(df: pd.DataFrame, horizon: int = 5, threshold: float = 0.001) -> pd.Series:
+def make_label(df: pd.DataFrame, horizon: int = 20, threshold: float = 0.005) -> pd.Series:
     """
     Create classification label:
-      1 = price goes up by more than threshold
-      0 = otherwise
+      1 = price goes up by more than threshold within horizon bars
+      0 = otherwise (down or flat)
+
+    horizon=20 on 15m = 5 hours lookahead
+    threshold=0.005 = 0.5% minimum move
     """
     future_return = df["Close"].shift(-horizon) / df["Close"] - 1
     label = (future_return > threshold).astype(int)
     return label
 
 
+def make_regime_label(df: pd.DataFrame, adx_period: int = 14, adx_threshold: float = 25) -> pd.Series:
+    """
+    Create regime label based on ADX (Average Directional Index).
+
+    1 = trending market (ADX > threshold) — trade in this regime
+    0 = ranging market (ADX <= threshold) — avoid trading
+
+    This replaces direction prediction with regime detection:
+    - In trending markets, momentum strategies work
+    - In ranging markets, any direction bet is noise
+    """
+    if "adx" not in df.columns:
+        # Compute ADX if not present
+        import talib
+        high = df["High"].values.astype(np.float64)
+        low = df["Low"].values.astype(np.float64)
+        close = df["Close"].values.astype(np.float64)
+        adx = talib.ADX(high, low, close, timeperiod=adx_period)
+        df = df.copy()
+        df["adx"] = adx
+
+    regime = (df["adx"] > adx_threshold).astype(int)
+    return regime
+
+
+def make_combined_label(df: pd.DataFrame, horizon: int = 20, threshold: float = 0.005,
+                         adx_threshold: float = 25) -> pd.Series:
+    """
+    Combined label: only label=1 when BOTH conditions met:
+      1. Price goes up by > threshold (direction)
+      2. ADX > adx_threshold (trending regime)
+
+    This filters out noise: model only learns to predict up-moves in trending markets.
+    """
+    future_return = df["Close"].shift(-horizon) / df["Close"] - 1
+    direction_up = (future_return > threshold).astype(int)
+
+    # Regime filter
+    if "adx" not in df.columns:
+        import talib
+        high = df["High"].values.astype(np.float64)
+        low = df["Low"].values.astype(np.float64)
+        close = df["Close"].values.astype(np.float64)
+        df = df.copy()
+        df["adx"] = talib.ADX(high, low, close, timeperiod=14)
+
+    trending = (df["adx"] > adx_threshold).astype(int)
+
+    # Combined: up move AND trending
+    combined = direction_up * trending
+    return combined
+
+
 def prepare_features(df: pd.DataFrame, config) -> pd.DataFrame:
-    """Full feature preparation pipeline."""
+    """Full feature preparation pipeline with regime-aware labeling."""
     df = add_indicators(df)
-    df["label"] = make_label(df, config.horizon, config.threshold)
+
+    # Add Gerchik-inspired features (price levels, false breakouts, etc.)
+    try:
+        from gerchik_features import add_gerchik_features
+        df = add_gerchik_features(df)
+    except ImportError:
+        pass
+
+    # Use combined label: direction + regime filter
+    df["label"] = make_combined_label(df, config.horizon, config.threshold)
     df = df.dropna()
     return df

@@ -1,8 +1,6 @@
 """Walk-forward with DQN RL agent for BTC + 10 instruments."""
 import os
-os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["MKL_NUM_THREADS"] = "2"
-import torch; torch.set_num_threads(2)
+import torch
 
 import json, numpy as np, pandas as pd
 from pathlib import Path
@@ -30,10 +28,6 @@ def walk_forward_rl(df, name, n_folds=5, window=30, min_confidence=0.6):
     feature_cols = features_df.columns.tolist()
     features = features_df.values.astype(np.float32)
 
-    # Scale features
-    scaler = StandardScaler()
-    features_scaled = scaler.fit_transform(features)
-
     total = len(df)
     test_size = total // (n_folds + 1)
     min_train = total // (n_folds + 1)
@@ -50,6 +44,12 @@ def walk_forward_rl(df, name, n_folds=5, window=30, min_confidence=0.6):
 
         print(f"  Fold {fold+1}/{n_folds} | train:0-{train_end} test:{test_start}-{test_end}")
 
+        # Fit scaler ONLY on train data — prevent data leakage
+        scaler = StandardScaler()
+        features_scaled = scaler.fit_transform(features[:train_end])
+        # Transform test data with train-fitted scaler
+        features_scaled_test = scaler.transform(features[test_start - window:test_end])
+
         # Train DQN on training data
         train_prices = prices[:train_end]
         train_features = features_scaled[:train_end]
@@ -62,7 +62,7 @@ def walk_forward_rl(df, name, n_folds=5, window=30, min_confidence=0.6):
 
         # Evaluate on test data
         test_prices = prices[test_start - window:test_end]
-        test_features = features_scaled[test_start - window:test_end]
+        test_features = features_scaled_test
 
         result = evaluate_dqn(
             agent, test_prices, test_features, window=window,

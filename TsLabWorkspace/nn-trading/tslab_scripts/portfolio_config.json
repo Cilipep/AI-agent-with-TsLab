@@ -1,0 +1,36 @@
+{
+  "name": "NN_Trading_Portfolio",
+  "instruments": {
+    "ETH": {
+      "symbol": "ETHUSDT",
+      "weight": 0.1905,
+      "expected_return": 15.79,
+      "sharpe": 0.84
+    },
+    "SOL": {
+      "symbol": "SOLUSDT",
+      "weight": 0.1406,
+      "expected_return": 8.3,
+      "sharpe": 0.62
+    },
+    "XLM": {
+      "symbol": "XLMUSDT",
+      "weight": 0.1474,
+      "expected_return": 35.74,
+      "sharpe": 0.65
+    },
+    "NEAR": {
+      "symbol": "NEARUSDT",
+      "weight": 0.2177,
+      "expected_return": 82.72,
+      "sharpe": 0.96
+    },
+    "AAVE": {
+      "symbol": "AAVEUSDT",
+      "weight": 0.3039,
+      "expected_return": 155.45,
+      "sharpe": 1.34
+    }
+  },
+  "total_expected_return": 74.68
+}

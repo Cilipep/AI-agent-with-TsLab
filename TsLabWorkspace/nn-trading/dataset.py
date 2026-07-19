@@ -22,6 +22,18 @@ FEATURE_COLS = [
     "volume_ratio", "volume_trend", "vpt", "obv", "adosc",
     "returns_3", "returns_5", "returns_10", "returns_20",
     "cdl_doji", "cdl_engulfing", "cdl_hammer",
+    # Gerchik-inspired features
+    "dist_to_nearest_support", "dist_to_nearest_resistance",
+    "nearest_level_type", "level_strength",
+    "between_levels_pct", "above_support_count", "below_resistance_count",
+    "false_breakout_up", "false_breakout_down",
+    "paranormal_candle", "paranormal_direction",
+    "body_ratio", "shadow_ratio",
+    "consolidation_volume_ratio", "consolidation_duration", "consolidation_density",
+    "dist_to_round_number",
+    "gap_size", "gap_direction", "gap_type", "gap_filled",
+    "htf5_dist_to_support", "htf5_dist_to_resistance", "htf5_between_levels",
+    "buyer_pressure", "seller_pressure", "pressure_ratio",
 ]
 
 

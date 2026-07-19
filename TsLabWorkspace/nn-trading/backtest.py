@@ -52,6 +52,7 @@ def run_backtest(model, dataset, df: pd.DataFrame, config, device,
                 position = 1
                 entry_price = prices[i]
                 position_size = (current_equity * risk_per_trade) / stop_loss
+                position_size = min(position_size, current_equity)  # Never risk more than equity
                 stop_price = entry_price * (1 - stop_loss)
                 tp_price = entry_price * (1 + take_profit)
         else:

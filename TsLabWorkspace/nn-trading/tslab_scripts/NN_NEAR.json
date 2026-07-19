@@ -1,1 +1,43 @@
-﻿{"resolvedArtifactRouteName":"NN_XRP","scriptName":"NN_XRP","scriptId":132}
+{
+  "scriptName": "NN_NEAR",
+  "description": "NN Trading NEAR - HybridEnsemble (Optuna optimized)",
+  "symbol": "NEARUSDT",
+  "exchange": "BINANCE",
+  "interval": "1d",
+  "model": {
+    "type": "attention",
+    "hidden_size": 32,
+    "num_layers": 2,
+    "nhead": 4,
+    "dropout": 0.3246
+  },
+  "data": {
+    "window": 30,
+    "max_features": 50,
+    "batch_size": 32,
+    "learning_rate": 0.000253
+  },
+  "risk": {
+    "stop_loss_pct": 0.0256,
+    "take_profit_pct": 0.1111,
+    "trailing_stop_pct": 0.015
+  },
+  "ensemble": {
+    "n_models": 3,
+    "use_xgboost": true,
+    "use_catboost": true,
+    "use_lightgbm": true,
+    "use_random_forest": true
+  },
+  "validation": {
+    "method": "walk_forward",
+    "n_folds": 5,
+    "embargo": 7
+  },
+  "metrics": {
+    "return": 82.72,
+    "sharpe": 0.96,
+    "max_dd": -13.15,
+    "win_rate": 36.0
+  }
+}

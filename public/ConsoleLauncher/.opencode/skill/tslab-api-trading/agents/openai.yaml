@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Trading"
-  short_description: "Inspect orders/positions; close/cancel"
-  default_prompt: "Use $tslab-api-trading to inspect own orders/trades/positions and close/cancel via /api/trading."

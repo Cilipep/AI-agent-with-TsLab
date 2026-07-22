@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Indicators"
-  short_description: "Create/compile Function indicators"
-  default_prompt: "Use $tslab-api-indicators to create/edit/compile a Function indicator and reference it via DynamicItem."

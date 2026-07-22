@@ -1,5 +1,0 @@
-interface:
-  display_name: "TSLab: Indicator Blocks (API)"
-  short_description: "Wire/run indicators in block scripts"
-  default_prompt: "Use $tslab-indicator-blocks to discover an indicator handler via /api/handlers, add/connect it in a script graph via ops, set parameters, and validate/build/run. Handle stream/value/precalc wiring pitfalls."
-

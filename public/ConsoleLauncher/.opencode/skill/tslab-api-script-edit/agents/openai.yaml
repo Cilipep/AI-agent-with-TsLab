@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Script Editing"
-  short_description: "Edit scripts via ops graph model"
-  default_prompt: "Use $tslab-api-script-edit to apply ops batches to a script, then validate/build/run and troubleshoot wiring/formulas."

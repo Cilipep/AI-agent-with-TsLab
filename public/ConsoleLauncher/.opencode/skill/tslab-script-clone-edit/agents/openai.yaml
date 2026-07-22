@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab Script: Clone/Edit"
-  short_description: "Copy a script and edit it safely"
-  default_prompt: "Use $tslab-script-clone-edit to resolve a source script, copy it, edit only documented graph/json payloads, then validate/build without guessing new routes."

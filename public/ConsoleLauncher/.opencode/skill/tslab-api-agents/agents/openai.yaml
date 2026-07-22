@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Agents"
-  short_description: "Create/start/inspect live agents"
-  default_prompt: "Use $tslab-api-agents to create/start/stop agents and fetch their charts/performance/positions via Web API."

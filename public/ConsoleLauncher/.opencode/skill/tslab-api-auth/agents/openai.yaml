@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Auth"
-  short_description: "Get Bearer tokens for /api"
-  default_prompt: "Use $tslab-api-auth when /api requests return 401 and you need the CLI browser-handoff token flow."

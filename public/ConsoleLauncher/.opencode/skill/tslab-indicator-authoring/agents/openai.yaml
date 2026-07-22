@@ -1,5 +1,0 @@
-interface:
-  display_name: "TSLab: Indicator Authoring (C#)"
-  short_description: "Implement indicator handlers in C# and load as DLL"
-  default_prompt: "Use $tslab-indicator-authoring to design and implement a correct TSLab handler/indicator in C#, using Series/Indicators helpers and optimization-safe caching, then load it via HandlersFolder hot reload or /api/indicator-dlls."
-

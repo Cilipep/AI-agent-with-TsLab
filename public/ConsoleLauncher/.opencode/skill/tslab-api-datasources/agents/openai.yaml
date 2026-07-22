@@ -1,4 +1,0 @@
-interface:
-  display_name: "TSLab API: Data Sources"
-  short_description: "Manage providers and schedules"
-  default_prompt: "Use $tslab-api-datasources to list/configure/connect providers and manage schedules via /api/datasources."
